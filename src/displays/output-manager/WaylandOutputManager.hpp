@@ -76,6 +76,7 @@ namespace bd {
     protected:
       void zwlr_output_manager_v1_head(struct zwlr_output_head_v1* head) override;
       void zwlr_output_manager_v1_done(uint32_t serial) override;
+      void zwlr_output_manager_v1_finished() override;
 
     private:
       wl_registry*              m_registry;

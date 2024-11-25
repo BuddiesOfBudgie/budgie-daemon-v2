@@ -67,6 +67,7 @@ namespace bd {
   }
 
   void WaylandOrchestrator::outputManagerDone() {
+    std::cout << "Output manager done" << std::endl;
     m_has_initted = true;
     emit orchestratorReady();
   }
@@ -75,8 +76,11 @@ namespace bd {
     Q_UNUSED(data);
     if (std::strcmp(interface, QtWayland::zwlr_output_manager_v1::interface()->name) == 0) {
       std::cout << "Found zwlr_output_manager_v1" << std::endl;
+      std::cout << "Serial: " << m_serial << std::endl;
+      std::cout << "Interface name: " << interface << std::endl;
+      std::cout << "Version: " << version << std::endl;
 
-      this->m_manager = new WaylandOutputManager(nullptr, reg, m_serial, version);
+      this->m_manager = new WaylandOutputManager(nullptr, reg, name, QtWayland::zwlr_output_manager_v1::interface()->version);
 
       connect(this->m_manager, &WaylandOutputManager::done, this, &WaylandOrchestrator::outputManagerDone);
     }
@@ -87,7 +91,12 @@ namespace bd {
   }
 
   WaylandOutputManager::WaylandOutputManager(QObject* parent, wl_registry* registry, uint32_t serial, uint32_t version)
-      : QObject(parent), m_registry(registry), m_has_serial(true), m_serial(serial), m_version(version) {}
+      : QObject(parent),
+        QtWayland::zwlr_output_manager_v1(registry, serial, version),
+        m_registry(registry),
+        m_has_serial(true),
+        m_serial(serial),
+        m_version(version) {}
 
   // Overridden methods from QtWayland::zwlr_output_manager_v1
   void WaylandOutputManager::zwlr_output_manager_v1_head(zwlr_output_head_v1* wlr_head) {
@@ -103,6 +112,10 @@ namespace bd {
     this->m_has_serial = true;
 
     emit done();
+  }
+
+  void WaylandOutputManager::zwlr_output_manager_v1_finished() {
+    std::cout << "Output manager finished" << std::endl;
   }
 
   // applyNoOpConfigurationForNonSpecifiedHeads is a bit of a funky function, but effectively it applies a configuration that does nothing for every output
@@ -219,7 +232,7 @@ namespace bd {
   }
 
   void WaylandOutputHead::zwlr_output_head_v1_name(const QString& name) {
-    this->m_name = name;
+    this->m_name = QString {name};
   }
 
   void WaylandOutputHead::zwlr_output_head_v1_description(const QString& description) {
