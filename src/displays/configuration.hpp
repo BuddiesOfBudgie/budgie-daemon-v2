@@ -4,5 +4,5 @@
 #include "format.hpp"
 
 namespace bd::DisplayConfiguration {
-  std::optional<DisplayGroupOutputConfig> getDisplayOutputConfigurationForSerial(std::string* serial, DisplayGrouping* group);
+  std::optional<DisplayGroupOutputConfig> getDisplayOutputConfigurationForSerial(std::string& serial, DisplayGrouping* group);
 }

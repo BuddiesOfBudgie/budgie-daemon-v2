@@ -46,7 +46,7 @@ namespace bd {
         if (head->getSerial() == qSerial) continue;
         std::cout << "Checking output " << serial << std::endl;
 
-        auto config_option = bd::DisplayConfiguration::getDisplayOutputConfigurationForSerial(&serial, &group);
+        auto config_option = bd::DisplayConfiguration::getDisplayOutputConfigurationForSerial(serial, &group);
         if (!config_option.has_value()) continue;
         std::cout << "Got configuration for output " << serial << std::endl;
         auto config  = config_option.value();

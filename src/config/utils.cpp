@@ -2,8 +2,7 @@
 
 #include <iostream>
 
-namespace dCU = bd::DisplayConfigurationUtils;
-namespace fs  = std::filesystem;
+namespace fs = std::filesystem;
 
 void bd::ConfigUtils::ensureConfigPathExists(const fs::path& p) {
   auto dir = p.parent_path();
@@ -29,7 +28,7 @@ fs::path bd::ConfigUtils::getConfigPath(const std::string& config_name) {
   return path;
 }
 
-DisplayRelativePosition dCU::getDisplayRelativePositionFromString(std::string_view& str) {
+DisplayRelativePosition bd::DisplayConfigurationUtils::getDisplayRelativePositionFromString(std::string_view& str) {
   if (str == "left") {
     return DisplayRelativePosition::left;
   } else if (str == "right") {
@@ -43,7 +42,7 @@ DisplayRelativePosition dCU::getDisplayRelativePositionFromString(std::string_vi
   }
 }
 
-void dCU::tomlToDisplayGrouping(const toml::value& v, DisplayGrouping& dg) {
+void bd::DisplayConfigurationUtils::tomlToDisplayGrouping(const toml::value& v, DisplayGrouping& dg) {
   dg.name           = toml::find<std::string>(v, "name");
   dg.output_serials = toml::find_or<std::vector<std::string>>(v, "output_serials", {});
   dg.primary_output = toml::find<std::string>(v, "primary_output");
