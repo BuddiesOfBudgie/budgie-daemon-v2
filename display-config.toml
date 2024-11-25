@@ -1,0 +1,56 @@
+[preferences]
+# up / down / left / right
+automatic_attach_outputs_relative_position = "right"
+
+[[group]]
+name = "MiniPC Home"
+output_serials = ["0x32394658", "0x41505846"]
+primary_output = "0x41505846"
+preferred = true
+
+[[group.output]]
+serial = "0x32394658"
+width = 3840
+height = 2160
+refresh = 60.000000
+position = [0, 0]
+scale = 1.0
+rotation = 0
+adaptive_sync = false
+
+[[group.output]]
+serial = "0x41505846"
+width = 3840
+height = 2160
+refresh = 60.0000
+position = [3840, 0]
+scale = 1.0
+preferred = true
+rotation = 0
+adaptive_sync = false
+
+[[group]]
+name = "MiniPC Home DO NOT SELECT ME"
+output_serials = ["0x32394658", "0x41505846"]
+primary_output = "0x41505846"
+
+[[group]]
+name = "ThinkPad Work"
+output_serials = ["0x12345678", "0x23456789"]
+primary_output = "0x12345678"
+
+[[group.output]]
+serial = "0x12345678"
+width = 1920
+height = 1080
+refresh = 60.000
+position = [0, 0]
+adaptive_sync = false
+
+[[group.output]]
+serial = "0x23456789"
+width = 1920
+height = 1080
+refresh = 59.9970
+position = [1920, 0]
+adaptive_sync = false

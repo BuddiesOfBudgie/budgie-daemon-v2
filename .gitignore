@@ -1,0 +1,6 @@
+.cache
+.idea
+.zed
+build
+main
+Taskfile.yml
