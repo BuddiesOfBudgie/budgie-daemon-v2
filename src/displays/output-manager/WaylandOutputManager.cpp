@@ -7,7 +7,14 @@
 #include <vector>
 
 namespace bd {
-  WaylandOrchestrator::WaylandOrchestrator(QObject* parent) : QObject(parent), m_has_serial(false), m_serial(0), m_has_initted(false) {
+  WaylandOrchestrator::WaylandOrchestrator(QObject* parent) : QObject(parent), m_has_serial(false), m_serial(0), m_has_initted(false) {}
+
+  WaylandOrchestrator& WaylandOrchestrator::instance() {
+    static WaylandOrchestrator _instance(nullptr);
+    return _instance;
+  }
+
+  void WaylandOrchestrator::init() {
     m_display = wl_display_connect(nullptr);
     if (m_display == nullptr) {
       emit orchestratorInitFailed(QString("Failed to connect to the Wayland display"));
@@ -41,11 +48,6 @@ namespace bd {
     wl_display_dispatch(m_display);
   }
 
-  WaylandOrchestrator& WaylandOrchestrator::instance() {
-    static WaylandOrchestrator _instance(nullptr);
-    return _instance;
-  }
-
   WaylandOutputManager* WaylandOrchestrator::getManager() {
     return m_manager;
   }
@@ -67,19 +69,13 @@ namespace bd {
   }
 
   void WaylandOrchestrator::outputManagerDone() {
-    std::cout << "Output manager done" << std::endl;
     m_has_initted = true;
-    emit orchestratorReady();
+    emit ready();
   }
 
   void WaylandOrchestrator::registryHandleGlobal(void* data, wl_registry* reg, uint32_t name, const char* interface, uint32_t version) {
     Q_UNUSED(data);
     if (std::strcmp(interface, QtWayland::zwlr_output_manager_v1::interface()->name) == 0) {
-      std::cout << "Found zwlr_output_manager_v1" << std::endl;
-      std::cout << "Serial: " << m_serial << std::endl;
-      std::cout << "Interface name: " << interface << std::endl;
-      std::cout << "Version: " << version << std::endl;
-
       this->m_manager = new WaylandOutputManager(nullptr, reg, name, QtWayland::zwlr_output_manager_v1::interface()->version);
 
       connect(this->m_manager, &WaylandOutputManager::done, this, &WaylandOrchestrator::outputManagerDone);
@@ -99,23 +95,16 @@ namespace bd {
         m_version(version) {}
 
   // Overridden methods from QtWayland::zwlr_output_manager_v1
-  void WaylandOutputManager::zwlr_output_manager_v1_head(zwlr_output_head_v1* wlr_head) {
-    WaylandOutputHead head = WaylandOutputHead(nullptr, m_registry, wlr_head);
-    this->m_heads.append(&head);
-
-    std::cout << "Output head added to list" << std::endl;
+  void WaylandOutputManager::zwlr_output_manager_v1_head(::zwlr_output_head_v1* wlr_head) {
+    WaylandOutputHead* head = new WaylandOutputHead(nullptr, m_registry, wlr_head);
+    this->m_heads.append(head);
   }
 
   void WaylandOutputManager::zwlr_output_manager_v1_done(uint32_t serial) {
-    std::cout << "Output manager done" << std::endl;
     this->m_serial     = serial;
     this->m_has_serial = true;
 
     emit done();
-  }
-
-  void WaylandOutputManager::zwlr_output_manager_v1_finished() {
-    std::cout << "Output manager finished" << std::endl;
   }
 
   // applyNoOpConfigurationForNonSpecifiedHeads is a bit of a funky function, but effectively it applies a configuration that does nothing for every output
@@ -249,7 +238,6 @@ namespace bd {
   }
 
   void WaylandOutputHead::zwlr_output_head_v1_current_mode(::zwlr_output_mode_v1* mode) {
-    // TODO: Implement this
     for (auto output_mode : this->m_output_modes) {
       if (output_mode->getWlrMode() == mode) {
         this->m_current_mode = output_mode;
@@ -278,21 +266,6 @@ namespace bd {
   void WaylandOutputHead::zwlr_output_head_v1_adaptive_sync(uint32_t state) {
     this->m_adaptive_sync = static_cast<QtWayland::zwlr_output_head_v1::adaptive_sync_state>(state);
   }
-
-  //  void WaylandOutputManager::headHandleCurrentMode(void* data, zwlr_output_head_v1* wlr_head, zwlr_output_mode_v1* wlr_mode) {
-  //    auto* head = static_cast<struct output_head*>(data);
-  //    std::cout << "Output head current mode triggered" << std::endl;
-  //    // zwlr_output_mode_v1_add_listener(wlr_mode, &output_mode_listener, mode);
-  //
-  //    for (auto mode : head->output_modes) {
-  //      if (mode->wlr_mode == wlr_mode) {
-  //        head->current_mode = mode;
-  //        std::cout << "Current mode: " << mode->width << "x" << mode->height << "@" << mode->refresh / 1000 << std::endl;
-  //        return;
-  //      }
-  //    }
-  //    head->current_mode = std::nullptr_t {};
-  //  }
 
   // Output Mode Configuration
 

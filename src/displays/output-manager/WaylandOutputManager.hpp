@@ -25,7 +25,7 @@ namespace bd {
       static WaylandOrchestrator& instance();
       static WaylandOrchestrator* create() { return &instance(); }
 
-      // int                                init()
+      void                  init();
       WaylandOutputManager* getManager();
       wl_display*           getDisplay();
       wl_registry*          getRegistry();
@@ -37,7 +37,7 @@ namespace bd {
       void registryHandleGlobal(void* data, wl_registry* reg, uint32_t name, const char* interface, uint32_t version);
 
     signals:
-      void orchestratorReady();
+      void ready();
       void orchestratorInitFailed(QString error);
 
     public slots:
@@ -76,7 +76,6 @@ namespace bd {
     protected:
       void zwlr_output_manager_v1_head(struct zwlr_output_head_v1* head) override;
       void zwlr_output_manager_v1_done(uint32_t serial) override;
-      void zwlr_output_manager_v1_finished() override;
 
     private:
       wl_registry*              m_registry;
