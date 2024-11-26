@@ -96,8 +96,9 @@ namespace bd {
 
   // Overridden methods from QtWayland::zwlr_output_manager_v1
   void WaylandOutputManager::zwlr_output_manager_v1_head(::zwlr_output_head_v1* wlr_head) {
-    WaylandOutputHead* head = new WaylandOutputHead(nullptr, m_registry, wlr_head);
+    auto head = new WaylandOutputHead(nullptr, m_registry, wlr_head);
     this->m_heads.append(head);
+    connect(head, &WaylandOutputHead::noLongerAvailable, this, [this, head]() { this->m_heads.removeOne(head); });
   }
 
   void WaylandOutputManager::zwlr_output_manager_v1_done(uint32_t serial) {
@@ -231,6 +232,7 @@ namespace bd {
   void WaylandOutputHead::zwlr_output_head_v1_mode(::zwlr_output_mode_v1* mode) {
     auto output_mode = new WaylandOutputMode(nullptr, this, mode);
     this->m_output_modes.append(output_mode);
+    connect(output_mode, &WaylandOutputMode::noLongerAvailable, this, [this, output_mode]() { this->m_output_modes.removeOne(output_mode); });
   }
 
   void WaylandOutputHead::zwlr_output_head_v1_enabled(int32_t enabled) {
@@ -244,6 +246,10 @@ namespace bd {
         break;
       }
     }
+  }
+
+  void WaylandOutputHead::zwlr_output_head_v1_finished() {
+    emit noLongerAvailable();
   }
 
   void WaylandOutputHead::zwlr_output_head_v1_position(int32_t x, int32_t y) {
@@ -326,7 +332,7 @@ namespace bd {
     return this->m_height;
   }
 
-  float WaylandOutputMode::getRefresh() {
+  int WaylandOutputMode::getRefresh() {
     return this->m_refresh;
   }
 
@@ -340,10 +346,14 @@ namespace bd {
   }
 
   void WaylandOutputMode::zwlr_output_mode_v1_refresh(int32_t refresh) {
-    this->m_refresh = (refresh / 1000);
+    this->m_refresh = refresh;
   }
 
   void WaylandOutputMode::zwlr_output_mode_v1_preferred() {
     this->m_preferred = true;
+  }
+
+  void WaylandOutputMode::zwlr_output_mode_v1_finished() {
+    emit noLongerAvailable();
   }
 }

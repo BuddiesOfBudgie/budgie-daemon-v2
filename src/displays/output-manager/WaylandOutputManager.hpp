@@ -105,6 +105,9 @@ namespace bd {
       QtWayland::zwlr_output_head_v1::adaptive_sync_state getAdaptiveSync();
       std::optional<WaylandOutputMode*>                   getModeForOutputHead(int width, int height, float refresh);
 
+    signals:
+      void noLongerAvailable();
+
     protected:
       void zwlr_output_head_v1_name(const QString& name) override;
       void zwlr_output_head_v1_description(const QString& description) override;
@@ -116,6 +119,7 @@ namespace bd {
       void zwlr_output_head_v1_scale(wl_fixed_t scale) override;
       void zwlr_output_head_v1_serial_number(const QString& serial) override;
       void zwlr_output_head_v1_adaptive_sync(uint32_t state) override;
+      void zwlr_output_head_v1_finished() override;
 
     private:
       wl_registry*              m_registry;
@@ -168,13 +172,17 @@ namespace bd {
       uint32_t                        getId();
       int                             getWidth();
       int                             getHeight();
-      float                           getRefresh();
+      int                             getRefresh();
       bool                            isPreferred();
+
+    signals:
+      void noLongerAvailable();
 
     protected:
       void zwlr_output_mode_v1_size(int32_t width, int32_t height) override;
       void zwlr_output_mode_v1_refresh(int32_t refresh) override;
       void zwlr_output_mode_v1_preferred() override;
+      void zwlr_output_mode_v1_finished() override;
 
     private:
       WaylandOutputHead*     m_head;
@@ -182,7 +190,7 @@ namespace bd {
       uint32_t               m_id;
       int                    m_width;
       int                    m_height;
-      float                  m_refresh;
+      int                    m_refresh;
       bool                   m_preferred;
   };
 }

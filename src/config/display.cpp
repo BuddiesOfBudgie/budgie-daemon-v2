@@ -64,13 +64,12 @@ namespace bd {
         auto mode_option = head->getModeForOutputHead(config.width, config.height, config.refresh);
         if (mode_option.has_value()) {  // Found an existing mode for the head
           auto mode = mode_option.value();
-          std::cout << "Found mode for output " << serial << ": \n\t" << mode->getWidth() << "x" << mode->getHeight() << "@" << mode->getRefresh() / 1000
-                    << "\n\t"
+          std::cout << "Found mode for output " << serial << ": \n\t" << mode->getWidth() << "x" << mode->getHeight() << "@" << mode->getRefresh() << "\n\t"
                     << "Position: " << config.position.at(0) << ", " << config.position.at(1) << std::endl;
           config_head->set_mode(mode->getWlrMode());
         } else {
           std::cout << "Found no custom mode for output " << serial << ", applying custom: \n\t" << config.width << "x" << config.height << "@"
-                    << config.refresh / 1000 << "\n\t"
+                    << config.refresh << "\n\t"
                     << "Position: " << config.position.at(0) << ", " << config.position.at(1) << std::endl;
           config_head->set_custom_mode(config.width, config.height, config.refresh);
         }
@@ -89,10 +88,11 @@ namespace bd {
 
     if (should_apply) {
       std::cout << "Applying configuration" << std::endl;
-      wlr_output_config->applySelf();
-      wlr_output_config->release();
-
-      wl_display_dispatch_pending(bd::WaylandOrchestrator::instance().getDisplay());
+      // TODO: Josh - Debug segfault in config_head setup before trying bits below
+      //      wlr_output_config->applySelf();
+      //      wlr_output_config->release();
+      //
+      //      wl_display_dispatch_pending(bd::WaylandOrchestrator::instance().getDisplay());
     } else {
       std::cout << "No configuration to apply" << std::endl;
     }

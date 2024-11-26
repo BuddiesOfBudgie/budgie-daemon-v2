@@ -33,7 +33,7 @@ struct DisplayGroupOutputConfig {
     std::string        serial;
     int                width;
     int                height;
-    double             refresh;
+    int                refresh;
     std::array<int, 2> position;
     double             scale;
     int                rotation;

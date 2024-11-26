@@ -10,13 +10,17 @@
 
 int main(int argc, char* argv[]) {
   QCoreApplication app(argc, argv);
-  bd::DisplayConfig::create();
+  bd::DisplayConfig::instance().parseConfig();
+  bd::DisplayConfig::instance().debugOutput();
   auto& orchestrator = bd::WaylandOrchestrator::instance();
 
   app.connect(&orchestrator, &bd::WaylandOrchestrator::orchestratorInitFailed, [&app](const QString& error) {
     std::cerr << "Failed to initialize Wayland Orchestrator: " << error.toStdString() << std::endl;
     app.quit();
   });
+
+  // TODO Josh: WIP
+  // app.connect(&orchestrator, &bd::WaylandOrchestrator::ready, &bd::DisplayConfig::instance(), &bd::DisplayConfig::apply);
 
   app.connect(&orchestrator, &bd::WaylandOrchestrator::ready, &app, [&app]() {
     std::cout << "Wayland Orchestrator ready" << std::endl;
