@@ -56,7 +56,7 @@ void bd::DisplayConfigurationUtils::tomlToDisplayGrouping(const toml::value& v, 
     dgo.serial        = toml::find<std::string>(output, "serial");
     dgo.width         = toml::find<int>(output, "width");
     dgo.height        = toml::find<int>(output, "height");
-    dgo.refresh       = toml::find<float>(output, "refresh");
+    dgo.refresh       = toml::find<int>(output, "refresh");
     dgo.position      = toml::find<std::array<int, 2>>(output, "position");
     dgo.scale         = toml::find_or<float>(output, "scale", 1.0);
     dgo.rotation      = toml::find_or<int>(output, "rotation", 0);
