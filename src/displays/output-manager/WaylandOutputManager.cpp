@@ -208,7 +208,7 @@ namespace bd {
     return this->m_wlr_head;
   }
 
-  std::optional<WaylandOutputMode*> WaylandOutputHead::getModeForOutputHead(int width, int height, float refresh) {
+  std::optional<WaylandOutputMode*> WaylandOutputHead::getModeForOutputHead(int width, int height, int refresh) {
     std::optional<WaylandOutputMode*> output_mode = std::nullopt;
 
     for (auto mode : this->m_output_modes) {
@@ -278,9 +278,9 @@ namespace bd {
   WaylandOutputConfiguration::WaylandOutputConfiguration(QObject* parent, ::zwlr_output_configuration_v1* config)
       : QObject(parent), QtWayland::zwlr_output_configuration_v1(config) {}
 
-  QtWayland::zwlr_output_configuration_head_v1* WaylandOutputConfiguration::enable(WaylandOutputHead* head) {
+  WaylandOutputConfigurationHead* WaylandOutputConfiguration::enable(WaylandOutputHead* head) {
     auto config_head = this->enable_head(head->getWlrHead());
-    return QtWayland::zwlr_output_configuration_head_v1::fromObject(config_head);
+    return new WaylandOutputConfigurationHead(nullptr, head, config_head);
   }
 
   void WaylandOutputConfiguration::applySelf() {
@@ -296,15 +296,51 @@ namespace bd {
   }
 
   void WaylandOutputConfiguration::zwlr_output_configuration_v1_succeeded() {
+    std::cout << "Configuration succeeded" << std::endl;
     emit succeeded();
   }
 
   void WaylandOutputConfiguration::zwlr_output_configuration_v1_failed() {
+    std::cout << "Configuration failed" << std::endl;
     emit failed();
   }
 
   void WaylandOutputConfiguration::zwlr_output_configuration_v1_cancelled() {
+    std::cout << "Configuration cancelled" << std::endl;
     emit cancelled();
+  }
+
+  // Output Configuration Head
+
+  WaylandOutputConfigurationHead::WaylandOutputConfigurationHead(QObject* parent, WaylandOutputHead* head, ::zwlr_output_configuration_head_v1* wlr_head)
+      : QObject(parent), QtWayland::zwlr_output_configuration_head_v1(wlr_head), m_head(head) {}
+
+  WaylandOutputHead* WaylandOutputConfigurationHead::getHead() {
+    return this->m_head;
+  }
+
+  void WaylandOutputConfigurationHead::setAdaptiveSync(uint32_t state) {
+    this->set_adaptive_sync(state);
+  }
+
+  void WaylandOutputConfigurationHead::setMode(WaylandOutputMode* mode) {
+    this->set_mode(mode->getWlrMode());
+  }
+
+  void WaylandOutputConfigurationHead::setCustomMode(int32_t width, int32_t height, int32_t refresh) {
+    this->set_custom_mode(width, height, refresh);
+  }
+
+  void WaylandOutputConfigurationHead::setPosition(int32_t x, int32_t y) {
+    this->set_position(x, y);
+  }
+
+  void WaylandOutputConfigurationHead::setScale(double scale) {
+    this->set_scale(wl_fixed_from_double(scale));
+  }
+
+  void WaylandOutputConfigurationHead::setTransform(int32_t transform) {
+    this->set_transform(transform);
   }
 
   // Output Mode Handlers
@@ -346,7 +382,7 @@ namespace bd {
   }
 
   void WaylandOutputMode::zwlr_output_mode_v1_refresh(int32_t refresh) {
-    this->m_refresh = refresh;
+    this->m_refresh = refresh * 1000;
   }
 
   void WaylandOutputMode::zwlr_output_mode_v1_preferred() {

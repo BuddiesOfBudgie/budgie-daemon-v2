@@ -15,6 +15,7 @@ namespace bd {
   class WaylandOutputManager;
   class WaylandOutputHead;
   class WaylandOutputConfiguration;
+  class WaylandOutputConfigurationHead;
   class WaylandOutputMode;
 
   class WaylandOrchestrator : public QObject {
@@ -103,7 +104,7 @@ namespace bd {
       ::zwlr_output_head_v1*                              getWlrHead();
       bool                                                isEnabled();
       QtWayland::zwlr_output_head_v1::adaptive_sync_state getAdaptiveSync();
-      std::optional<WaylandOutputMode*>                   getModeForOutputHead(int width, int height, float refresh);
+      std::optional<WaylandOutputMode*>                   getModeForOutputHead(int width, int height, int refresh);
 
     signals:
       void noLongerAvailable();
@@ -145,10 +146,10 @@ namespace bd {
     public:
       WaylandOutputConfiguration(QObject* parent, ::zwlr_output_configuration_v1* config);
 
-      void                                          applySelf();
-      QtWayland::zwlr_output_configuration_head_v1* enable(WaylandOutputHead* head);
-      void                                          disable(WaylandOutputHead* head);
-      void                                          release();
+      void                            applySelf();
+      WaylandOutputConfigurationHead* enable(WaylandOutputHead* head);
+      void                            disable(WaylandOutputHead* head);
+      void                            release();
 
     signals:
       void succeeded();
@@ -159,6 +160,23 @@ namespace bd {
       void zwlr_output_configuration_v1_succeeded() override;
       void zwlr_output_configuration_v1_failed() override;
       void zwlr_output_configuration_v1_cancelled() override;
+  };
+
+  class WaylandOutputConfigurationHead : public QObject, QtWayland::zwlr_output_configuration_head_v1 {
+      Q_OBJECT
+
+    public:
+      WaylandOutputConfigurationHead(QObject* parent, WaylandOutputHead* head, ::zwlr_output_configuration_head_v1* config_head);
+      WaylandOutputHead* getHead();
+      void               setAdaptiveSync(uint32_t state);
+      void               setMode(WaylandOutputMode* mode);
+      void               setCustomMode(int32_t width, int32_t height, int32_t refresh);
+      void               setPosition(int32_t x, int32_t y);
+      void               setTransform(int32_t transform);
+      void               setScale(double scale);
+
+    private:
+      WaylandOutputHead* m_head;
   };
 
   class WaylandOutputMode : public QObject, QtWayland::zwlr_output_mode_v1 {

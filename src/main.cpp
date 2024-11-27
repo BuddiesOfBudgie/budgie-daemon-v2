@@ -20,7 +20,7 @@ int main(int argc, char* argv[]) {
   });
 
   // TODO Josh: WIP
-  // app.connect(&orchestrator, &bd::WaylandOrchestrator::ready, &bd::DisplayConfig::instance(), &bd::DisplayConfig::apply);
+  app.connect(&orchestrator, &bd::WaylandOrchestrator::ready, &bd::DisplayConfig::instance(), &bd::DisplayConfig::apply);
 
   app.connect(&orchestrator, &bd::WaylandOrchestrator::ready, &app, [&app]() {
     std::cout << "Wayland Orchestrator ready" << std::endl;

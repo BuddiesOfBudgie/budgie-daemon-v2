@@ -113,9 +113,9 @@ void DaemonServer::SetCurrentMode(sdbus::Result<>&& result, std::string serial, 
     auto modeOption = output->getModeForOutputHead(width, height, refresh);
 
     if (modeOption.has_value()) {
-      configuration_head->set_mode(modeOption.value()->getWlrMode());
+      configuration_head->setMode(modeOption.value());
     } else {
-      configuration_head->set_custom_mode(width, height, refresh);
+      configuration_head->setCustomMode(width, height, refresh);
     }
 
     manager->applyNoOpConfigurationForNonSpecifiedHeads(config, QStringList {qSerial});
@@ -123,7 +123,7 @@ void DaemonServer::SetCurrentMode(sdbus::Result<>&& result, std::string serial, 
     config->applySelf();
     config->release();
 
-    wl_display_dispatch_pending(bd::WaylandOrchestrator::instance().getDisplay());
+    wl_display_dispatch(bd::WaylandOrchestrator::instance().getDisplay());
     methodResult.returnResults();
   }).detach();
 }
@@ -143,6 +143,8 @@ void DaemonServer::SetOutputPosition(sdbus::Result<>&& result, std::string seria
 
     auto output = outputOption.value();
 
+    std::cout << "Found output " << serial << std::endl;
+
     if (!output->isEnabled()) {
       std::cerr << "Received request for output " << serial << " which is not enabled" << std::endl;
       methodResult.returnError(sdbus::Error {"org.buddiesofbudgie.BudgieDaemonX.Error.OutputDisabled"});
@@ -152,12 +154,8 @@ void DaemonServer::SetOutputPosition(sdbus::Result<>&& result, std::string seria
     auto config = manager->configure();
 
     // TODO: Josh - Fix
-    // zwlr_output_configuration_v1_add_listener(wlr_output_config, &config_listener, nullptr);
     auto configuration_head = config->enable(output);
-    configuration_head->set_position(x, y);
-
-    // zwlr_output_configuration_head_v1_set_position(config_head, x, y);
-    // zwlr_output_configuration_head_v1_destroy(config_head);
+    configuration_head->setPosition(x, y);
 
     // It is a protocol error to not specify everything else
     manager->applyNoOpConfigurationForNonSpecifiedHeads(config, QStringList {qSerial});
@@ -165,7 +163,7 @@ void DaemonServer::SetOutputPosition(sdbus::Result<>&& result, std::string seria
     config->applySelf();
     config->release();
 
-    wl_display_dispatch_pending(bd::WaylandOrchestrator::instance().getDisplay());
+    wl_display_dispatch(bd::WaylandOrchestrator::instance().getDisplay());
     methodResult.returnResults();
   }).detach();
 }
@@ -200,7 +198,7 @@ void DaemonServer::SetOutputEnabled(sdbus::Result<>&& result, std::string serial
     config->applySelf();
     config->release();
 
-    wl_display_dispatch_pending(bd::WaylandOrchestrator::instance().getDisplay());
+    wl_display_dispatch(bd::WaylandOrchestrator::instance().getDisplay());
     methodResult.returnResults();
   }).detach();
 }

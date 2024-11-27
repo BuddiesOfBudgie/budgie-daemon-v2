@@ -31,7 +31,7 @@ namespace bd {
       std::cout << "Grouping does not match the number of outputs" << std::endl;
       return;
     }
-    std::cout << "Serial in apply: " << manager->getSerial() << std::endl;
+
     auto wlr_output_config = manager->configure();
 
     // TODO: Josh - Fix
@@ -66,33 +66,30 @@ namespace bd {
           auto mode = mode_option.value();
           std::cout << "Found mode for output " << serial << ": \n\t" << mode->getWidth() << "x" << mode->getHeight() << "@" << mode->getRefresh() << "\n\t"
                     << "Position: " << config.position.at(0) << ", " << config.position.at(1) << std::endl;
-          config_head->set_mode(mode->getWlrMode());
+          config_head->setMode(mode);
         } else {
-          std::cout << "Found no custom mode for output " << serial << ", applying custom: \n\t" << config.width << "x" << config.height << "@"
-                    << config.refresh << "\n\t"
+          std::cout << "Found no mode for output " << serial << ", applying custom: \n\t" << config.width << "x" << config.height << "@" << config.refresh
+                    << "\n\t"
                     << "Position: " << config.position.at(0) << ", " << config.position.at(1) << std::endl;
-          config_head->set_custom_mode(config.width, config.height, config.refresh);
+          config_head->setCustomMode(config.width, config.height, config.refresh);
         }
 
-        config_head->set_position(
+        config_head->setPosition(
             static_cast<int32_t>(config.position.at(0)), static_cast<int32_t>(config.position.at(1)));  // Apply related position to the head
-        config_head->set_scale(wl_fixed_from_double(config.scale));                                     // Apply related scale to the head
-        config_head->set_transform(config.rotation);
-        config_head->set_adaptive_sync(
+        config_head->setScale(config.scale);                                                            // Apply related scale to the head
+        config_head->setTransform(config.rotation);
+        config_head->setAdaptiveSync(
             config.adaptive_sync ? QtWayland::zwlr_output_head_v1::adaptive_sync_state_enabled
                                  : QtWayland::zwlr_output_head_v1::adaptive_sync_state_disabled);  // Apply related transform to the head
-        // TODO: Josh - Maybe have to do something here
-        // zwlr_output_configuration_head_v1_destroy(config_head);
       }
     }
 
     if (should_apply) {
       std::cout << "Applying configuration" << std::endl;
       // TODO: Josh - Debug segfault in config_head setup before trying bits below
-      //      wlr_output_config->applySelf();
-      //      wlr_output_config->release();
-      //
-      //      wl_display_dispatch_pending(bd::WaylandOrchestrator::instance().getDisplay());
+      wlr_output_config->applySelf();
+      wlr_output_config->release();
+      wl_display_dispatch(bd::WaylandOrchestrator::instance().getDisplay());
     } else {
       std::cout << "No configuration to apply" << std::endl;
     }
