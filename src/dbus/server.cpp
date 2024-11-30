@@ -96,8 +96,8 @@ void DaemonServer::SetCurrentMode(sdbus::Result<>&& result, std::string serial, 
       return;
     }
 
-    auto config = manager->configure();
-    auto output = outputOption.value();
+    auto output_config = manager->configure();
+    auto output        = outputOption.value();
 
     if (!output->isEnabled()) {
       std::cerr << "Received request for output " << serial << " which is not enabled" << std::endl;
@@ -105,7 +105,7 @@ void DaemonServer::SetCurrentMode(sdbus::Result<>&& result, std::string serial, 
       return;
     }
 
-    auto configuration_head = config->enable(output);
+    auto configuration_head = output_config->enable(output);
 
     // TODO: Josh - add back
     // zwlr_output_configuration_v1_add_listener(wlr_output_config, &config_listener, NULL);
@@ -118,12 +118,13 @@ void DaemonServer::SetCurrentMode(sdbus::Result<>&& result, std::string serial, 
       configuration_head->setCustomMode(width, height, refresh);
     }
 
-    manager->applyNoOpConfigurationForNonSpecifiedHeads(config, QStringList {qSerial});
+    manager->applyNoOpConfigurationForNonSpecifiedHeads(output_config, QStringList {qSerial});
 
-    config->applySelf();
-    config->release();
+    output_config->applySelf();
+    output_config->release();
 
     wl_display_dispatch(bd::WaylandOrchestrator::instance().getDisplay());
+
     methodResult.returnResults();
   }).detach();
 }
@@ -151,17 +152,17 @@ void DaemonServer::SetOutputPosition(sdbus::Result<>&& result, std::string seria
       return;
     }
 
-    auto config = manager->configure();
+    auto output_config = manager->configure();
 
     // TODO: Josh - Fix
-    auto configuration_head = config->enable(output);
+    auto configuration_head = output_config->enable(output);
     configuration_head->setPosition(x, y);
 
     // It is a protocol error to not specify everything else
-    manager->applyNoOpConfigurationForNonSpecifiedHeads(config, QStringList {qSerial});
+    manager->applyNoOpConfigurationForNonSpecifiedHeads(output_config, QStringList {qSerial});
 
-    config->applySelf();
-    config->release();
+    output_config->applySelf();
+    output_config->release();
 
     wl_display_dispatch(bd::WaylandOrchestrator::instance().getDisplay());
     methodResult.returnResults();
@@ -181,24 +182,25 @@ void DaemonServer::SetOutputEnabled(sdbus::Result<>&& result, std::string serial
       return;
     }
 
-    auto config = manager->configure();
-    auto output = outputOption.value();
+    auto output_config = manager->configure();
+    auto output        = outputOption.value();
 
     // TODO: Josh - Fix
     // zwlr_output_configuration_v1_add_listener(wlr_output_config, &config_listener, nullptr);
 
     if (enabled) {
-      config->enable(output);
+      output_config->enable(output);
     } else {
-      config->disable(output);
+      output_config->disable(output);
     }
 
-    manager->applyNoOpConfigurationForNonSpecifiedHeads(config, QStringList {qSerial});
+    manager->applyNoOpConfigurationForNonSpecifiedHeads(output_config, QStringList {qSerial});
 
-    config->applySelf();
-    config->release();
+    output_config->applySelf();
+    output_config->release();
 
     wl_display_dispatch(bd::WaylandOrchestrator::instance().getDisplay());
+
     methodResult.returnResults();
   }).detach();
 }

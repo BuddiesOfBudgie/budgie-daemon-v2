@@ -1,5 +1,7 @@
 #include "utils.hpp"
 
+#include <QList>
+#include <QString>
 #include <iostream>
 
 namespace fs = std::filesystem;
@@ -42,27 +44,17 @@ DisplayRelativePosition bd::DisplayConfigurationUtils::getDisplayRelativePositio
   }
 }
 
-void bd::DisplayConfigurationUtils::tomlToDisplayGrouping(const toml::value& v, DisplayGrouping& dg) {
-  dg.name           = toml::find<std::string>(v, "name");
-  dg.output_serials = toml::find_or<std::vector<std::string>>(v, "output_serials", {});
-  dg.primary_output = toml::find<std::string>(v, "primary_output");
-  dg.preferred      = toml::find_or<bool>(v, "preferred", false);
-
-  auto outputs = toml::find_or<std::vector<toml::value>>(v, "output", {});
-  if (outputs.empty()) return;
-
-  for (const toml::value& output : outputs) {
-    DisplayGroupOutputConfig dgo;
-    dgo.serial        = toml::find<std::string>(output, "serial");
-    dgo.width         = toml::find<int>(output, "width");
-    dgo.height        = toml::find<int>(output, "height");
-    dgo.refresh       = toml::find<int>(output, "refresh");
-    dgo.position      = toml::find<std::array<int, 2>>(output, "position");
-    dgo.scale         = toml::find_or<float>(output, "scale", 1.0);
-    dgo.rotation      = toml::find_or<int>(output, "rotation", 0);
-    dgo.adaptive_sync = toml::find_or<bool>(output, "adaptive_sync", false);
-    dgo.disabled      = toml::find_or<bool>(output, "disabled", false);
-
-    dg.configs.push_back(dgo);
+std::string bd::DisplayConfigurationUtils::getDisplayRelativePositionString(DisplayRelativePosition pos) {
+  switch (pos) {
+    case DisplayRelativePosition::left:
+      return "left";
+    case DisplayRelativePosition::right:
+      return "right";
+    case DisplayRelativePosition::above:
+      return "above";
+    case DisplayRelativePosition::below:
+      return "below";
+    default:
+      return "none";
   }
 }

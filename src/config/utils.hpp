@@ -14,5 +14,5 @@ namespace bd::ConfigUtils {
 
 namespace bd::DisplayConfigurationUtils {
   DisplayRelativePosition getDisplayRelativePositionFromString(std::string_view& str);
-  void                    tomlToDisplayGrouping(const toml::value& v, DisplayGrouping& dg);
+  std::string             getDisplayRelativePositionString(DisplayRelativePosition pos);
 }
