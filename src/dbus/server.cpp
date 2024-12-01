@@ -4,6 +4,7 @@
 #include <string>
 
 #include "../displays/output-manager/WaylandOutputManager.hpp"
+#include "display.hpp"
 
 DaemonServer::DaemonServer(sdbus::IConnection& connection, sdbus::ObjectPath objectPath) : AdaptorInterfaces(connection, std::move(objectPath)) {
   registerAdaptor();
@@ -125,6 +126,16 @@ void DaemonServer::SetCurrentMode(sdbus::Result<>&& result, std::string serial, 
 
     wl_display_dispatch(bd::WaylandOrchestrator::instance().getDisplay());
 
+    auto& displayConfig   = bd::DisplayConfig::instance();
+    auto  configForSerial = displayConfig.getActiveGroup()->getConfigForSerial(qSerial);
+
+    if (configForSerial.has_value()) {
+      configForSerial.value()->setWidth(width);
+      configForSerial.value()->setHeight(height);
+      configForSerial.value()->setRefresh(refresh);
+      displayConfig.saveState();
+    }
+
     methodResult.returnResults();
   }).detach();
 }
@@ -165,6 +176,15 @@ void DaemonServer::SetOutputPosition(sdbus::Result<>&& result, std::string seria
     output_config->release();
 
     wl_display_dispatch(bd::WaylandOrchestrator::instance().getDisplay());
+
+    auto& displayConfig   = bd::DisplayConfig::instance();
+    auto  configForSerial = displayConfig.getActiveGroup()->getConfigForSerial(qSerial);
+
+    if (configForSerial.has_value()) {
+      configForSerial.value()->setPosition({x, y});
+      displayConfig.saveState();
+    }
+
     methodResult.returnResults();
   }).detach();
 }
@@ -198,6 +218,14 @@ void DaemonServer::SetOutputEnabled(sdbus::Result<>&& result, std::string serial
 
     output_config->applySelf();
     output_config->release();
+
+    auto& displayConfig   = bd::DisplayConfig::instance();
+    auto  configForSerial = displayConfig.getActiveGroup()->getConfigForSerial(qSerial);
+
+    if (configForSerial.has_value()) {
+      configForSerial.value()->setDisabled(!enabled);
+      displayConfig.saveState();
+    }
 
     wl_display_dispatch(bd::WaylandOrchestrator::instance().getDisplay());
 

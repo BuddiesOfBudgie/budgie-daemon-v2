@@ -47,11 +47,12 @@ namespace bd {
       DisplayGroup(QObject* parent = nullptr);
       DisplayGroup(const toml::value& v, QObject* parent = nullptr);
 
-      QString                          getName() const;
-      bool                             isPreferred() const;
-      QStringList                      getOutputSerials() const;
-      QString                          getPrimaryOutput() const;
-      QList<DisplayGroupOutputConfig*> getConfigs();
+      QString                                  getName() const;
+      bool                                     isPreferred() const;
+      QStringList                              getOutputSerials() const;
+      QString                                  getPrimaryOutput() const;
+      QList<DisplayGroupOutputConfig*>         getConfigs();
+      std::optional<DisplayGroupOutputConfig*> getConfigForSerial(QString serial);
 
       void                addConfig(DisplayGroupOutputConfig* config);
       void                setName(const QString& name);
@@ -74,27 +75,27 @@ namespace bd {
     public:
       DisplayGroupOutputConfig(QObject* parent = nullptr);
 
-      QString            getSerial() const;
-      int                getWidth() const;
-      int                getHeight() const;
-      int                getRefresh() const;
-      std::array<int, 2> getPosition() const;
-      double             getScale() const;
-      int                getRotation() const;
       bool               getAdaptiveSync() const;
       bool               getDisabled() const;
+      int                getHeight() const;
+      std::array<int, 2> getPosition() const;
+      int                getRefresh() const;
+      int                getRotation() const;
+      double             getScale() const;
+      QString            getSerial() const;
+      int                getWidth() const;
 
       toml::ordered_value toToml();
 
-      void setSerial(const QString& serial);
-      void setWidth(int width);
-      void setHeight(int height);
-      void setRefresh(int refresh);
-      void setPosition(const std::array<int, 2>& position);
-      void setScale(double scale);
-      void setRotation(int rotation);
       void setAdaptiveSync(bool adaptive_sync);
       void setDisabled(bool disabled);
+      void setHeight(int height);
+      void setPosition(const std::array<int, 2>& position);
+      void setRefresh(int refresh);
+      void setRotation(int rotation);
+      void setScale(double scale);
+      void setSerial(const QString& serial);
+      void setWidth(int width);
 
     protected:
       QString            m_serial;

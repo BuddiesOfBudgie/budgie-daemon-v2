@@ -327,6 +327,18 @@ namespace bd {
     return this->m_configs;
   }
 
+  std::optional<DisplayGroupOutputConfig*> DisplayGroup::getConfigForSerial(QString serial) {
+    std::optional<DisplayGroupOutputConfig*> config = std::nullopt;
+    for (auto& output : this->m_configs) {
+      if (output->getSerial() == serial) {
+        config = output;
+        break;
+      }
+    }
+
+    return config;
+  }
+
   void DisplayGroup::addConfig(DisplayGroupOutputConfig* config) {
     this->m_configs.append(config);
   }
@@ -372,34 +384,6 @@ namespace bd {
 
   DisplayGroupOutputConfig::DisplayGroupOutputConfig(QObject* parent) : QObject(parent) {}
 
-  QString DisplayGroupOutputConfig::getSerial() const {
-    return this->m_serial;
-  }
-
-  int DisplayGroupOutputConfig::getWidth() const {
-    return this->m_width;
-  }
-
-  int DisplayGroupOutputConfig::getHeight() const {
-    return this->m_height;
-  }
-
-  int DisplayGroupOutputConfig::getRefresh() const {
-    return this->m_refresh;
-  }
-
-  std::array<int, 2> DisplayGroupOutputConfig::getPosition() const {
-    return this->m_position;
-  }
-
-  double DisplayGroupOutputConfig::getScale() const {
-    return this->m_scale;
-  }
-
-  int DisplayGroupOutputConfig::getRotation() const {
-    return this->m_rotation;
-  }
-
   bool DisplayGroupOutputConfig::getAdaptiveSync() const {
     return this->m_adaptive_sync;
   }
@@ -408,32 +392,32 @@ namespace bd {
     return this->m_disabled;
   }
 
-  void DisplayGroupOutputConfig::setSerial(const QString& serial) {
-    this->m_serial = serial;
+  int DisplayGroupOutputConfig::getHeight() const {
+    return this->m_height;
   }
 
-  void DisplayGroupOutputConfig::setWidth(int width) {
-    this->m_width = width;
+  QString DisplayGroupOutputConfig::getSerial() const {
+    return this->m_serial;
   }
 
-  void DisplayGroupOutputConfig::setHeight(int height) {
-    this->m_height = height;
+  std::array<int, 2> DisplayGroupOutputConfig::getPosition() const {
+    return this->m_position;
   }
 
-  void DisplayGroupOutputConfig::setRefresh(int refresh) {
-    this->m_refresh = refresh;
+  int DisplayGroupOutputConfig::getRefresh() const {
+    return this->m_refresh;
   }
 
-  void DisplayGroupOutputConfig::setPosition(const std::array<int, 2>& position) {
-    this->m_position = position;
+  int DisplayGroupOutputConfig::getRotation() const {
+    return this->m_rotation;
   }
 
-  void DisplayGroupOutputConfig::setScale(double scale) {
-    this->m_scale = scale;
+  double DisplayGroupOutputConfig::getScale() const {
+    return this->m_scale;
   }
 
-  void DisplayGroupOutputConfig::setRotation(int rotation) {
-    this->m_rotation = rotation;
+  int DisplayGroupOutputConfig::getWidth() const {
+    return this->m_width;
   }
 
   void DisplayGroupOutputConfig::setAdaptiveSync(bool adaptive_sync) {
@@ -442,6 +426,34 @@ namespace bd {
 
   void DisplayGroupOutputConfig::setDisabled(bool disabled) {
     this->m_disabled = disabled;
+  }
+
+  void DisplayGroupOutputConfig::setHeight(int height) {
+    this->m_height = height;
+  }
+
+  void DisplayGroupOutputConfig::setPosition(const std::array<int, 2>& position) {
+    this->m_position = position;
+  }
+
+  void DisplayGroupOutputConfig::setRefresh(int refresh) {
+    this->m_refresh = refresh;
+  }
+
+  void DisplayGroupOutputConfig::setRotation(int rotation) {
+    this->m_rotation = rotation;
+  }
+
+  void DisplayGroupOutputConfig::setScale(double scale) {
+    this->m_scale = scale;
+  }
+
+  void DisplayGroupOutputConfig::setSerial(const QString& serial) {
+    this->m_serial = serial;
+  }
+
+  void DisplayGroupOutputConfig::setWidth(int width) {
+    this->m_width = width;
   }
 
   toml::ordered_value DisplayGroupOutputConfig::toToml() {
