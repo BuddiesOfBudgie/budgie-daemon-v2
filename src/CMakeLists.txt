@@ -1,7 +1,5 @@
-find_package(Qt6 REQUIRED COMPONENTS Core WaylandClient)
+find_package(Qt6 REQUIRED COMPONENTS Core DBus WaylandClient)
 find_package(ECM REQUIRED NO_MODULE)
-find_package(sdbus-c++ REQUIRED)
-find_package(sdbus-c++-tools REQUIRED)
 set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH} ${ECM_FIND_MODULE_DIR} ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_BINARY_DIR}/includes)
 
 find_package(Wayland REQUIRED)
@@ -15,7 +13,8 @@ set(SRCS
         displays/configuration.cpp
         config/display.cpp
         config/utils.cpp
-        dbus/server.cpp
+        dbus/DisplayAdaptorGen.cpp
+        dbus/DisplayService.cpp
         displays/output-manager/WaylandOutputManager.cpp
         main.cpp
 )
@@ -31,16 +30,9 @@ ecm_add_qtwayland_client_protocol(WaylandProtocols_xml
         BASENAME wlr-output-management-unstable-v1
 )
 
-add_custom_command(
-        OUTPUT dbus/daemon-server.hpp dbus/daemon-client.hpp
-        COMMAND SDBusCpp::sdbus-c++-xml2cpp src/dbus/org.buddiesofbudgie.BudgieDaemonX.xml --adaptor=dbus/daemon-server.hpp --proxy=dbus/daemon-client.hpp
-        DEPENDS src/dbus/org.buddiesofbudgie.BudgieDaemonX.xml
-        COMMENT "Generating D-Bus interfaces for BudgieDaemonX"
-)
-
 add_executable(org.buddiesofbudgie.BudgieDaemonV2 ${SRCS} ${WaylandProtocols_xml})
 target_include_directories(org.buddiesofbudgie.BudgieDaemonV2 PUBLIC ${CMAKE_CURRENT_BINARY_DIR} config dbus displays includes)
-target_link_libraries(org.buddiesofbudgie.BudgieDaemonV2 PRIVATE Qt6::Core Wayland::Client SDBusCpp::sdbus-c++ WaylandProtocols_xml)
+target_link_libraries(org.buddiesofbudgie.BudgieDaemonV2 PRIVATE Qt6::Core Qt6::DBus Wayland::Client WaylandProtocols_xml)
 install(
         FILES dbus/org.buddiesofbudgie.BudgieDaemonX.conf
         DESTINATION ${CMAKE_INSTALL_DATADIR}/dbus-1/system.d

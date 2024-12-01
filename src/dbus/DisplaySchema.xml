@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<node name="/org/buddiesofbudgie/BudgieDaemonX/Displays" xmlns:doc="http://www.freedesktop.org/dbus/1.0/doc.dtd">
+    <interface name="org.buddiesofbudgie.BudgieDaemonX.Displays">
+        <method name="GetAvailableOutputs">
+            <annotation name="org.qtproject.QtDBus.QtTypeName.Out0" value="QStringList"/>
+            <arg name="outputs" type="as" direction="out"/>
+        </method>
+
+        <method name="GetCurrentOutputDetails">
+            <annotation name="org.qtproject.QtDBus.QtTypeName.In0" value="QString"/>
+            <annotation name="org.qtproject.QtDBus.QtTypeName.Out0" value="QString"/>
+            <annotation name="org.qtproject.QtDBus.QtTypeName.Out1" value="int"/>
+            <annotation name="org.qtproject.QtDBus.QtTypeName.Out2" value="int"/>
+            <annotation name="org.qtproject.QtDBus.QtTypeName.Out3" value="int"/>
+            <annotation name="org.qtproject.QtDBus.QtTypeName.Out4" value="int"/>
+            <annotation name="org.qtproject.QtDBus.QtTypeName.Out5" value="double"/>
+            <annotation name="org.qtproject.QtDBus.QtTypeName.Out6" value="int"/>
+            <annotation name="org.qtproject.QtDBus.QtTypeName.Out7" value="bool"/>
+            <annotation name="org.qtproject.QtDBus.QtTypeName.Out8" value="bool"/>
+            <arg name="serial" type="s" direction="in"/>
+            <arg name="name" type="s" direction="out"/>
+            <arg name="width" type="i" direction="out"/>
+            <arg name="height" type="i" direction="out"/>
+            <arg name="x" type="i" direction="out"/>
+            <arg name="y" type="i" direction="out"/>
+            <arg name="scale" type="d" direction="out"/>
+            <arg name="refresh" type="i" direction="out"/>
+            <arg name="preferred" type="b" direction="out"/>
+            <arg name="enabled" type="b" direction="out"/>
+        </method>
+
+        <method name="GetAvailableModes">
+            <annotation name="org.qtproject.QtDBus.QtTypeName.In0" value="QString"/>
+            <annotation name="org.qtproject.QtDBus.QtTypeName.Out0" value="QList&lt;QList&lt;int&gt;&gt;"/>
+            <arg name="serial" type="s" direction="in"/>
+            <arg name="modes" type="a(iii)" direction="out"/>
+        </method>
+
+        <method name="SetCurrentMode">
+            <annotation name="org.qtproject.QtDBus.QtTypeName.In0" value="QString"/>
+            <annotation name="org.qtproject.QtDBus.QtTypeName.In1" value="int"/>
+            <annotation name="org.qtproject.QtDBus.QtTypeName.In2" value="int"/>
+            <annotation name="org.qtproject.QtDBus.QtTypeName.In3" value="double"/>
+            <annotation name="org.qtproject.QtDBus.QtTypeName.In4" value="bool"/>
+            <arg name="serial" type="s" direction="in"/>
+            <arg name="width" type="i" direction="in"/>
+            <arg name="height" type="i" direction="in"/>
+            <arg name="refresh" type="d" direction="in"/>
+            <arg name="preferred" type="b" direction="in"/>
+
+        </method>
+
+        <method name="SetOutputPosition">
+            <annotation name="org.qtproject.QtDBus.QtTypeName.In0" value="QString"/>
+            <annotation name="org.qtproject.QtDBus.QtTypeName.In1" value="int"/>
+            <annotation name="org.qtproject.QtDBus.QtTypeName.In2" value="int"/>
+            <arg name="serial" type="s" direction="in"/>
+            <arg name="x" type="i" direction="in"/>
+            <arg name="y" type="i" direction="in"/>
+        </method>
+
+        <method name="SetOutputEnabled">
+            <annotation name="org.qtproject.QtDBus.QtTypeName.In0" value="QString"/>
+            <annotation name="org.qtproject.QtDBus.QtTypeName.In1" value="bool"/>
+            <arg name="serial" type="s" direction="in"/>
+            <arg name="enabled" type="b" direction="in"/>
+        </method>
+    </interface>
+</node>
