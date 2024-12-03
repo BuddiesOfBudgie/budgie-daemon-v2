@@ -1,7 +1,6 @@
 #include "utils.hpp"
 
-#include <QList>
-#include <QString>
+#include <QtLogging>
 #include <iostream>
 
 namespace fs = std::filesystem;
@@ -17,10 +16,7 @@ fs::path bd::ConfigUtils::getConfigPath(const std::string& config_name) {
   if (xdg_config_home) path /= xdg_config_home;
   if (xdg_config_home == nullptr) {
     const char* home = std::getenv("HOME");
-    if (!home) {
-      std::cerr << "HOME environment variable not set" << std::endl;
-      std::exit(1);
-    }
+    if (!home) { qFatal("HOME environment variable not set"); }
     path /= home;
     path /= ".config";
   }
