@@ -8,6 +8,7 @@
 
 int main(int argc, char* argv[]) {
   QCoreApplication app(argc, argv);
+  qSetMessagePattern("[%{type}] %{if-debug}[%{file}:%{line} %{function}]%{endif}%{message}");
   if (!QDBusConnection::sessionBus().isConnected()) {
     qCritical() << "Cannot connect to the session bus";
     return EXIT_FAILURE;
