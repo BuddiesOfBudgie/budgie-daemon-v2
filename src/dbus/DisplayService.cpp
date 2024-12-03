@@ -110,8 +110,6 @@ namespace bd {
       configForSerial.value()->setRefresh(refresh);
       displayConfig.saveState();
     }
-
-    return;
   }
 
   void DisplayService::SetOutputEnabled(const QString& serial, bool enabled) {

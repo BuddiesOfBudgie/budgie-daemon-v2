@@ -1,5 +1,6 @@
 #include "WaylandOutputManager.hpp"
 
+#include <QtDebug>
 #include <algorithm>
 #include <cstdint>
 #include <cstring>
@@ -296,17 +297,17 @@ namespace bd {
   }
 
   void WaylandOutputConfiguration::zwlr_output_configuration_v1_succeeded() {
-    std::cout << "Configuration succeeded" << std::endl;
+    qInfo() << "Configuration succeeded";
     emit succeeded();
   }
 
   void WaylandOutputConfiguration::zwlr_output_configuration_v1_failed() {
-    std::cout << "Configuration failed" << std::endl;
+    qCritical() << "Configuration failed";
     emit failed();
   }
 
   void WaylandOutputConfiguration::zwlr_output_configuration_v1_cancelled() {
-    std::cout << "Configuration cancelled" << std::endl;
+    qWarning() << "Configuration cancelled";
     emit cancelled();
   }
 
