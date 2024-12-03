@@ -2,7 +2,7 @@
 
 #include <QFile>
 #include <QTextStream>
-#include <filesystem>
+#include <QtDebug>
 #include <iostream>
 #include <map>
 #include <string>
@@ -29,11 +29,11 @@ namespace bd {
     // Didn't find a match, so create a new group based on the orchestrator state
     // This in the background sets properties on our DisplayConfig class, so we just need to return at this point.
     if (!matchOption.has_value()) {
-      std::cout << "No matching group found, creating new group" << std::endl;
+      qInfo() << "No matching group found, creating new group";
       getActiveGroup();
 
       // Save the state to our config
-      std::cout << "Saving state" << std::endl;
+      qInfo() << "Saving state";
       saveState();
 
       return;
@@ -59,18 +59,17 @@ namespace bd {
     for (auto& head : heads) {
       if (head->getSerial() == nullptr) continue;
       for (const auto& qSerial : group->getOutputSerials()) {
-        auto serial = qSerial.toStdString();
         if (head->getSerial() == qSerial) continue;
-        std::cout << "Checking output " << serial << std::endl;
+        qInfo() << "Checking output " << qSerial;
 
         auto config_option = bd::DisplayConfiguration::getDisplayOutputConfigurationForSerial(qSerial, group);
         if (!config_option.has_value()) continue;
-        std::cout << "Got configuration for output " << serial << std::endl;
+        qInfo() << "Got configuration for output " << qSerial;
         const auto& config = config_option.value();
         should_apply       = true;
 
         if (config->getDisabled()) {
-          std::cout << "Disabling output " << serial << std::endl;
+          qInfo() << "Disabling output " << qSerial;
           wlr_output_config->disable(head);
           continue;
         }
@@ -87,12 +86,12 @@ namespace bd {
 
         if (mode_option.has_value()) {  // Found an existing mode for the head
           auto mode = mode_option.value();
-          std::cout << "Found mode for output " << serial << ": \n\t" << width << "x" << height << "@" << refresh << "\n\t"
-                    << "Position: " << position.at(0) << ", " << position.at(1) << std::endl;
+          qInfo() << "Found mode for output " << qSerial << ": " << width << "x" << height << "@" << refresh << "\n\t" << "Position: " << position.at(0) << ", "
+                  << position.at(1);
           config_head->setMode(mode);
         } else {
-          std::cout << "Found no mode for output " << serial << ", applying custom: \n\t" << width << "x" << height << "@" << refresh << "\n\t"
-                    << "Position: " << position.at(0) << ", " << position.at(1) << std::endl;
+          qInfo() << "Found no mode for output " << qSerial << ", applying custom: \n\t" << width << "x" << height << "@" << refresh << "\n\t"
+                  << "Position: " << position.at(0) << ", " << position.at(1);
           config_head->setCustomMode(width, height, refresh);
         }
 
@@ -106,12 +105,12 @@ namespace bd {
     }
 
     if (should_apply) {
-      std::cout << "Applying configuration" << std::endl;
+      qInfo() << "Applying configuration";
       wlr_output_config->applySelf();
       wlr_output_config->release();
       wl_display_dispatch(bd::WaylandOrchestrator::instance().getDisplay());
     } else {
-      std::cout << "No configuration to apply" << std::endl;
+      qInfo() << "No configuration to apply";
     }
   }
 
@@ -152,19 +151,19 @@ namespace bd {
 
   void DisplayConfig::debugOutput() {
     for (const auto& group : this->m_groups) {
-      std::cout << "Group: " << group->getName().toStdString() << std::endl;
-      std::cout << "Primary Output: " << group->getPrimaryOutput().toStdString() << std::endl;
-      std::cout << "Output Serials: " << std::endl;
+      qDebug() << "Group: " << group->getName();
+      qDebug() << "Primary Output: " << group->getPrimaryOutput();
+      qDebug() << "Output Serials: ";
 
       for (auto config : group->getConfigs()) {
-        std::cout << "  Serial: " << config->getSerial().toStdString() << std::endl;
-        std::cout << "    Width: " << config->getWidth() << std::endl;
-        std::cout << "    Height: " << config->getHeight() << std::endl;
-        std::cout << "    Refresh: " << config->getRefresh() << std::endl;
-        std::cout << "    Position: " << config->getPosition()[0] << ", " << config->getPosition()[1] << std::endl;
-        std::cout << "    Scale: " << config->getScale() << std::endl;
-        std::cout << "    Rotation: " << config->getRotation() << std::endl;
-        std::cout << "    Adaptive Sync: " << config->getAdaptiveSync() << std::endl;
+        qDebug() << "  Serial: " << config->getSerial();
+        qDebug() << "    Width: " << config->getWidth();
+        qDebug() << "    Height: " << config->getHeight();
+        qDebug() << "    Refresh: " << config->getRefresh();
+        qDebug() << "    Position: " << config->getPosition()[0] << ", " << config->getPosition()[1];
+        qDebug() << "    Scale: " << config->getScale();
+        qDebug() << "    Rotation: " << config->getRotation();
+        qDebug() << "    Adaptive Sync: " << config->getAdaptiveSync();
       }
     }
   }
@@ -226,7 +225,7 @@ namespace bd {
     auto config_location = bd::ConfigUtils::getConfigPath("display-config.toml");
 
     try {
-      std::cout << "Reading display config from " << config_location << std::endl;
+      qDebug() << "Reading display config from " << QString {config_location.c_str()};
       bd::ConfigUtils::ensureConfigPathExists(config_location);
 
       auto data = toml::parse(config_location);
@@ -242,7 +241,7 @@ namespace bd {
       for (const auto& group : toml::find<std::vector<toml::value>>(data, "group")) { this->m_groups.append(new DisplayGroup(group)); }
     } catch (const std::exception& e) {
       if (std::basic_string(e.what()).contains("error opening file")) return;
-      std::cerr << "Error parsing display-config.toml: " << e.what() << std::endl;
+      qWarning() << "Error parsing display-config.toml: " << e.what();
     }
   }
 
@@ -272,7 +271,7 @@ namespace bd {
       stream << serialized_config.c_str();
       config_file.close();
     } else {
-      std::cerr << "Failed to open display-config.toml for writing" << std::endl;
+      qWarning() << "Failed to open display-config.toml for writing";
     }
   }
 
