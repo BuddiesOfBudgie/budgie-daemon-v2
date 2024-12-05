@@ -18,6 +18,8 @@ set(SRCS
         dbus/DisplayService.cpp
         displays/output-manager/WaylandOutputManager.cpp
         main.cpp
+        displays/batch-system/DisplayConfigurationBatchSystem.cpp
+        displays/batch-system/DisplayConfigurationBatchSystem.hpp
 )
 
 add_library(WaylandProtocols_xml OBJECT)
