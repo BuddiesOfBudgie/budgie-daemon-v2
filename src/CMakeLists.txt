@@ -20,6 +20,9 @@ set(SRCS
         main.cpp
         displays/batch-system/DisplayConfigurationBatchSystem.cpp
         displays/batch-system/DisplayConfigurationBatchSystem.hpp
+        displays/batch-system/DisplayConfigurationBatch.cpp
+        displays/batch-system/DisplayConfigurationCalculation.cpp
+        displays/batch-system/DisplayConfigurationBatchAction.cpp
 )
 
 add_library(WaylandProtocols_xml OBJECT)

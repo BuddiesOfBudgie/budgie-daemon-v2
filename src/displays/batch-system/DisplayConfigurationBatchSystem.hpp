@@ -56,11 +56,12 @@ namespace bd {
 
         void test();
 
-    protected:
-        DisplayConfigurationCalculation *createCalculation();
+    public slots:
+        // Useful for tracking when an output is removed, removing any associated batch from calculation
+        void outputRemoved(QString *serial);
 
-        QList<DisplayConfigurationBatch *> m_batches;
-        std::optional<DisplayConfigurationCalculation> *m_calculation;
+    private:
+        DisplayConfigurationCalculation *m_calculation;
     };
 
     class DisplayConfigurationCalculation : public QObject {
@@ -69,29 +70,45 @@ namespace bd {
     public:
         DisplayConfigurationCalculation(QObject *parent = nullptr);
 
-        void addAction(DisplayConfigurationBatchAction *action);
+        void addBatch(DisplayConfigurationBatch *batch);
 
         void calculate();
+
+        QList<DisplayConfigurationBatchAction *> getActions();
+
+        QMap<QString, QRect *> getOutputRects();
+
+        void removeBatch(QString *serial);
+
+        void reset();
 
     protected:
         QRect *m_global_space;
         QList<DisplayConfigurationBatchAction *> m_actions;
-        QList<DisplayConfigurationBatchAction *> m_buffered_actions;
-        QMap<QString, QRect *> m_output_rects;
+        QMap<QString *, DisplayConfigurationBatch *> m_batches;
+        QMap<QString *, QRect *> m_output_rects;
     };
 
     class DisplayConfigurationBatch : public QObject {
         Q_OBJECT
 
     public:
-        DisplayConfigurationBatch(const QString &serial, DisplayConfigurationBatchType batch_type,
+        DisplayConfigurationBatch(QString *serial, DisplayConfigurationBatchType batch_type,
                                   QObject *parent = nullptr);
 
         DisplayConfigurationBatchType batchType() const;
 
+        void addAction(DisplayConfigurationBatchAction *action);
+
+        QMap<DisplayConfigurationBatchActionType, DisplayConfigurationBatchAction *> getActions();
+
+        DisplayConfigurationBatchType getBatchType() const;
+
+        QString *getSerial() const;
+
     protected:
-        QString m_serial;
-        QList<DisplayConfigurationBatchAction *> m_actions;
+        QString *m_serial;
+        QMap<DisplayConfigurationBatchActionType, DisplayConfigurationBatchAction *> m_actions;
         DisplayConfigurationBatchType m_batch_type;
     };
 
@@ -99,21 +116,24 @@ namespace bd {
         Q_OBJECT
 
     public:
-        DisplayConfigurationBatchAction(DisplayConfigurationBatchActionType action_type, QObject *parent = nullptr);
+        DisplayConfigurationBatchAction(DisplayConfigurationBatchActionType action_type, QString *serial,
+                                        QObject *parent = nullptr);
 
-        DisplayConfigurationBatchAction gamma(double placeholder_ignore_me, QObject *parent = nullptr);
+        DisplayConfigurationBatchAction gamma(double placeholder_ignore_me, QString *serial, QObject *parent = nullptr);
 
-        DisplayConfigurationBatchAction mirrorOf(QString *serial, QObject *parent = nullptr);
+        DisplayConfigurationBatchAction mirrorOf(QString *relative, QString *serial, QObject *parent = nullptr);
 
-        DisplayConfigurationBatchAction mode(int width, int height, int refresh, QObject *parent = nullptr);
+        DisplayConfigurationBatchAction mode(QSize *dimensions, int refresh, QString *serial,
+                                             QObject *parent = nullptr);
 
         DisplayConfigurationBatchAction
-        setPositionAnchor(QString *serial, DisplayConfigurationHorizontalAnchor horizontal,
-                          DisplayConfigurationVerticalAnchor vertical, QObject *parent = nullptr);
+        setPositionAnchor(QString *relative, DisplayConfigurationHorizontalAnchor horizontal,
+                          DisplayConfigurationVerticalAnchor vertical, QString *serial, QObject *parent = nullptr);
 
-        DisplayConfigurationBatchAction scale(double scale, QObject *parent = nullptr);
+        DisplayConfigurationBatchAction scale(double scale, QString *serial, QObject *parent = nullptr);
 
-        DisplayConfigurationBatchAction transform(wl_output_transform transform, QObject *parent = nullptr);
+        DisplayConfigurationBatchAction transform(wl_output_transform transform, QString *serial,
+                                                  QObject *parent = nullptr);
 
 
         DisplayConfigurationBatchActionType actionType() const;
@@ -122,9 +142,7 @@ namespace bd {
 
         std::optional<double> getGamma() const;
 
-        std::optional<int> getWidth() const;
-
-        std::optional<int> getHeight() const;
+        std::optional<QSize *> getDimensions() const;
 
         std::optional<int> getRefresh() const;
 
@@ -134,10 +152,13 @@ namespace bd {
 
         std::optional<double> getScale() const;
 
+        QString *getSerial() const;
+
         std::optional<wl_output_transform> getTransform() const;
 
     protected:
         DisplayConfigurationBatchActionType m_action_type;
+        QSerial *m_serial;
 
         // Shared by mirrorOf and setAnchorTo
         std::optional<QString *> relative;
@@ -146,8 +167,7 @@ namespace bd {
         std::optional<double> m_gamma;
 
         // Mode
-        std::optional<int> m_width;
-        std::optional<int> m_height;
+        std::optional<QSize *> m_dimensions;
         std::optional<int> m_refresh;
 
         // Set Position Anchor
