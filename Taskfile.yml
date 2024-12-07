@@ -1,0 +1,22 @@
+version: "3"
+
+tasks:
+  fmt:
+    desc: "Run clang-format"
+    cmds:
+      - clang-format -i src/**/*.cpp src/**/*.hpp
+  qdbus-gen:
+    cmds:
+      - qdbusxml2cpp-qt6 -a src/dbus/DisplayAdaptorGen src/dbus/DisplaySchema.xml
+      - echo "Remember to fix the cpp files to include the correct header"
+  setup:
+    desc: "Run cmake configuration"
+    cmds:
+      - cmake -S . -B build -G Ninja
+  build: cmake --build build
+  build-watch: watchman-make -p '**/*.cpp' '**/*.h' --run "task cook"
+  cook:
+    cmds:
+      - task setup
+      - task build
+  install: sudo make install -C build
