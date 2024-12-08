@@ -6,6 +6,7 @@ find_package(Wayland REQUIRED)
 find_package(QtWaylandScanner REQUIRED)
 
 include(KDEInstallDirs)
+include(ECMConfiguredInstall)
 
 qt_standard_project_setup()
 
@@ -39,3 +40,13 @@ install(
 )
 
 install(TARGETS org.buddiesofbudgie.BudgieDaemonV2 DESTINATION ${KDE_INSTALL_TARGETS_DEFAULT_ARGS}/)
+install(
+        FILES data/labwc/autostart
+        DESTINATION /etc/xdg/labwc
+)
+
+#ecm_install_configured_files(INPUT data/org.buddiesofbudgie.BudgieDaemonV2.desktop.in DESTINATION ${KDE_INSTALL_AUTOSTARTDIR})
+#ecm_install_configured_files(
+#        INPUT data/org.buddiesofbudgie.BudgieDaemonV2.service.in
+#        DESTINATION ${KDE_INSTALL_SYSTEMDUSERUNITDIR}
+#)

@@ -1,0 +1,13 @@
+[Unit]
+Description=Budgie Daemon v2
+PartOf=graphical-session.target
+ConditionEnvironment=WAYLAND_DISPLAY
+
+[Service]
+ExecStart=org.buddiesofbudgie.BudgieDaemonV2
+BusName=org.buddiesofbudgie.BudgieDaemonX
+Restart=on-failure
+Slice=session.slice
+
+[Install]
+WantedBy=graphical-session.target

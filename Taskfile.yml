@@ -19,4 +19,4 @@ tasks:
     cmds:
       - task setup
       - task build
-  install: sudo make install -C build
+  install: sudo ninja install -C build
