@@ -7907,9 +7907,8 @@ namespace toml {
   }  // detail
 
   template <typename Value, typename K1, typename K2, typename K3, typename... Ks>
-  auto find_or(Value&& v, const K1& k1, const K2& k2, K3&& k3, Ks&&... keys) noexcept
-      -> cxx::
-          enable_if_t<detail::is_basic_value<cxx::remove_cvref_t<Value>>::value, decltype(find_or(v, k2, std::forward<K3>(k3), std::forward<Ks>(keys)...))> {
+  auto find_or(Value&& v, const K1& k1, const K2& k2, K3&& k3, Ks&&... keys) noexcept -> cxx::
+      enable_if_t<detail::is_basic_value<cxx::remove_cvref_t<Value>>::value, decltype(find_or(v, k2, std::forward<K3>(k3), std::forward<Ks>(keys)...))> {
     try {
       return find_or(v.at(k1), k2, std::forward<K3>(k3), std::forward<Ks>(keys)...);
     } catch (...) { return detail::last_one(k3, keys...); }

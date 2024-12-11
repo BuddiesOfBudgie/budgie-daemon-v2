@@ -6,9 +6,9 @@ tasks:
     cmds:
       - clang-format -i src/**/*.cpp src/**/*.hpp
   qdbus-gen:
+    dir: src/dbus
     cmds:
-      - qdbusxml2cpp-qt6 -a src/dbus/DisplayAdaptorGen src/dbus/DisplaySchema.xml
-      - echo "Remember to fix the cpp files to include the correct header"
+      - qdbusxml2cpp-qt6 -a DisplayAdaptorGen DisplaySchema.xml
   setup:
     desc: "Run cmake configuration"
     cmds:

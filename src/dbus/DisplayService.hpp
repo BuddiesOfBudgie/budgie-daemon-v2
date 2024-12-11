@@ -15,11 +15,10 @@ namespace bd {
     public slots:
       QVariantList GetAvailableModes(const QString& serial);
       QStringList  GetAvailableOutputs();
-      QString
-           GetCurrentOutputDetails(const QString& serial, int& width, int& height, int& x, int& y, double& scale, int& refresh, bool& preferred, bool& enabled);
-      void SetCurrentMode(const QString& serial, int width, int height, double refresh, bool preferred);
-      void SetOutputEnabled(const QString& serial, bool enabled);
-      void SetOutputPosition(const QString& serial, int x, int y);
+      QVariantList GetCurrentOutputDetails(const QString& serial);
+      void         SetCurrentMode(const QString& serial, int width, int height, double refresh, bool preferred);
+      void         SetOutputEnabled(const QString& serial, bool enabled);
+      void         SetOutputPosition(const QString& serial, int x, int y);
 
     private:
       DisplaysAdaptor* m_adaptor;

@@ -15,7 +15,7 @@ namespace bd {
       return {};
     }
 
-    auto modes = QList<QVariant> {};
+    auto modes = QVariantList {};
     for (const auto& mode : output.value()->getModes()) { modes.append({mode->getWidth(), mode->getHeight(), mode->getRefresh()}); }
 
     return modes;
@@ -32,36 +32,30 @@ namespace bd {
     return m_adaptor;
   }
 
-  QString DisplayService::GetCurrentOutputDetails(
-      const QString& serial,
-      int&           width,
-      int&           height,
-      int&           x,
-      int&           y,
-      double&        scale,
-      int&           refresh,
-      bool&          preferred,
-      bool&          enabled) {
+  QVariantList DisplayService::GetCurrentOutputDetails(const QString& serial) {
     auto output = WaylandOrchestrator::instance().getManager()->getOutputHead(serial);
     if (!output.has_value()) {
       qWarning() << "Received request for output " << serial << " which does not exist";
-      return QString {};
+      QDBusMessage::createError(QDBusError::InvalidArgs, "Output does not exist");
     }
 
     auto output_head = output.value();
     auto mode        = output_head->getCurrentMode();
 
-    // These are all "out" parameters
-    width     = mode->getWidth();
-    height    = mode->getHeight();
-    x         = output_head->getX();
-    y         = output_head->getY();
-    scale     = output_head->getScale();
-    refresh   = mode->getRefresh();
-    preferred = mode->isPreferred();
-    enabled   = output_head->isEnabled();
+    auto list = QVariantList {};
+    list.append(output_head->getName());
 
-    return output_head->getName();
+    // These are all "out" parameters
+    list.append(mode->getWidth());
+    list.append(mode->getHeight());
+    list.append(output_head->getX());
+    list.append(output_head->getY());
+    list.append(static_cast<double>(output_head->getScale()));
+    list.append(mode->getRefresh());
+    list.append(mode->isPreferred());
+    list.append(output_head->isEnabled());
+
+    return list;
   }
 
   void DisplayService::SetCurrentMode(const QString& serial, int width, int height, double refresh, bool preferred) {
