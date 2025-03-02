@@ -140,14 +140,15 @@ namespace bd {
     auto wlr_output_configuration = this->create_configuration(this->m_serial);
     auto config                   = new WaylandOutputConfiguration(nullptr, wlr_output_configuration);
     connect(config, &WaylandOutputConfiguration::cancelled, this, [this, config]() {
+      qDebug() << "Configuration cancelled";
       config->deleteLater();
     });
     connect(config, &WaylandOutputConfiguration::succeeded, this, [this, config]() {
-      qInfo() << "Configuration succeeded";
+      qDebug() << "Configuration succeeded";
       config->deleteLater();
     });
     connect(config, &WaylandOutputConfiguration::failed, this, [this, config]() {
-      qInfo() << "Configuration failed";
+      qDebug() << "Configuration failed";
       config->deleteLater();
     });
     return config;
@@ -376,17 +377,14 @@ namespace bd {
   }
 
   void WaylandOutputConfiguration::zwlr_output_configuration_v1_succeeded() {
-    qInfo() << "Configuration succeeded";
     emit succeeded();
   }
 
   void WaylandOutputConfiguration::zwlr_output_configuration_v1_failed() {
-    qCritical() << "Configuration failed";
     emit failed();
   }
 
   void WaylandOutputConfiguration::zwlr_output_configuration_v1_cancelled() {
-    qWarning() << "Configuration cancelled";
     emit cancelled();
   }
 
@@ -475,7 +473,7 @@ namespace bd {
   }
 
   void WaylandOutputMode::zwlr_output_mode_v1_finished() {
-    qInfo() << "WaylandOutputMode::zwlr_output_mode_v1_finished (no longer available):" << this->getWidth() << "x" << this->getHeight() << "@" << this->getRefresh();
+    qDebug() << "WaylandOutputMode::zwlr_output_mode_v1_finished (no longer available):" << this->getWidth() << "x" << this->getHeight() << "@" << this->getRefresh();
     emit modeNoLongerAvailable();
   }
 }

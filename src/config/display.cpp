@@ -55,19 +55,19 @@ namespace bd {
 
     for (auto& head : heads) {
       if (head->getIdentifier().isNull()) continue;
-      qInfo() << "Checking head " << head->getIdentifier() << ": " << head->getDescription();
+      qDebug() << "Checking head " << head->getIdentifier() << ": " << head->getDescription();
       for (const auto& qIdentifier : group->getOutputIdentifiers()) {
         if (head->getIdentifier() != qIdentifier) continue;
-        qInfo() << "Checking output " << qIdentifier;
+        qDebug() << "Checking output " << qIdentifier;
 
         auto config_option = DisplayConfiguration::getDisplayOutputConfigurationForIdentifier(qIdentifier, group);
         if (!config_option.has_value()) continue;
-        qInfo() << "Got configuration for output " << qIdentifier;
+        qDebug() << "Got configuration for output " << qIdentifier;
         const auto& config = config_option.value();
         should_apply       = true;
 
         if (config->getDisabled()) {
-          qInfo() << "Disabling output " << qIdentifier;
+          qDebug() << "Disabling output " << qIdentifier;
           wlr_output_config->disable(head);
           continue;
         }
@@ -84,11 +84,11 @@ namespace bd {
 
         if (mode_option.has_value()) {  // Found an existing mode for the head
           auto mode = mode_option.value();
-          qInfo() << "Found mode for output " << qIdentifier << ": " << width << "x" << height << "@" << refresh << "\n\t" << "Position: " << position.at(0)
+          qDebug() << "Found mode for output " << qIdentifier << ": " << width << "x" << height << "@" << refresh << "\n\t" << "Position: " << position.at(0)
                   << ", " << position.at(1);
           config_head->setMode(mode);
         } else {
-          qInfo() << "Found no mode for output " << qIdentifier << ", applying custom: \n\t" << width << "x" << height << "@" << refresh << "\n\t"
+          qDebug() << "Found no mode for output " << qIdentifier << ", applying custom: \n\t" << width << "x" << height << "@" << refresh << "\n\t"
                   << "Position: " << position.at(0) << ", " << position.at(1);
           config_head->setCustomMode(width, height, refresh);
         }
@@ -103,7 +103,7 @@ namespace bd {
     }
 
     if (should_apply) {
-      qInfo() << "Applying configuration";
+      qDebug() << "Applying configuration";
       wlr_output_config->applySelf();
       wlr_output_config->release();
       if (WaylandOrchestrator::instance().getDisplay() == nullptr) {
@@ -112,7 +112,7 @@ namespace bd {
       }
       wl_display_dispatch(WaylandOrchestrator::instance().getDisplay());
     } else {
-      qInfo() << "No configuration to apply";
+      qDebug() << "No configuration to apply";
     }
   }
 

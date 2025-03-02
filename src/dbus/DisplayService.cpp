@@ -165,7 +165,7 @@ namespace bd {
 
     auto output = outputOption.value();
 
-    qInfo() << "Found output " << identifier << "with name" << output->getName() << " at " << output->getX() << ", " << output->getY();
+    qDebug() << "Found output " << identifier << "with name" << output->getName() << " at " << output->getX() << ", " << output->getY();
 
     if (!output->isEnabled()) {
       qWarning() << "Received request for output " << identifier << " which is not enabled";
