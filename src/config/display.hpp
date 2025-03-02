@@ -49,22 +49,22 @@ namespace bd {
 
       QString                                  getName() const;
       bool                                     isPreferred() const;
-      QStringList                              getOutputSerials() const;
+      QStringList                              getOutputIdentifiers() const;
       QString                                  getPrimaryOutput() const;
       QList<DisplayGroupOutputConfig*>         getConfigs();
-      std::optional<DisplayGroupOutputConfig*> getConfigForSerial(QString serial);
+      std::optional<DisplayGroupOutputConfig*> getConfigForIdentifier(QString identifier);
 
       void                addConfig(DisplayGroupOutputConfig* config);
       void                setName(const QString& name);
-      void                setOutputSerials(const QStringList& serials);
+      void                setOutputIdentifiers(const QStringList& identifiers);
       void                setPreferred(bool preferred);
-      void                setPrimaryOutput(const QString& serial);
+      void                setPrimaryOutput(const QString& identifier);
       toml::ordered_value toToml();
 
     protected:
       QString                          m_name;
       bool                             m_preferred;
-      QStringList                      m_output_serials;
+      QStringList                      m_output_identifiers;
       QString                          m_primary_output;
       QList<DisplayGroupOutputConfig*> m_configs;
   };
@@ -79,10 +79,10 @@ namespace bd {
       bool               getDisabled() const;
       int                getHeight() const;
       std::array<int, 2> getPosition() const;
-      int                getRefresh() const;
+      double                getRefresh() const;
       int                getRotation() const;
       double             getScale() const;
-      QString            getSerial() const;
+      QString            getIdentifier() const;
       int                getWidth() const;
 
       toml::ordered_value toToml();
@@ -90,18 +90,18 @@ namespace bd {
       void setAdaptiveSync(bool adaptive_sync);
       void setDisabled(bool disabled);
       void setHeight(int height);
+      void setIdentifier(const QString& identifier);
       void setPosition(const std::array<int, 2>& position);
-      void setRefresh(int refresh);
+      void setRefresh(double refresh);
       void setRotation(int rotation);
       void setScale(double scale);
-      void setSerial(const QString& serial);
       void setWidth(int width);
 
     protected:
-      QString            m_serial;
+      QString            m_identifier;
       int                m_width;
       int                m_height;
-      int                m_refresh;
+      double                m_refresh;
       std::array<int, 2> m_position;
       double             m_scale;
       int                m_rotation;

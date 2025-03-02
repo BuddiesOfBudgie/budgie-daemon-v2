@@ -6,7 +6,6 @@
 #include <QObject>
 #include <optional>
 #include <string>
-#include <vector>
 
 #include "qwayland-wlr-output-management-unstable-v1.h"
 
@@ -35,10 +34,11 @@ namespace bd {
       int  getSerial();
 
       // wl_registry_listener public listeners
-      void registryHandleGlobal(void* data, wl_registry* reg, uint32_t name, const char* interface, uint32_t version);
+      void registryHandleGlobal(void *data, wl_registry *reg, uint32_t name, const char *interface);
 
     signals:
       void ready();
+      void done();
       void orchestratorInitFailed(QString error);
 
     public slots:
@@ -66,7 +66,7 @@ namespace bd {
       WaylandOutputConfiguration*       configure();
       QList<WaylandOutputHead*>         getHeads();
       std::optional<WaylandOutputHead*> getOutputHead(const QString& str);
-      void                              applyNoOpConfigurationForNonSpecifiedHeads(WaylandOutputConfiguration* config, const QStringList& serials);
+      QList<WaylandOutputConfigurationHead *> applyNoOpConfigurationForNonSpecifiedHeads(WaylandOutputConfiguration* config, const QStringList& identifiers);
 
       uint32_t getSerial();
       uint32_t getVersion();
@@ -75,7 +75,7 @@ namespace bd {
       void done();
 
     protected:
-      void zwlr_output_manager_v1_head(struct zwlr_output_head_v1* head) override;
+      void zwlr_output_manager_v1_head(zwlr_output_head_v1* head) override;
       void zwlr_output_manager_v1_done(uint32_t serial) override;
 
     private:
@@ -92,26 +92,33 @@ namespace bd {
     public:
       WaylandOutputHead(QObject* parent, wl_registry* registry, ::zwlr_output_head_v1* wlr_head);
 
+      bool isBuiltIn();
       QList<WaylandOutputMode*>                           getModes();
       WaylandOutputMode*                                  getCurrentMode();
+      QString getMake();
+      QString getModel();
       QString                                             getName();
       QString                                             getDescription();
-      QString                                             getSerial();
+      QString getIdentifier();
       int                                                 getX();
       int                                                 getY();
       int                                                 getTransform();
-      float                                               getScale();
+      double                                               getScale();
       ::zwlr_output_head_v1*                              getWlrHead();
       bool                                                isEnabled();
-      QtWayland::zwlr_output_head_v1::adaptive_sync_state getAdaptiveSync();
-      std::optional<WaylandOutputMode*>                   getModeForOutputHead(int width, int height, int refresh);
+      adaptive_sync_state getAdaptiveSync();
+      std::optional<WaylandOutputMode*>                   getModeForOutputHead(int width, int height, double refresh);
+      void setX(int x);
+      void setY(int y);
 
     signals:
-      void noLongerAvailable();
+      void headNoLongerAvailable();
 
     protected:
       void zwlr_output_head_v1_name(const QString& name) override;
       void zwlr_output_head_v1_description(const QString& description) override;
+      void zwlr_output_head_v1_make(const QString &make) override;
+      void zwlr_output_head_v1_model(const QString &model) override;
       void zwlr_output_head_v1_mode(::zwlr_output_mode_v1* mode) override;
       void zwlr_output_head_v1_enabled(int32_t enabled) override;
       void zwlr_output_head_v1_current_mode(::zwlr_output_mode_v1* mode) override;
@@ -125,8 +132,11 @@ namespace bd {
     private:
       wl_registry*              m_registry;
       ::zwlr_output_head_v1*    m_wlr_head;
+      QString                   m_make;
+      QString                   m_model;
       QString                   m_name;
       QString                   m_description;
+      QString m_identifier;
       QList<WaylandOutputMode*> m_output_modes;
       QString                   m_serial;
       WaylandOutputMode*        m_current_mode;
@@ -134,10 +144,10 @@ namespace bd {
       int   m_x;
       int   m_y;
       int   m_transform;
-      float m_scale;
+      double m_scale;
 
       bool                                                m_enabled;
-      QtWayland::zwlr_output_head_v1::adaptive_sync_state m_adaptive_sync;
+      adaptive_sync_state m_adaptive_sync;
   };
 
   class WaylandOutputConfiguration : public QObject, QtWayland::zwlr_output_configuration_v1 {
@@ -168,9 +178,10 @@ namespace bd {
     public:
       WaylandOutputConfigurationHead(QObject* parent, WaylandOutputHead* head, ::zwlr_output_configuration_head_v1* config_head);
       WaylandOutputHead* getHead();
+      void               release();
       void               setAdaptiveSync(uint32_t state);
       void               setMode(WaylandOutputMode* mode);
-      void               setCustomMode(int32_t width, int32_t height, int32_t refresh);
+      void               setCustomMode(int32_t width, int32_t height, double refresh);
       void               setPosition(int32_t x, int32_t y);
       void               setTransform(int32_t transform);
       void               setScale(double scale);
@@ -185,16 +196,16 @@ namespace bd {
     public:
       WaylandOutputMode(QObject* parent, WaylandOutputHead* head, ::zwlr_output_mode_v1* mode);
 
-      QtWayland::zwlr_output_mode_v1* getBase();
+      zwlr_output_mode_v1* getBase();
       ::zwlr_output_mode_v1*          getWlrMode();
       uint32_t                        getId();
       int                             getWidth();
       int                             getHeight();
-      int                             getRefresh();
+      double                          getRefresh();
       bool                            isPreferred();
 
     signals:
-      void noLongerAvailable();
+      void modeNoLongerAvailable();
 
     protected:
       void zwlr_output_mode_v1_size(int32_t width, int32_t height) override;
@@ -208,7 +219,7 @@ namespace bd {
       uint32_t               m_id;
       int                    m_width;
       int                    m_height;
-      int                    m_refresh;
+      double                 m_refresh;
       bool                   m_preferred;
   };
 }

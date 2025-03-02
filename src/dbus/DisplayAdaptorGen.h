@@ -14,6 +14,7 @@
 
 #include <QtCore/QObject>
 #include <QtDBus/QtDBus>
+#include "DisplaySchemaTypes.hpp"
 #include <QtCore/qcontainerfwd.h>
 
 /*
@@ -29,31 +30,31 @@ class DisplaysAdaptor: public QDBusAbstractAdaptor
 "      <annotation value=\"QStringList\" name=\"org.qtproject.QtDBus.QtTypeName.Out0\"/>\n"
 "      <arg direction=\"out\" type=\"as\" name=\"outputs\"/>\n"
 "    </method>\n"
-"    <method name=\"GetCurrentOutputDetails\">\n"
-"      <annotation value=\"QVariantList\" name=\"org.qtproject.QtDBus.QtTypeName.Out0\"/>\n"
-"      <arg direction=\"out\" type=\"a(ssiiiidibb)\" name=\"details\"/>\n"
-"      <arg direction=\"in\" type=\"s\" name=\"serial\"/>\n"
+"    <method name=\"GetOutputDetails\">\n"
+"      <annotation value=\"OutputDetailsList\" name=\"org.qtproject.QtDBus.QtTypeName.Out0\"/>\n"
+"      <arg direction=\"out\" type=\"a(ssiiiiddbb)\" name=\"details\"/>\n"
+"      <arg direction=\"in\" type=\"s\" name=\"identifier\"/>\n"
 "    </method>\n"
 "    <method name=\"GetAvailableModes\">\n"
 "      <annotation value=\"QString\" name=\"org.qtproject.QtDBus.QtTypeName.In0\"/>\n"
-"      <annotation value=\"QVariantList\" name=\"org.qtproject.QtDBus.QtTypeName.Out0\"/>\n"
-"      <arg direction=\"in\" type=\"s\" name=\"serial\"/>\n"
-"      <arg direction=\"out\" type=\"a(iii)\" name=\"modes\"/>\n"
+"      <annotation value=\"OutputModesList\" name=\"org.qtproject.QtDBus.QtTypeName.Out0\"/>\n"
+"      <arg direction=\"in\" type=\"s\" name=\"identifier\"/>\n"
+"      <arg direction=\"out\" type=\"a(iid)\" name=\"modes\"/>\n"
 "    </method>\n"
 "    <method name=\"SetCurrentMode\">\n"
-"      <arg direction=\"in\" type=\"s\" name=\"serial\"/>\n"
+"      <arg direction=\"in\" type=\"s\" name=\"identifier\"/>\n"
 "      <arg direction=\"in\" type=\"i\" name=\"width\"/>\n"
 "      <arg direction=\"in\" type=\"i\" name=\"height\"/>\n"
-"      <arg direction=\"in\" type=\"d\" name=\"refresh\"/>\n"
+"      <arg direction=\"in\" type=\"i\" name=\"refresh\"/>\n"
 "      <arg direction=\"in\" type=\"b\" name=\"preferred\"/>\n"
 "    </method>\n"
 "    <method name=\"SetOutputPosition\">\n"
-"      <arg direction=\"in\" type=\"s\" name=\"serial\"/>\n"
+"      <arg direction=\"in\" type=\"s\" name=\"identifier\"/>\n"
 "      <arg direction=\"in\" type=\"i\" name=\"x\"/>\n"
 "      <arg direction=\"in\" type=\"i\" name=\"y\"/>\n"
 "    </method>\n"
 "    <method name=\"SetOutputEnabled\">\n"
-"      <arg direction=\"in\" type=\"s\" name=\"serial\"/>\n"
+"      <arg direction=\"in\" type=\"s\" name=\"identifier\"/>\n"
 "      <arg direction=\"in\" type=\"b\" name=\"enabled\"/>\n"
 "    </method>\n"
 "  </interface>\n"
@@ -64,12 +65,12 @@ public:
 
 public: // PROPERTIES
 public Q_SLOTS: // METHODS
-    QVariantList GetAvailableModes(const QString &serial);
+    OutputModesList GetAvailableModes(const QString &identifier);
     QStringList GetAvailableOutputs();
-    QVariantList GetCurrentOutputDetails(const QString &serial);
-    void SetCurrentMode(const QString &serial, int width, int height, double refresh, bool preferred);
-    void SetOutputEnabled(const QString &serial, bool enabled);
-    void SetOutputPosition(const QString &serial, int x, int y);
+    OutputDetailsList GetOutputDetails(const QString &identifier);
+    void SetCurrentMode(const QString &identifier, int width, int height, int refresh, bool preferred);
+    void SetOutputEnabled(const QString &identifier, bool enabled);
+    void SetOutputPosition(const QString &identifier, int x, int y);
 Q_SIGNALS: // SIGNALS
 };
 

@@ -39,7 +39,7 @@ namespace bd {
       return;
     }
 
-    auto& orchestrator = bd::WaylandOrchestrator::instance();
+    auto& orchestrator = WaylandOrchestrator::instance();
     auto  manager      = orchestrator.getManager();
 
     auto group = matchOption.value();
@@ -51,25 +51,23 @@ namespace bd {
 
     auto wlr_output_config = manager->configure();
 
-    // TODO: Josh - Fix
-    // zwlr_output_configuration_v1_add_listener(wlr_output_config, &config_listener, nullptr);
-
     bool should_apply = false;
 
     for (auto& head : heads) {
-      if (head->getSerial() == nullptr) continue;
-      for (const auto& qSerial : group->getOutputSerials()) {
-        if (head->getSerial() == qSerial) continue;
-        qInfo() << "Checking output " << qSerial;
+      if (head->getIdentifier().isNull()) continue;
+      qInfo() << "Checking head " << head->getIdentifier() << ": " << head->getDescription();
+      for (const auto& qIdentifier : group->getOutputIdentifiers()) {
+        if (head->getIdentifier() != qIdentifier) continue;
+        qInfo() << "Checking output " << qIdentifier;
 
-        auto config_option = bd::DisplayConfiguration::getDisplayOutputConfigurationForSerial(qSerial, group);
+        auto config_option = DisplayConfiguration::getDisplayOutputConfigurationForIdentifier(qIdentifier, group);
         if (!config_option.has_value()) continue;
-        qInfo() << "Got configuration for output " << qSerial;
+        qInfo() << "Got configuration for output " << qIdentifier;
         const auto& config = config_option.value();
         should_apply       = true;
 
         if (config->getDisabled()) {
-          qInfo() << "Disabling output " << qSerial;
+          qInfo() << "Disabling output " << qIdentifier;
           wlr_output_config->disable(head);
           continue;
         }
@@ -86,16 +84,16 @@ namespace bd {
 
         if (mode_option.has_value()) {  // Found an existing mode for the head
           auto mode = mode_option.value();
-          qInfo() << "Found mode for output " << qSerial << ": " << width << "x" << height << "@" << refresh << "\n\t" << "Position: " << position.at(0) << ", "
-                  << position.at(1);
+          qInfo() << "Found mode for output " << qIdentifier << ": " << width << "x" << height << "@" << refresh << "\n\t" << "Position: " << position.at(0)
+                  << ", " << position.at(1);
           config_head->setMode(mode);
         } else {
-          qInfo() << "Found no mode for output " << qSerial << ", applying custom: \n\t" << width << "x" << height << "@" << refresh << "\n\t"
+          qInfo() << "Found no mode for output " << qIdentifier << ", applying custom: \n\t" << width << "x" << height << "@" << refresh << "\n\t"
                   << "Position: " << position.at(0) << ", " << position.at(1);
           config_head->setCustomMode(width, height, refresh);
         }
 
-        config_head->setPosition(static_cast<int32_t>(position.at(0)), static_cast<int32_t>(position.at(1)));  // Apply related position to the head
+        config_head->setPosition(position.at(0), position.at(1));  // Apply related position to the head
         config_head->setScale(config->getScale());                                                             // Apply related scale to the head
         config_head->setTransform(config->getRotation());
         config_head->setAdaptiveSync(
@@ -108,34 +106,38 @@ namespace bd {
       qInfo() << "Applying configuration";
       wlr_output_config->applySelf();
       wlr_output_config->release();
-      wl_display_dispatch(bd::WaylandOrchestrator::instance().getDisplay());
+      if (WaylandOrchestrator::instance().getDisplay() == nullptr) {
+        qCritical() << "Display is null";
+        return;
+      }
+      wl_display_dispatch(WaylandOrchestrator::instance().getDisplay());
     } else {
       qInfo() << "No configuration to apply";
     }
   }
 
   DisplayGroup* DisplayConfig::createDisplayGroupForState() {
-    auto& orchestrator = bd::WaylandOrchestrator::instance();
+    auto& orchestrator = WaylandOrchestrator::instance();
     auto  manager      = orchestrator.getManager();
     auto  heads        = manager->getHeads();
 
     QStringList names_of_active_outputs;
     std::transform(heads.begin(), heads.end(), std::back_inserter(names_of_active_outputs), [](auto head) {
-      if (head->getSerial() == nullptr) return QString {};
-      return head->getSerial();
+      if (head->getIdentifier() == nullptr) return QString {};
+      return head->getIdentifier();
     });
 
     auto defaultDisplayGroupForState = new DisplayGroup();
     defaultDisplayGroupForState->setName(names_of_active_outputs.join(", ").append(" (Auto Generated)"));
-    defaultDisplayGroupForState->setOutputSerials(names_of_active_outputs);
+    defaultDisplayGroupForState->setOutputIdentifiers(names_of_active_outputs);
     defaultDisplayGroupForState->setPreferred(true);
     defaultDisplayGroupForState->setPrimaryOutput(names_of_active_outputs.first());
 
     for (const auto& head : heads) {
-      if (head->getSerial() == nullptr) continue;
+      if (head->getIdentifier() == nullptr) continue;
       auto head_mode = head->getCurrentMode();
       auto config    = new DisplayGroupOutputConfig();
-      config->setSerial(head->getSerial());
+      config->setIdentifier(head->getIdentifier());
       config->setWidth(head_mode->getWidth());
       config->setHeight(head_mode->getHeight());
       config->setRefresh(head_mode->getRefresh());
@@ -156,7 +158,7 @@ namespace bd {
       qDebug() << "Output Serials: ";
 
       for (auto config : group->getConfigs()) {
-        qDebug() << "  Serial: " << config->getSerial();
+        qDebug() << "  Serial: " << config->getIdentifier();
         qDebug() << "    Width: " << config->getWidth();
         qDebug() << "    Height: " << config->getHeight();
         qDebug() << "    Refresh: " << config->getRefresh();
@@ -179,21 +181,21 @@ namespace bd {
   }
 
   std::optional<DisplayGroup*> DisplayConfig::getMatchingGroup() {
-    auto                         manager        = bd::WaylandOrchestrator::instance().getManager();
+    auto                         manager        = WaylandOrchestrator::instance().getManager();
     auto                         heads          = manager->getHeads();
     auto                         heads_size     = heads.size();
     std::optional<DisplayGroup*> matching_group = std::nullopt;
 
     auto matching_groups = std::vector<DisplayGroup*> {};
     for (auto group : this->m_groups) {
-      if (group->getOutputSerials().size() != heads_size) { continue; }
+      if (group->getOutputIdentifiers().size() != heads_size) { continue; }
 
       bool match = true;
-      for (const auto& qSerial : group->getOutputSerials()) {
+      for (const auto& qIdentifier : group->getOutputIdentifiers()) {
         bool found = false;
         for (const auto& head : heads) {
-          if (head->getSerial() == nullptr) continue;
-          if (head->getSerial() == qSerial) {
+          if (head->getIdentifier() == nullptr) continue;
+          if (head->getIdentifier() == qIdentifier) {
             found = true;
             break;
           }
@@ -222,11 +224,11 @@ namespace bd {
   }
 
   void DisplayConfig::parseConfig() {
-    auto config_location = bd::ConfigUtils::getConfigPath("display-config.toml");
+    auto config_location = ConfigUtils::getConfigPath("display-config.toml");
 
     try {
       qDebug() << "Reading display config from " << QString {config_location.c_str()};
-      bd::ConfigUtils::ensureConfigPathExists(config_location);
+      ConfigUtils::ensureConfigPathExists(config_location);
 
       auto data = toml::parse(config_location);
 
@@ -234,7 +236,7 @@ namespace bd {
         auto position = data.at("preferences").at("automatic_attach_outputs_relative_position");
         if (position.is_string()) {
           auto pos                                                       = std::string_view {position.as_string()};
-          this->m_preferences.automatic_attach_outputs_relative_position = bd::DisplayConfigurationUtils::getDisplayRelativePositionFromString(pos);
+          this->m_preferences.automatic_attach_outputs_relative_position = DisplayConfigurationUtils::getDisplayRelativePositionFromString(pos);
         }
       }
 
@@ -251,7 +253,7 @@ namespace bd {
 
     toml::ordered_value preferences_table(toml::ordered_table {});
     preferences_table["automatic_attach_outputs_relative_position"] =
-        bd::DisplayConfigurationUtils::getDisplayRelativePositionString(this->m_preferences.automatic_attach_outputs_relative_position);
+        DisplayConfigurationUtils::getDisplayRelativePositionString(this->m_preferences.automatic_attach_outputs_relative_position);
 
     // Create our toml table for each group
     toml::ordered_value groups(toml::ordered_array {});
@@ -263,7 +265,7 @@ namespace bd {
     config.as_table().emplace_back("group", groups);
 
     auto serialized_config = toml::format(config);
-    auto config_location   = bd::ConfigUtils::getConfigPath("display-config.toml");
+    auto config_location   = ConfigUtils::getConfigPath("display-config.toml");
     auto config_file       = QFile(config_location);
 
     if (config_file.open(QIODevice::WriteOnly | QIODevice::Text)) {
@@ -276,28 +278,29 @@ namespace bd {
   }
 
   // DisplayGroup
-  DisplayGroup::DisplayGroup(QObject* parent) : QObject(parent), m_name(""), m_preferred(false), m_output_serials({}), m_primary_output(""), m_configs({}) {}
+  DisplayGroup::DisplayGroup(QObject* parent)
+      : QObject(parent), m_name(""), m_preferred(false), m_output_identifiers({}), m_primary_output(""), m_configs({}) {}
 
   DisplayGroup::DisplayGroup(const toml::value& v, QObject* parent) : QObject(parent) {
-    QStringList output_serials;
-    for (const auto& serial : toml::find_or<std::vector<std::string>>(v, "output_serials", {})) { output_serials.append(QString::fromStdString(serial)); }
+    QStringList output_identifiers;
+    for (const auto& serial : toml::find_or<std::vector<std::string>>(v, "identifiers", {})) { output_identifiers.append(QString::fromStdString(serial)); }
 
-    m_name           = QString::fromStdString(toml::find<std::string>(v, "name"));
-    m_output_serials = output_serials;
-    m_primary_output = QString::fromStdString(toml::find<std::string>(v, "primary_output"));
-    m_preferred      = toml::find_or<bool>(v, "preferred", false);
+    m_name               = QString::fromStdString(toml::find<std::string>(v, "name"));
+    m_output_identifiers = output_identifiers;
+    m_primary_output     = QString::fromStdString(toml::find<std::string>(v, "primary_output"));
+    m_preferred          = toml::find_or<bool>(v, "preferred", false);
 
     auto outputs = toml::find_or<std::vector<toml::value>>(v, "output", {});
     if (outputs.empty()) return;
 
     for (const toml::value& output : outputs) {
       auto dgo = new DisplayGroupOutputConfig();
-      dgo->setSerial(QString::fromStdString(toml::find<std::string>(output, "serial")));
+      dgo->setIdentifier(QString::fromStdString(toml::find<std::string>(output, "identifier")));
       dgo->setWidth(toml::find<int>(output, "width"));
       dgo->setHeight(toml::find<int>(output, "height"));
-      dgo->setRefresh(toml::find<int>(output, "refresh"));
+      dgo->setRefresh(toml::find<double>(output, "refresh"));
       dgo->setPosition(toml::find<std::array<int, 2>>(output, "position"));
-      dgo->setScale(toml::find_or<float>(output, "scale", 1.0));
+      dgo->setScale(toml::find_or<double>(output, "scale", 1.0));
       dgo->setRotation(toml::find_or<int>(output, "rotation", 0));
       dgo->setAdaptiveSync(toml::find_or<bool>(output, "adaptive_sync", false));
       dgo->setDisabled(toml::find_or<bool>(output, "disabled", false));
@@ -314,8 +317,8 @@ namespace bd {
     return this->m_preferred;
   }
 
-  QStringList DisplayGroup::getOutputSerials() const {
-    return this->m_output_serials;
+  QStringList DisplayGroup::getOutputIdentifiers() const {
+    return this->m_output_identifiers;
   }
 
   QString DisplayGroup::getPrimaryOutput() const {
@@ -326,10 +329,10 @@ namespace bd {
     return this->m_configs;
   }
 
-  std::optional<DisplayGroupOutputConfig*> DisplayGroup::getConfigForSerial(QString serial) {
+  std::optional<DisplayGroupOutputConfig*> DisplayGroup::getConfigForIdentifier(QString identifier) {
     std::optional<DisplayGroupOutputConfig*> config = std::nullopt;
     for (auto& output : this->m_configs) {
-      if (output->getSerial() == serial) {
+      if (output->getIdentifier() == identifier) {
         config = output;
         break;
       }
@@ -346,28 +349,28 @@ namespace bd {
     this->m_name = name;
   }
 
-  void DisplayGroup::setOutputSerials(const QStringList& serials) {
-    this->m_output_serials = serials;
+  void DisplayGroup::setOutputIdentifiers(const QStringList& identifiers) {
+    this->m_output_identifiers = identifiers;
   }
 
   void DisplayGroup::setPreferred(bool preferred) {
     this->m_preferred = preferred;
   }
 
-  void DisplayGroup::setPrimaryOutput(const QString& serial) {
-    this->m_primary_output = serial;
+  void DisplayGroup::setPrimaryOutput(const QString& identifier) {
+    this->m_primary_output = identifier;
   }
 
   toml::ordered_value DisplayGroup::toToml() {
-    std::vector<std::string> output_serials;
-    for (const auto& serial : m_output_serials) { output_serials.push_back(serial.toStdString()); }
+    std::vector<std::string> output_identifiers;
+    for (const auto& identifier : m_output_identifiers) { output_identifiers.push_back(identifier.toStdString()); }
 
     toml::ordered_value group_table(toml::ordered_table {});
     group_table.as_table_fmt().fmt = toml::table_format::multiline;
 
     group_table["name"]           = this->m_name.toStdString();
     group_table["preferred"]      = this->m_preferred;
-    group_table["output_serials"] = output_serials;
+    group_table["identifiers"]    = output_identifiers;
     group_table["primary_output"] = this->m_primary_output.toStdString();
 
     toml::ordered_value outputs(toml::ordered_array {});
@@ -395,15 +398,15 @@ namespace bd {
     return this->m_height;
   }
 
-  QString DisplayGroupOutputConfig::getSerial() const {
-    return this->m_serial;
+  QString DisplayGroupOutputConfig::getIdentifier() const {
+    return this->m_identifier;
   }
 
   std::array<int, 2> DisplayGroupOutputConfig::getPosition() const {
     return this->m_position;
   }
 
-  int DisplayGroupOutputConfig::getRefresh() const {
+  double DisplayGroupOutputConfig::getRefresh() const {
     return this->m_refresh;
   }
 
@@ -431,11 +434,15 @@ namespace bd {
     this->m_height = height;
   }
 
+  void DisplayGroupOutputConfig::setIdentifier(const QString& identifier) {
+    this->m_identifier = identifier;
+  }
+
   void DisplayGroupOutputConfig::setPosition(const std::array<int, 2>& position) {
     this->m_position = position;
   }
 
-  void DisplayGroupOutputConfig::setRefresh(int refresh) {
+  void DisplayGroupOutputConfig::setRefresh(double refresh) {
     this->m_refresh = refresh;
   }
 
@@ -447,10 +454,6 @@ namespace bd {
     this->m_scale = scale;
   }
 
-  void DisplayGroupOutputConfig::setSerial(const QString& serial) {
-    this->m_serial = serial;
-  }
-
   void DisplayGroupOutputConfig::setWidth(int width) {
     this->m_width = width;
   }
@@ -459,7 +462,7 @@ namespace bd {
     toml::ordered_value config_table(toml::ordered_table {});
     config_table.as_table_fmt().fmt = toml::table_format::multiline;
 
-    config_table["serial"]        = this->m_serial.toStdString();
+    config_table["identifier"]    = this->m_identifier.toStdString();
     config_table["width"]         = this->m_width;
     config_table["height"]        = this->m_height;
     config_table["refresh"]       = this->m_refresh;

@@ -33,11 +33,11 @@ DisplaysAdaptor::~DisplaysAdaptor()
     // destructor
 }
 
-QVariantList DisplaysAdaptor::GetAvailableModes(const QString &serial)
+OutputModesList DisplaysAdaptor::GetAvailableModes(const QString &identifier)
 {
     // handle method call org.buddiesofbudgie.BudgieDaemonX.Displays.GetAvailableModes
-    QVariantList modes;
-    QMetaObject::invokeMethod(parent(), "GetAvailableModes", Q_RETURN_ARG(QVariantList, modes), Q_ARG(QString, serial));
+    OutputModesList modes;
+    QMetaObject::invokeMethod(parent(), "GetAvailableModes", Q_RETURN_ARG(OutputModesList, modes), Q_ARG(QString, identifier));
     return modes;
 }
 
@@ -49,29 +49,29 @@ QStringList DisplaysAdaptor::GetAvailableOutputs()
     return outputs;
 }
 
-QVariantList DisplaysAdaptor::GetCurrentOutputDetails(const QString &serial)
+OutputDetailsList DisplaysAdaptor::GetOutputDetails(const QString &identifier)
 {
-    // handle method call org.buddiesofbudgie.BudgieDaemonX.Displays.GetCurrentOutputDetails
-    QVariantList details;
-    QMetaObject::invokeMethod(parent(), "GetCurrentOutputDetails", Q_RETURN_ARG(QVariantList, details), Q_ARG(QString, serial));
+    // handle method call org.buddiesofbudgie.BudgieDaemonX.Displays.GetOutputDetails
+    OutputDetailsList details;
+    QMetaObject::invokeMethod(parent(), "GetOutputDetails", Q_RETURN_ARG(OutputDetailsList, details), Q_ARG(QString, identifier));
     return details;
 }
 
-void DisplaysAdaptor::SetCurrentMode(const QString &serial, int width, int height, double refresh, bool preferred)
+void DisplaysAdaptor::SetCurrentMode(const QString &identifier, int width, int height, int refresh, bool preferred)
 {
     // handle method call org.buddiesofbudgie.BudgieDaemonX.Displays.SetCurrentMode
-    QMetaObject::invokeMethod(parent(), "SetCurrentMode", Q_ARG(QString, serial), Q_ARG(int, width), Q_ARG(int, height), Q_ARG(double, refresh), Q_ARG(bool, preferred));
+    QMetaObject::invokeMethod(parent(), "SetCurrentMode", Q_ARG(QString, identifier), Q_ARG(int, width), Q_ARG(int, height), Q_ARG(int, refresh), Q_ARG(bool, preferred));
 }
 
-void DisplaysAdaptor::SetOutputEnabled(const QString &serial, bool enabled)
+void DisplaysAdaptor::SetOutputEnabled(const QString &identifier, bool enabled)
 {
     // handle method call org.buddiesofbudgie.BudgieDaemonX.Displays.SetOutputEnabled
-    QMetaObject::invokeMethod(parent(), "SetOutputEnabled", Q_ARG(QString, serial), Q_ARG(bool, enabled));
+    QMetaObject::invokeMethod(parent(), "SetOutputEnabled", Q_ARG(QString, identifier), Q_ARG(bool, enabled));
 }
 
-void DisplaysAdaptor::SetOutputPosition(const QString &serial, int x, int y)
+void DisplaysAdaptor::SetOutputPosition(const QString &identifier, int x, int y)
 {
     // handle method call org.buddiesofbudgie.BudgieDaemonX.Displays.SetOutputPosition
-    QMetaObject::invokeMethod(parent(), "SetOutputPosition", Q_ARG(QString, serial), Q_ARG(int, x), Q_ARG(int, y));
+    QMetaObject::invokeMethod(parent(), "SetOutputPosition", Q_ARG(QString, identifier), Q_ARG(int, x), Q_ARG(int, y));
 }
 
