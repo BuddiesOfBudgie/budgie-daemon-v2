@@ -13,12 +13,14 @@ int main(int argc, char* argv[]) {
     qCritical() << "Cannot connect to the session bus";
     return EXIT_FAILURE;
   }
+  qDBusRegisterMetaType<OutputModesList>();
+  qDBusRegisterMetaType<OutputDetailsList>();
 
   bd::DisplayConfig::instance().parseConfig();
   bd::DisplayConfig::instance().debugOutput();
   auto& orchestrator = bd::WaylandOrchestrator::instance();
 
-  app.connect(&orchestrator, &bd::WaylandOrchestrator::orchestratorInitFailed, [&app](const QString& error) {
+  app.connect(&orchestrator, &bd::WaylandOrchestrator::orchestratorInitFailed, [](const QString& error) {
     qFatal() << "Failed to initialize Wayland Orchestrator: " << error;
   });
 
@@ -26,7 +28,7 @@ int main(int argc, char* argv[]) {
 
   bd::DisplayService displayService;
 
-  app.connect(&orchestrator, &bd::WaylandOrchestrator::ready, &app, [&app, &displayService]() {
+  app.connect(&orchestrator, &bd::WaylandOrchestrator::ready, &app, [&displayService]() {
     qInfo() << "Wayland Orchestrator ready";
     qInfo() << "Starting Display DBus Service now";
     if (!QDBusConnection::sessionBus().registerObject(DISPLAY_SERVICE_PATH, displayService.GetAdaptor(), QDBusConnection::ExportAllSlots)) {

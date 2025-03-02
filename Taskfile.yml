@@ -8,7 +8,7 @@ tasks:
   qdbus-gen:
     dir: src/dbus
     cmds:
-      - qdbusxml2cpp-qt6 -a DisplayAdaptorGen DisplaySchema.xml
+      - qdbusxml2cpp-qt6 -i DisplaySchemaTypes.hpp -a DisplayAdaptorGen DisplaySchema.xml
   setup:
     desc: "Run cmake configuration"
     cmds:

@@ -7,36 +7,35 @@
             <arg name="outputs" type="as" direction="out"/>
         </method>
 
-        <method name="GetCurrentOutputDetails">
-            <annotation name="org.qtproject.QtDBus.QtTypeName.Out0" value="QVariantList"/>
-            <arg name="details" type="a(ssiiiidibb)" direction="out"/>
-            <arg name="serial" type="s" direction="in"/>
+        <method name="GetOutputDetails">
+            <annotation name="org.qtproject.QtDBus.QtTypeName.Out0" value="OutputDetailsList"/>
+            <arg name="details" type="a(ssiiiiddbb)" direction="out"/>
+            <arg name="identifier" type="s" direction="in"/>
         </method>
 
         <method name="GetAvailableModes">
             <annotation name="org.qtproject.QtDBus.QtTypeName.In0" value="QString"/>
-            <annotation name="org.qtproject.QtDBus.QtTypeName.Out0" value="QVariantList"/>
-            <arg name="serial" type="s" direction="in"/>
-            <arg name="modes" type="a(iii)" direction="out"/>
+            <annotation name="org.qtproject.QtDBus.QtTypeName.Out0" value="OutputModesList"/>
+            <arg name="identifier" type="s" direction="in"/>
+            <arg name="modes" type="a(iid)" direction="out"/>
         </method>
 
         <method name="SetCurrentMode">
-            <arg name="serial" type="s" direction="in"/>
+            <arg name="identifier" type="s" direction="in"/>
             <arg name="width" type="i" direction="in"/>
             <arg name="height" type="i" direction="in"/>
-            <arg name="refresh" type="d" direction="in"/>
+            <arg name="refresh" type="i" direction="in"/>
             <arg name="preferred" type="b" direction="in"/>
-
         </method>
 
         <method name="SetOutputPosition">
-            <arg name="serial" type="s" direction="in"/>
+            <arg name="identifier" type="s" direction="in"/>
             <arg name="x" type="i" direction="in"/>
             <arg name="y" type="i" direction="in"/>
         </method>
 
         <method name="SetOutputEnabled">
-            <arg name="serial" type="s" direction="in"/>
+            <arg name="identifier" type="s" direction="in"/>
             <arg name="enabled" type="b" direction="in"/>
         </method>
     </interface>

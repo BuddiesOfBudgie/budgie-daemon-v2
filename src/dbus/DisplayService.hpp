@@ -1,4 +1,5 @@
 #pragma once
+#include "DisplaySchemaTypes.hpp"
 #include "DisplayAdaptorGen.h"
 
 #define DISPLAY_SERVICE_NAME "org.buddiesofbudgie.BudgieDaemonX.Displays"
@@ -13,12 +14,12 @@ namespace bd {
       DisplaysAdaptor* GetAdaptor();
 
     public slots:
-      QVariantList GetAvailableModes(const QString& serial);
-      QStringList  GetAvailableOutputs();
-      QVariantList GetCurrentOutputDetails(const QString& serial);
-      void         SetCurrentMode(const QString& serial, int width, int height, double refresh, bool preferred);
-      void         SetOutputEnabled(const QString& serial, bool enabled);
-      void         SetOutputPosition(const QString& serial, int x, int y);
+      OutputModesList   GetAvailableModes(const QString& identifier);
+      QStringList       GetAvailableOutputs();
+      OutputDetailsList GetOutputDetails(const QString& identifier);
+      void              SetCurrentMode(const QString &identifier, int width, int height, int refresh, bool preferred);
+      void              SetOutputEnabled(const QString& identifier, bool enabled);
+      void              SetOutputPosition(const QString& identifier, int x, int y);
 
     private:
       DisplaysAdaptor* m_adaptor;

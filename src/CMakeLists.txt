@@ -18,6 +18,8 @@ set(SRCS
         dbus/DisplayService.cpp
         displays/output-manager/WaylandOutputManager.cpp
         main.cpp
+        sys/SysInfo.cpp
+        dbus/DisplaySchemaTypes.hpp
 )
 
 add_library(WaylandProtocols_xml OBJECT)
@@ -32,7 +34,7 @@ ecm_add_qtwayland_client_protocol(WaylandProtocols_xml
 )
 
 add_executable(org.buddiesofbudgie.BudgieDaemonV2 ${SRCS} ${WaylandProtocols_xml})
-target_include_directories(org.buddiesofbudgie.BudgieDaemonV2 PUBLIC ${CMAKE_CURRENT_BINARY_DIR} config dbus displays includes)
+target_include_directories(org.buddiesofbudgie.BudgieDaemonV2 PUBLIC ${CMAKE_CURRENT_BINARY_DIR} config dbus displays includes sys)
 target_link_libraries(org.buddiesofbudgie.BudgieDaemonV2 PRIVATE Qt6::Core Qt6::DBus Wayland::Client WaylandProtocols_xml)
 install(
         FILES dbus/org.buddiesofbudgie.BudgieDaemonX.conf
