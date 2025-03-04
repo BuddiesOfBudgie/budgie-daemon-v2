@@ -36,7 +36,7 @@ namespace bd {
 
     wl_registry_listener listener = {
         .global        = registryHandleGlobalStatic,
-        .global_remove = nullptr,
+        .global_remove = registryHandleGlobalRemoveStatic,
     };
 
     wl_registry_add_listener(m_registry, &listener, this);
@@ -89,8 +89,17 @@ namespace bd {
     }
   }
 
+  void WaylandOrchestrator::registryHandleGlobalRemove(void* data, wl_registry* reg, uint32_t name) {
+    Q_UNUSED(data);
+    Q_UNUSED(reg);
+  }
+
   void WaylandOrchestrator::registryHandleGlobalStatic(void *data, wl_registry *reg, uint32_t name, const char *interface, [[maybe_unused]] uint32_t version) {
     static_cast<WaylandOrchestrator*>(data)->registryHandleGlobal(data, reg, name, interface);
+  }
+
+  void WaylandOrchestrator::registryHandleGlobalRemoveStatic(void* data, wl_registry* reg, uint32_t name) {
+    static_cast<WaylandOrchestrator*>(data)->registryHandleGlobalRemove(data, reg, name);
   }
 
   WaylandOutputManager::WaylandOutputManager(QObject* parent, wl_registry* registry, uint32_t serial, uint32_t version)
@@ -120,15 +129,22 @@ namespace bd {
   // configurations, as it is a protocol error to not specify everything else.
   QList<WaylandOutputConfigurationHead *> WaylandOutputManager::applyNoOpConfigurationForNonSpecifiedHeads(WaylandOutputConfiguration* config, const QStringList& serials) {
     auto configHeads = QList<WaylandOutputConfigurationHead*>{};
+    qDebug() << "Applying no-op configuration for non-specified heads. Ignoring:" << serials.join(", ");
 
     for (const auto o : this->m_heads) {
+      qDebug() << "Checking head " << o->getIdentifier() << ": " << o->getDescription();
       // Skip the output for the serial we are changing
-      if (serials.contains(o->getIdentifier())) { continue; }
+      if (serials.contains(o->getIdentifier())) {
+        qDebug() << "Skipping head " << o->getIdentifier();
+        continue;
+      }
 
       if (o->isEnabled()) {
+        qDebug() << "Ensuring head " << o->getIdentifier() << " is enabled";
         auto head = config->enable(o);
         configHeads.append(head);
       } else {
+        qDebug() << "Ensuring head " << o->getIdentifier() << " is disabled";
         config->disable(o);
       }
     }

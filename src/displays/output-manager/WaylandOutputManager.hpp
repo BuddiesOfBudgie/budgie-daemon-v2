@@ -35,6 +35,7 @@ namespace bd {
 
       // wl_registry_listener public listeners
       void registryHandleGlobal(void *data, wl_registry *reg, uint32_t name, const char *interface);
+      void registryHandleGlobalRemove(void* data, wl_registry* reg, uint32_t name);
 
     signals:
       void ready();
@@ -54,6 +55,7 @@ namespace bd {
 
       // wl_registry_listener static private handlers
       static void registryHandleGlobalStatic(void* data, wl_registry* reg, uint32_t name, const char* interface, uint32_t version);
+      static void registryHandleGlobalRemoveStatic(void* data, wl_registry* reg, uint32_t name);
   };
 
   class WaylandOutputManager : public QObject, QtWayland::zwlr_output_manager_v1 {
