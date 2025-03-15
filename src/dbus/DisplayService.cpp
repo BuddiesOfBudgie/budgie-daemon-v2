@@ -81,9 +81,6 @@ namespace bd {
 
     auto configuration_head = output_config->enable(output);
 
-    // TODO: Josh - add back
-    // zwlr_output_configuration_v1_add_listener(wlr_output_config, &config_listener, NULL);
-
     auto refreshAsDouble =  refresh / 1000.0;
     auto modeOption = output->getModeForOutputHead(width, height, refreshAsDouble);
 
@@ -98,7 +95,6 @@ namespace bd {
     output_config->applySelf();
 
     wl_display_dispatch(WaylandOrchestrator::instance().getDisplay());
-    wl_display_dispatch_pending(WaylandOrchestrator::instance().getDisplay());
 
     auto& displayConfig       = DisplayConfig::instance();
     auto  configForIdentifier = displayConfig.getActiveGroup()->getConfigForIdentifier(identifier);
@@ -108,6 +104,10 @@ namespace bd {
       configForIdentifier.value()->setHeight(height);
       configForIdentifier.value()->setRefresh(refreshAsDouble);
       displayConfig.saveState();
+    }
+
+    for (auto cleanup_head : heads) {
+      delete cleanup_head;
     }
 
     output_config->release();
@@ -125,9 +125,6 @@ namespace bd {
     auto output_config = manager->configure();
     auto output        = outputOption.value();
 
-    // TODO: Josh - Fix
-    // zwlr_output_configuration_v1_add_listener(wlr_output_config, &config_listener, nullptr);
-
     if (enabled) {
       output_config->enable(output);
     } else {
@@ -136,8 +133,22 @@ namespace bd {
 
     auto heads = manager->applyNoOpConfigurationForNonSpecifiedHeads(output_config, QStringList {identifier});
 
-    output_config->applySelf();
-    output_config->release();
+    try {
+      output_config->applySelf();
+      output_config->release();
+    } catch (const std::exception& e) {
+      qWarning() << "Failed to apply configuration: " << e.what();
+    }
+
+    if (WaylandOrchestrator::instance().getDisplay()) {
+      try {
+        wl_display_roundtrip(WaylandOrchestrator::instance().getDisplay());
+      } catch (const std::exception& e) {
+        qWarning() << "Failed to dispatch display changes: " << e.what();
+      }
+    } else {
+      qWarning() << "Wayland display is not initialized.";
+    }
 
     auto& displayConfig       = DisplayConfig::instance();
     auto  configForIdentifier = displayConfig.getActiveGroup()->getConfigForIdentifier(identifier);
@@ -150,8 +161,6 @@ namespace bd {
     for (auto cleanup_head : heads) {
       delete cleanup_head;
     }
-
-    wl_display_dispatch(WaylandOrchestrator::instance().getDisplay());
   }
 
   void DisplayService::SetOutputPosition(const QString& identifier, int x, int y) {
@@ -179,10 +188,9 @@ namespace bd {
     configuration_head->setPosition(x, y);
 
     // It is a protocol error to not specify everything else
-    manager->applyNoOpConfigurationForNonSpecifiedHeads(output_config, QStringList {identifier});
+    auto heads = manager->applyNoOpConfigurationForNonSpecifiedHeads(output_config, QStringList {identifier});
 
     output_config->applySelf();
-    output_config->release();
 
     wl_display_dispatch(WaylandOrchestrator::instance().getDisplay());
 
@@ -193,5 +201,11 @@ namespace bd {
       configForIdentifier.value()->setPosition({x, y});
       displayConfig.saveState();
     }
+
+    for (auto cleanup_head : heads) {
+      delete cleanup_head;
+    }
+
+    output_config->release();
   }
 }

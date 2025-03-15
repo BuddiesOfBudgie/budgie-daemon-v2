@@ -85,16 +85,16 @@ namespace bd {
         if (mode_option.has_value()) {  // Found an existing mode for the head
           auto mode = mode_option.value();
           qDebug() << "Found mode for output " << qIdentifier << ": " << width << "x" << height << "@" << refresh << "\n\t" << "Position: " << position.at(0)
-                  << ", " << position.at(1);
+                   << ", " << position.at(1);
           config_head->setMode(mode);
         } else {
           qDebug() << "Found no mode for output " << qIdentifier << ", applying custom: \n\t" << width << "x" << height << "@" << refresh << "\n\t"
-                  << "Position: " << position.at(0) << ", " << position.at(1);
+                   << "Position: " << position.at(0) << ", " << position.at(1);
           config_head->setCustomMode(width, height, refresh);
         }
 
         config_head->setPosition(position.at(0), position.at(1));  // Apply related position to the head
-        config_head->setScale(config->getScale());                                                             // Apply related scale to the head
+        config_head->setScale(config->getScale());                 // Apply related scale to the head
         config_head->setTransform(config->getRotation());
         config_head->setAdaptiveSync(
             config->getAdaptiveSync() ? QtWayland::zwlr_output_head_v1::adaptive_sync_state_enabled
@@ -105,7 +105,6 @@ namespace bd {
     if (should_apply) {
       qDebug() << "Applying configuration";
       wlr_output_config->applySelf();
-      wlr_output_config->release();
       if (WaylandOrchestrator::instance().getDisplay() == nullptr) {
         qCritical() << "Display is null";
         return;
@@ -114,6 +113,8 @@ namespace bd {
     } else {
       qDebug() << "No configuration to apply";
     }
+
+    wlr_output_config->release();
   }
 
   DisplayGroup* DisplayConfig::createDisplayGroupForState() {

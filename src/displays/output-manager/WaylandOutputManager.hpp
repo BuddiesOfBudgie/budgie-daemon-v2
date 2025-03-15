@@ -78,6 +78,7 @@ namespace bd {
 
     protected:
       void zwlr_output_manager_v1_head(zwlr_output_head_v1* head) override;
+      void zwlr_output_manager_v1_finished() override;
       void zwlr_output_manager_v1_done(uint32_t serial) override;
 
     private:
@@ -93,6 +94,7 @@ namespace bd {
 
     public:
       WaylandOutputHead(QObject* parent, wl_registry* registry, ::zwlr_output_head_v1* wlr_head);
+      ~WaylandOutputHead() override;
 
       bool isBuiltIn();
       QList<WaylandOutputMode*>                           getModes();
