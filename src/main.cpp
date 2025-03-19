@@ -4,7 +4,7 @@
 #include "config/display.hpp"
 #include "dbus/DisplayService.hpp"
 #include "displays/configuration.hpp"
-#include "output-manager/WaylandOutputManager.hpp"
+#include "displays/output-manager/WaylandOutputManager.hpp"
 
 int main(int argc, char* argv[]) {
   QCoreApplication app(argc, argv);
