@@ -37,6 +37,7 @@ set_package_properties(
 
 find_package(Wayland REQUIRED)
 find_package(QtWaylandScanner REQUIRED)
+find_package(KWayland REQUIRED)
 
 option(INSTALL_SERVICE_FILES "Install service files for autostarting" ON)
 option(INSTALL_LABWC "Install autostart files for labwc" ON)
@@ -46,7 +47,7 @@ add_subdirectory(src)
 feature_summary(WHAT ALL INCLUDE_QUIET_PACKAGES
                          FATAL_ON_MISSING_REQUIRED_PACKAGES)
 
-file(GLOB_RECURSE ALL_CLANG_FORMAT_SOURCE_FILES *.cpp *.hpp)
-kde_clang_format(${ALL_CLANG_FORMAT_SOURCE_FILES})
+#file(GLOB_RECURSE ALL_CLANG_FORMAT_SOURCE_FILES *.cpp *.hpp)
+#kde_clang_format(${ALL_CLANG_FORMAT_SOURCE_FILES})
 
-kde_configure_git_pre_commit_hook(CHECKS CLANG_FORMAT)
+#kde_configure_git_pre_commit_hook(CHECKS CLANG_FORMAT)

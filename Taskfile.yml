@@ -6,17 +6,32 @@ tasks:
     cmds:
       - clang-format -i src/**/*.cpp src/**/*.hpp
   qdbus-gen:
+    desc: "Generate qdbus adaptor"
     dir: src/dbus
     cmds:
-      - qdbusxml2cpp-qt6 -i DisplaySchemaTypes.hpp -a DisplayAdaptorGen DisplaySchema.xml
+      - /usr/lib64/qt6/bin/qdbusxml2cpp -i DisplaySchemaTypes.hpp -a DisplayAdaptorGen DisplaySchema.xml
   setup:
     desc: "Run cmake configuration"
     cmds:
       - cmake -S . -B build -G Ninja
-  build: cmake --build build
-  build-watch: watchman-make -p '**/*.cpp' '**/*.h' --run "task cook"
-  cook:
+  build:
+    desc: "Run cmake build"
     cmds:
-      - task setup
-      - task build
-  install: sudo ninja install -C build
+      - cmake --build build
+  build-watch:
+    desc: "Run cmake build on file change using watchman"
+    cmds:
+      - watchman-make -p '**/*.cpp' '**/*.h' --run "task cook"
+  cook:
+    desc: "Run cmake setup and build"
+    cmds:
+      - go-task setup
+      - go-task build
+  install:
+    desc: "Run ninja install"
+    cmds:
+      - sudo ninja install -C build
+  wldbg-build:
+    desc: "Run wldbg (wayland-debug) against build"
+    cmds:
+      - wldbg -r ./build/src/org.buddiesofbudgie.BudgieDaemonV2 -g

@@ -6,6 +6,7 @@
 #include <QObject>
 #include <optional>
 #include <string>
+#include <KWayland/Client/registry.h>
 
 #include "qwayland-wlr-output-management-unstable-v1.h"
 
@@ -28,14 +29,10 @@ namespace bd {
       void                  init();
       WaylandOutputManager* getManager();
       wl_display*           getDisplay();
-      wl_registry*          getRegistry();
+      KWayland::Client::Registry*          getRegistry();
 
       bool hasSerial();
       int  getSerial();
-
-      // wl_registry_listener public listeners
-      void registryHandleGlobal(void *data, wl_registry *reg, uint32_t name, const char *interface);
-      void registryHandleGlobalRemove(void* data, wl_registry* reg, uint32_t name);
 
     signals:
       void ready();
@@ -46,23 +43,20 @@ namespace bd {
       void outputManagerDone();
 
     private:
-      wl_registry*          m_registry;
+      KWayland::Client::Registry*          m_registry;
       wl_display*           m_display;
       WaylandOutputManager* m_manager;
       bool                  m_has_initted;
       bool                  m_has_serial;
       int                   m_serial;
 
-      // wl_registry_listener static private handlers
-      static void registryHandleGlobalStatic(void* data, wl_registry* reg, uint32_t name, const char* interface, uint32_t version);
-      static void registryHandleGlobalRemoveStatic(void* data, wl_registry* reg, uint32_t name);
   };
 
   class WaylandOutputManager : public QObject, QtWayland::zwlr_output_manager_v1 {
       Q_OBJECT
 
     public:
-      WaylandOutputManager(QObject* parent, wl_registry* registry, uint32_t serial, uint32_t version);
+      WaylandOutputManager(QObject* parent, KWayland::Client::Registry* registry, uint32_t serial, uint32_t version);
       //      static WaylandOutputManager& instance();
 
       WaylandOutputConfiguration*       configure();
@@ -78,10 +72,11 @@ namespace bd {
 
     protected:
       void zwlr_output_manager_v1_head(zwlr_output_head_v1* head) override;
+      void zwlr_output_manager_v1_finished() override;
       void zwlr_output_manager_v1_done(uint32_t serial) override;
 
     private:
-      wl_registry*              m_registry;
+      KWayland::Client::Registry*              m_registry;
       QList<WaylandOutputHead*> m_heads;
       uint32_t                  m_serial;
       bool                      m_has_serial;
@@ -92,7 +87,8 @@ namespace bd {
       Q_OBJECT
 
     public:
-      WaylandOutputHead(QObject* parent, wl_registry* registry, ::zwlr_output_head_v1* wlr_head);
+      WaylandOutputHead(QObject* parent, KWayland::Client::Registry* registry, ::zwlr_output_head_v1* wlr_head);
+      ~WaylandOutputHead() override;
 
       bool isBuiltIn();
       QList<WaylandOutputMode*>                           getModes();
@@ -132,7 +128,7 @@ namespace bd {
       void zwlr_output_head_v1_finished() override;
 
     private:
-      wl_registry*              m_registry;
+      KWayland::Client::Registry*              m_registry;
       ::zwlr_output_head_v1*    m_wlr_head;
       QString                   m_make;
       QString                   m_model;

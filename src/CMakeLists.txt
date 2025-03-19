@@ -4,7 +4,7 @@
 
 add_library(WaylandProtocols_xml OBJECT)
 set_property(TARGET WaylandProtocols_xml PROPERTY POSITION_INDEPENDENT_CODE ON)
-target_link_libraries(WaylandProtocols_xml PUBLIC Qt::Core Wayland::Client)
+target_link_libraries(WaylandProtocols_xml PUBLIC Qt::Core Wayland::Client Plasma::KWaylandClient)
 set_target_properties(WaylandProtocols_xml PROPERTIES LINKER_LANGUAGE C)
 
 ecm_add_qtwayland_client_protocol(
