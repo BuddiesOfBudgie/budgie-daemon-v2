@@ -24,6 +24,16 @@ add_library(
   dbus/DisplaySchemaTypes.hpp
   dbus/DisplayService.cpp
   dbus/DisplayService.hpp
+  displays/output-manager/head/enums.hpp
+  displays/output-manager/head/WaylandOutputHead.cpp
+  displays/output-manager/head/WaylandOutputHead.hpp
+  displays/output-manager/head/WaylandOutputMetaHead.cpp
+  displays/output-manager/head/WaylandOutputMetaHead.hpp
+  displays/output-manager/mode/enums.hpp
+  displays/output-manager/mode/WaylandOutputMetaMode.cpp
+  displays/output-manager/mode/WaylandOutputMetaMode.hpp
+  displays/output-manager/mode/WaylandOutputMode.cpp
+  displays/output-manager/mode/WaylandOutputMode.hpp
   displays/output-manager/WaylandOutputManager.cpp
   displays/output-manager/WaylandOutputManager.hpp
   displays/configuration.cpp

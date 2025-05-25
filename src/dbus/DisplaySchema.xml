@@ -9,7 +9,7 @@
 
         <method name="GetOutputDetails">
             <annotation name="org.qtproject.QtDBus.QtTypeName.Out0" value="OutputDetailsList"/>
-            <arg name="details" type="a(ssiiiiddbb)" direction="out"/>
+            <arg name="details" type="a(ssiiiiddbbb)" direction="out"/>
             <arg name="identifier" type="s" direction="in"/>
         </method>
 

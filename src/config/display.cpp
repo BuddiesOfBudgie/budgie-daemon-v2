@@ -73,7 +73,14 @@ namespace bd {
         }
 
         // Enable the head and get the configuration head struct
-        auto config_head = wlr_output_config->enable(head);
+        auto config_head_opt = wlr_output_config->enable(head);
+
+        if (!config_head_opt.has_value()) {
+          qWarning() << "Failed to enable output " << qIdentifier << ", wlr_head is not available";
+          continue;
+        }
+
+        auto config_head = config_head_opt.value();
 
         auto width    = config->getWidth();
         auto height   = config->getHeight();
@@ -136,17 +143,38 @@ namespace bd {
 
     for (const auto& head : heads) {
       if (head->getIdentifier() == nullptr) continue;
-      auto head_mode = head->getCurrentMode();
-      auto config    = new DisplayGroupOutputConfig();
+      auto head_mode_opt = head->getCurrentMode();
+
+      if (!head_mode_opt.has_value()) {
+        qWarning() << "Head " << head->getIdentifier() << " has no current mode, skipping.";
+        continue;
+      }
+
+      auto head_mode = head_mode_opt.value();
+
+      auto mode_size_opt    = head_mode->getSize();
+      auto mode_refresh_opt = head_mode->getRefresh();
+      if (!mode_size_opt.has_value() || !mode_refresh_opt.has_value()) {
+        qWarning() << "Head " << head->getIdentifier() << " has no size or refresh value set, skipping.";
+        continue;
+      }
+      if (!mode_size_opt.value().isValid() || !mode_refresh_opt.has_value()) continue;
+
+      auto mode_size    = mode_size_opt.value();
+      auto mode_refresh = mode_refresh_opt.value();
+      auto head_pos     = head->getPosition();
+
+      auto config = new DisplayGroupOutputConfig();
       config->setIdentifier(head->getIdentifier());
-      config->setWidth(head_mode->getWidth());
-      config->setHeight(head_mode->getHeight());
-      config->setRefresh(head_mode->getRefresh());
-      config->setPosition({head->getX(), head->getY()});
+      config->setWidth(mode_size.width());
+      config->setHeight(mode_size.height());
+      config->setRefresh(mode_refresh);
+      config->setPosition({head_pos.x(), head_pos.y()});
       config->setScale(head->getScale());
       config->setRotation(head->getTransform());
       config->setAdaptiveSync(head->getAdaptiveSync());
       defaultDisplayGroupForState->addConfig(config);
+      config->deleteLater();
     }
 
     return defaultDisplayGroupForState;

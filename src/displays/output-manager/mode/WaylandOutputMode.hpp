@@ -1,0 +1,37 @@
+#pragma once
+#include <QObject>
+#include <QSize>
+#include <QVariant>
+#include "qwayland-wlr-output-management-unstable-v1.h"
+
+#include "enums.hpp"
+
+namespace bd {
+  class WaylandOutputMode : public QObject, QtWayland::zwlr_output_mode_v1 {
+      Q_OBJECT
+
+    public:
+      WaylandOutputMode(QObject* parent, ::zwlr_output_mode_v1* mode);
+
+      zwlr_output_mode_v1*   getBase();
+      ::zwlr_output_mode_v1* getWlrMode();
+
+    signals:
+      void done();
+      void propertyChanged(WaylandOutputMetaModeProperty property, const QVariant& value);
+      void modeFinished();
+
+    protected:
+      void zwlr_output_mode_v1_size(int32_t width, int32_t height) override;
+      void zwlr_output_mode_v1_refresh(int32_t refresh) override;
+      void zwlr_output_mode_v1_preferred() override;
+      void zwlr_output_mode_v1_finished() override;
+
+    private:
+      void                   checkIfDone();
+    bool m_emitted_preferred;
+    bool m_emitted_refresh;
+    bool m_emitted_size;
+      ::zwlr_output_mode_v1* m_wlr_mode;
+  };
+}

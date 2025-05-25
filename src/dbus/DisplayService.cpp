@@ -1,7 +1,7 @@
 #include "DisplayService.hpp"
 
-#include "../displays/output-manager/WaylandOutputManager.hpp"
 #include "display.hpp"
+#include "displays/output-manager/WaylandOutputManager.hpp"
 
 namespace bd {
   DisplayService::DisplayService(QObject* parent) : QObject(parent) {
@@ -17,7 +17,21 @@ namespace bd {
 
     auto modes = OutputModesList {};
     for (const auto& mode : output.value()->getModes()) {
-      auto modeInfo = QVector<QVariant> {mode->getWidth(), mode->getHeight(), mode->getRefresh()};
+      auto modeSizeOpt    = mode->getSize();
+      auto modeRefreshOpt = mode->getRefresh();
+      if (!modeSizeOpt.has_value() || !modeRefreshOpt.has_value()) {
+        qWarning() << "Mode for output " << identifier << " is invalid, skipping";
+        continue;
+      }
+      auto modeSize = modeSizeOpt.value();
+
+      if (!modeSize.isValid()) {
+        qWarning() << "Mode size for output " << identifier << " is invalid, skipping";
+        continue;
+      }
+
+      auto modeRefresh = modeRefreshOpt.value();
+      auto modeInfo    = QVector<QVariant> {modeSize.width(), modeSize.height(), modeRefresh};
       modes.append(modeInfo);
     }
 
@@ -36,33 +50,52 @@ namespace bd {
   }
 
   OutputDetailsList DisplayService::GetOutputDetails(const QString& identifier) {
-    auto output = WaylandOrchestrator::instance().getManager()->getOutputHead(identifier);
-    if (!output.has_value()) {
+    auto outputOption = WaylandOrchestrator::instance().getManager()->getOutputHead(identifier);
+    if (!outputOption.has_value()) {
       qWarning() << "Received request for output " << identifier << " which does not exist";
-      QDBusMessage::createError(QDBusError::InvalidArgs, "Output does not exist");
+      // Create a QDBusMessage for the error, but note this doesn't send it.
+      // The method will return an empty list, signaling success to D-Bus.
+      QDBusMessage::createError(QDBusError::InternalError, "Output " + identifier + " does not exist");
+      return {};
     }
 
-    auto output_head = output.value();
-    auto mode        = output_head->getCurrentMode();
+    auto output_head = outputOption.value();
+    // Assuming getCurrentMode() returns a pointer to the mode, which can be nullptr
+    auto current_mode_opt = output_head->getCurrentMode();
+    if (!current_mode_opt.has_value()) {
+      qWarning() << "Output " << identifier << " has no current mode set.";
+      // Create a QDBusMessage for the error, but note this doesn't send it.
+      QDBusMessage::createError(QDBusError::InternalError, "Output " + identifier + " has no current mode");
+      return {};
+    }
+
+    auto current_mode = current_mode_opt.value();
 
     auto list = QVariantList {};
     list.append(output_head->getName());
     list.append(output_head->getDescription());
 
+    // Assuming current_mode->getSize() returns std::optional<QSize>
+    // and current_mode->getRefresh() returns std::optional<double>
+    auto size    = current_mode->getSize().value_or(QSize(0, 0));
+    auto refresh = current_mode->getRefresh().value_or(0.0);
+    auto pos     = output_head->getPosition();
+
     // These are all "out" parameters
-    list.append(mode->getWidth());
-    list.append(mode->getHeight());
-    list.append(output_head->getX());
-    list.append(output_head->getY());
+    list.append(size.width());   // Corrected: QSize uses .width()
+    list.append(size.height());  // Corrected: QSize uses .height()
+    list.append(pos.x());
+    list.append(pos.y());
     list.append(output_head->getScale());
-    list.append(mode->getRefresh());
-    list.append(mode->isPreferred());
+    list.append(refresh);
+    list.append(output_head->isAvailable());
+    list.append(current_mode->isPreferred().value_or(false));  // Use current_mode
     list.append(output_head->isEnabled());
 
     return list;
   }
 
-  void DisplayService::SetCurrentMode(const QString &identifier, int width, int height, int refresh, bool preferred) {
+  void DisplayService::SetCurrentMode(const QString& identifier, int width, int height, int refresh, bool preferred) {
     auto manager      = WaylandOrchestrator::instance().getManager();
     auto outputOption = manager->getOutputHead(identifier);
 
@@ -79,10 +112,18 @@ namespace bd {
       return;
     }
 
-    auto configuration_head = output_config->enable(output);
+    auto configuration_head_opt = output_config->enable(output);
 
-    auto refreshAsDouble =  refresh / 1000.0;
-    auto modeOption = output->getModeForOutputHead(width, height, refreshAsDouble);
+    if (!configuration_head_opt.has_value()) {
+      qWarning() << "Failed to enable output " << identifier << ", wlr_head is not available";
+      QDBusMessage::createError(QDBusError::InternalError, "Failed to enable output " + identifier + ", wlr_head is not available");
+      return;
+    }
+
+    auto configuration_head = configuration_head_opt.value();
+
+    auto refreshAsDouble = refresh / 1000.0;
+    auto modeOption      = output->getModeForOutputHead(width, height, refreshAsDouble);
 
     if (modeOption.has_value()) {
       configuration_head->setMode(modeOption.value());
@@ -106,9 +147,7 @@ namespace bd {
       displayConfig.saveState();
     }
 
-    for (auto cleanup_head : heads) {
-      delete cleanup_head;
-    }
+    for (auto cleanup_head : heads) { delete cleanup_head; }
 
     output_config->release();
   }
@@ -136,16 +175,12 @@ namespace bd {
     try {
       output_config->applySelf();
       output_config->release();
-    } catch (const std::exception& e) {
-      qWarning() << "Failed to apply configuration: " << e.what();
-    }
+    } catch (const std::exception& e) { qWarning() << "Failed to apply configuration: " << e.what(); }
 
     if (WaylandOrchestrator::instance().getDisplay()) {
       try {
         wl_display_roundtrip(WaylandOrchestrator::instance().getDisplay());
-      } catch (const std::exception& e) {
-        qWarning() << "Failed to dispatch display changes: " << e.what();
-      }
+      } catch (const std::exception& e) { qWarning() << "Failed to dispatch display changes: " << e.what(); }
     } else {
       qWarning() << "Wayland display is not initialized.";
     }
@@ -158,9 +193,7 @@ namespace bd {
       displayConfig.saveState();
     }
 
-    for (auto cleanup_head : heads) {
-      delete cleanup_head;
-    }
+    for (auto cleanup_head : heads) { delete cleanup_head; }
   }
 
   void DisplayService::SetOutputPosition(const QString& identifier, int x, int y) {
@@ -172,9 +205,10 @@ namespace bd {
       return;
     }
 
-    auto output = outputOption.value();
+    auto output          = outputOption.value();
+    auto output_position = output->getPosition();
 
-    qDebug() << "Found output " << identifier << "with name" << output->getName() << " at " << output->getX() << ", " << output->getY();
+    qDebug() << "Found output " << identifier << "with name" << output->getName() << " at " << output_position.x() << ", " << output_position.y();
 
     if (!output->isEnabled()) {
       qWarning() << "Received request for output " << identifier << " which is not enabled";
@@ -184,7 +218,15 @@ namespace bd {
     auto output_config = manager->configure();
 
     // TODO: Josh - Fix
-    auto configuration_head = output_config->enable(output);
+    auto configuration_head_opt = output_config->enable(output);
+
+    if (!configuration_head_opt.has_value()) {
+      qWarning() << "Failed to enable output " << identifier << ", wlr_head is not available";
+      QDBusMessage::createError(QDBusError::InternalError, "Failed to enable output " + identifier + ", wlr_head is not available");
+      return;
+    }
+
+    auto configuration_head = configuration_head_opt.value();
     configuration_head->setPosition(x, y);
 
     // It is a protocol error to not specify everything else
@@ -202,9 +244,7 @@ namespace bd {
       displayConfig.saveState();
     }
 
-    for (auto cleanup_head : heads) {
-      delete cleanup_head;
-    }
+    for (auto cleanup_head : heads) { delete cleanup_head; }
 
     output_config->release();
   }

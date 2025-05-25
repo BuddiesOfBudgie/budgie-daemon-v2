@@ -79,7 +79,7 @@ namespace bd {
       bool               getDisabled() const;
       int                getHeight() const;
       std::array<int, 2> getPosition() const;
-      double                getRefresh() const;
+      double             getRefresh() const;
       int                getRotation() const;
       double             getScale() const;
       QString            getIdentifier() const;
@@ -101,7 +101,7 @@ namespace bd {
       QString            m_identifier;
       int                m_width;
       int                m_height;
-      double                m_refresh;
+      double             m_refresh;
       std::array<int, 2> m_position;
       double             m_scale;
       int                m_rotation;
