@@ -2,9 +2,9 @@
 #include <QObject>
 #include <QSize>
 #include <QVariant>
-#include "qwayland-wlr-output-management-unstable-v1.h"
 
 #include "enums.hpp"
+#include "qwayland-wlr-output-management-unstable-v1.h"
 
 namespace bd {
   class WaylandOutputMode : public QObject, QtWayland::zwlr_output_mode_v1 {
@@ -29,9 +29,9 @@ namespace bd {
 
     private:
       void                   checkIfDone();
-    bool m_emitted_preferred;
-    bool m_emitted_refresh;
-    bool m_emitted_size;
+      bool                   m_emitted_preferred;
+      bool                   m_emitted_refresh;
+      bool                   m_emitted_size;
       ::zwlr_output_mode_v1* m_wlr_mode;
   };
 }

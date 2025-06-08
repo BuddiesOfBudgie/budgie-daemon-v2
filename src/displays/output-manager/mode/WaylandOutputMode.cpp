@@ -16,7 +16,7 @@ namespace bd {
   }
 
   void WaylandOutputMode::zwlr_output_mode_v1_size(int32_t width, int32_t height) {
-    emit propertyChanged(WaylandOutputMetaModeProperty::Size, QVariant { QSize(width, height) });
+    emit propertyChanged(WaylandOutputMetaModeProperty::Size, QVariant {QSize(width, height)});
     m_emitted_size = true;
     checkIfDone();
   }

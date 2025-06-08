@@ -96,46 +96,44 @@ namespace bd {
   }
 
   void DisplayService::SetCurrentMode(const QString& identifier, int width, int height, int refresh, bool preferred) {
-    auto manager      = WaylandOrchestrator::instance().getManager();
-    auto outputOption = manager->getOutputHead(identifier);
+    auto manager = WaylandOrchestrator::instance().getManager();
+    auto output  = manager->getOutputHead(identifier);
 
-    if (!outputOption.has_value()) {
+    if (!output) {
       qWarning() << "Received request for output " << identifier << " which does not exist";
       return;
     }
 
     auto output_config = manager->configure();
-    auto output        = outputOption.value();
 
     if (!output->isEnabled()) {
       qWarning() << "Received request for output " << identifier << " which is not enabled";
       return;
     }
 
-    auto configuration_head_opt = output_config->enable(output);
+    auto configuration_head = output_config->enable(output.get());
 
-    if (!configuration_head_opt.has_value()) {
+    if (!configuration_head) {
       qWarning() << "Failed to enable output " << identifier << ", wlr_head is not available";
       QDBusMessage::createError(QDBusError::InternalError, "Failed to enable output " + identifier + ", wlr_head is not available");
       return;
     }
 
-    auto configuration_head = configuration_head_opt.value();
-
     auto refreshAsDouble = refresh / 1000.0;
-    auto modeOption      = output->getModeForOutputHead(width, height, refreshAsDouble);
+    auto mode            = output->getModeForOutputHead(width, height, refreshAsDouble);
 
-    if (modeOption.has_value()) {
-      configuration_head->setMode(modeOption.value());
+    if (mode) {
+      configuration_head->setMode(mode.get());
     } else {
       configuration_head->setCustomMode(width, height, refreshAsDouble);
     }
 
-    auto heads = manager->applyNoOpConfigurationForNonSpecifiedHeads(output_config, QStringList {identifier});
+    auto heads = manager->applyNoOpConfigurationForNonSpecifiedHeads(output_config.get(), QStringList {identifier});
 
     output_config->applySelf();
 
-    wl_display_dispatch(WaylandOrchestrator::instance().getDisplay());
+    auto display = WaylandOrchestrator::instance().getDisplay();
+    if (display) wl_display_dispatch(display.get());
 
     auto& displayConfig       = DisplayConfig::instance();
     auto  configForIdentifier = displayConfig.getActiveGroup()->getConfigForIdentifier(identifier);
@@ -147,8 +145,7 @@ namespace bd {
       displayConfig.saveState();
     }
 
-    for (auto cleanup_head : heads) { delete cleanup_head; }
-
+    heads.clear();
     output_config->release();
   }
 

@@ -1,21 +1,25 @@
-#include <QCryptographicHash>
 #include "WaylandOutputMetaHead.hpp"
-#include "displays/output-manager/mode/WaylandOutputMetaMode.hpp"
+
+#include <QCryptographicHash>
+#include <optional>
+
 #include "SysInfo.hpp"
+#include "displays/output-manager/mode/WaylandOutputMetaMode.hpp"
+#include "output-manager/head/WaylandOutputHead.hpp"
 
 namespace bd {
   WaylandOutputMetaHead::WaylandOutputMetaHead(QObject* parent, KWayland::Client::Registry* registry, ::zwlr_output_head_v1* wlr_head)
       : QObject(parent),
         m_registry(registry),
         m_current_mode(nullptr),
-        m_head(std::nullopt),
-        m_position(QPoint{0, 0}),
+        m_head(nullptr),
+        m_position(QPoint {0, 0}),
         m_transform(0),
         m_scale(1.0),
         m_is_available(false),
         m_enabled(false),
         m_adaptive_sync() {
-      setHead(wlr_head);
+    setHead(wlr_head);
   }
 
   WaylandOutputMetaHead::~WaylandOutputMetaHead() {
@@ -29,8 +33,7 @@ namespace bd {
     return m_adaptive_sync;
   }
 
-  std::optional<WaylandOutputMetaMode*> WaylandOutputMetaHead::getCurrentMode() {
-    if (m_current_mode == nullptr) { return std::nullopt; }
+  std::shared_ptr<WaylandOutputMetaMode> WaylandOutputMetaHead::getCurrentMode() {
     return m_current_mode;
   }
 
@@ -38,8 +41,7 @@ namespace bd {
     return m_description;
   }
 
-  std::optional<WaylandOutputHead*> WaylandOutputMetaHead::getHead() {
-    if (m_head == nullptr) { return std::nullopt; }
+  std::shared_ptr<WaylandOutputHead> WaylandOutputMetaHead::getHead() {
     return m_head;
   }
 
@@ -71,27 +73,22 @@ namespace bd {
     return m_identifier;
   }
 
-  std::optional<WaylandOutputMetaMode*> WaylandOutputMetaHead::getModeForOutputHead(int width, int height, double refresh) {
-    std::optional<WaylandOutputMetaMode*> output_mode = std::nullopt;
-
+  std::shared_ptr<WaylandOutputMetaMode> WaylandOutputMetaHead::getModeForOutputHead(int width, int height, double refresh) {
     for (auto mode : m_output_modes) {
-        auto modeSizeOpt = mode->getSize();
-        auto modeRefreshOpt = mode->getRefresh();
-        if (!modeSizeOpt.has_value() || !modeRefreshOpt.has_value()) continue;
-        if (!modeSizeOpt.value().isValid()) continue;
-        auto modeSize = modeSizeOpt.value();
-        auto modeRefresh = modeRefreshOpt.value();
+      auto modeSizeOpt    = mode->getSize();
+      auto modeRefreshOpt = mode->getRefresh();
+      if (!modeSizeOpt.has_value() || !modeRefreshOpt.has_value()) continue;
+      if (!modeSizeOpt.value().isValid()) continue;
+      auto modeSize    = modeSizeOpt.value();
+      auto modeRefresh = modeRefreshOpt.value();
 
-      if (modeSize.width() == width && modeSize.width() == height && modeRefresh == refresh) {
-        output_mode = mode;
-        break;
-      }
+      if (modeSize.width() == width && modeSize.width() == height && modeRefresh == refresh) { return mode; }
     }
 
-    return output_mode;
+    return nullptr;
   }
 
-  QList<WaylandOutputMetaMode*> WaylandOutputMetaHead::getModes() {
+  QList<std::shared_ptr<WaylandOutputMetaMode>> WaylandOutputMetaHead::getModes() {
     return m_output_modes;
   }
 
@@ -119,10 +116,11 @@ namespace bd {
     return m_transform;
   }
 
-  std::optional<::zwlr_output_head_v1*> WaylandOutputMetaHead::getWlrHead() {
-    if (!m_head.has_value()) { return std::nullopt; }
-    auto head = m_head.value();
-    return head->getWlrHead();
+  std::optional<std::shared_ptr<::zwlr_output_head_v1>> WaylandOutputMetaHead::getWlrHead() {
+    if (m_head == nullptr) return std::nullopt;
+    auto head = m_head.get()->getWlrHead();
+    if (head == nullptr) return std::nullopt;
+    return std::make_optional(head);
   }
 
   bool WaylandOutputMetaHead::isAvailable() {
@@ -144,7 +142,7 @@ namespace bd {
 
   void WaylandOutputMetaHead::setHead(::zwlr_output_head_v1* wlr_head) {
     auto head      = new WaylandOutputHead(this, wlr_head);
-    m_head         = head;
+    m_head         = std::make_shared<WaylandOutputHead>(head);
     m_is_available = true;
     connect(head, &WaylandOutputHead::headFinished, this, &WaylandOutputMetaHead::headDisconnected);
     connect(head, &WaylandOutputHead::modeAdded, this, &WaylandOutputMetaHead::addMode);
@@ -162,23 +160,27 @@ namespace bd {
       for (auto mode : m_output_modes) {
         // Already exists, set the wlr_mode of the existing mode and delete this newly created meta mode
         if (mode->isSameAs(output_mode)) {
-            qDebug() << "Found an output mode that matches one we already have, deleting the new one.";
+          qDebug() << "Found an output mode that matches one we already have, deleting the new one.";
+          auto wlr_mode_opt = output_mode->getWlrMode();
+          if (wlr_mode_opt) mode->setMode(wlr_mode_opt.get());
           output_mode->deleteLater();
           return;
         }
       }
 
       // Doesn't already exist, add it
-    qDebug() << "Adding new output mode to head: " << getIdentifier() << " with size: " << output_mode->getSize().value_or(QSize(0, 0))
+      qDebug() << "Adding new output mode to head: " << getIdentifier() << " with size: " << output_mode->getSize().value_or(QSize(0, 0))
                << " and refresh: " << output_mode->getRefresh().value_or(0.0);
-      m_output_modes.append(output_mode);
+      auto mode = std::make_shared<WaylandOutputMetaMode>(output_mode);
+      m_output_modes.append(mode);
     });
   }
 
   void WaylandOutputMetaHead::currentModeChanged(::zwlr_output_mode_v1* mode) {
     for (auto output_mode : m_output_modes) {
-      if (output_mode->getWlrMode() == mode) {
-          auto outputModeSizeOpt = output_mode->getSize();
+      if (!output_mode->getWlrMode()) continue;
+      if (output_mode->getWlrMode().get() == mode) {
+        auto outputModeSizeOpt = output_mode->getSize();
         if (!outputModeSizeOpt.has_value()) return;
         if (!outputModeSizeOpt.value().isValid()) return;
         auto outputModeSize = outputModeSizeOpt.value();
@@ -210,7 +212,7 @@ namespace bd {
         break;
       case WaylandOutputMetaHeadProperty::Enabled:
         m_enabled = value.toBool();
-            qInfo() << "Setting enabled state on head" << getIdentifier() << "to" << m_enabled;
+        qInfo() << "Setting enabled state on head" << getIdentifier() << "to" << m_enabled;
         break;
       case WaylandOutputMetaHeadProperty::Make:
         m_make = value.toString();

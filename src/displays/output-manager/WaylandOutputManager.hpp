@@ -5,11 +5,9 @@
 #include <wayland-util.h>
 
 #include <QObject>
-#include <optional>
-#include <string>
 
-#include "qwayland-wlr-output-management-unstable-v1.h"
 #include "head/WaylandOutputMetaHead.hpp"
+#include "qwayland-wlr-output-management-unstable-v1.h"
 
 namespace bd {
   class WaylandOrchestrator;
@@ -27,10 +25,10 @@ namespace bd {
       static WaylandOrchestrator& instance();
       static WaylandOrchestrator* create() { return &instance(); }
 
-      void                        init();
-      WaylandOutputManager*       getManager();
-      wl_display*                 getDisplay();
-      KWayland::Client::Registry* getRegistry();
+      void                                  init();
+      std::shared_ptr<WaylandOutputManager> getManager();
+      std::shared_ptr<wl_display>           getDisplay();
+      KWayland::Client::Registry*           getRegistry();
 
       bool hasSerial();
       int  getSerial();
@@ -44,12 +42,12 @@ namespace bd {
       void outputManagerDone();
 
     private:
-      KWayland::Client::Registry* m_registry;
-      wl_display*                 m_display;
-      WaylandOutputManager*       m_manager;
-      bool                        m_has_initted;
-      bool                        m_has_serial;
-      int                         m_serial;
+      KWayland::Client::Registry*           m_registry;
+      std::shared_ptr<wl_display>           m_display;
+      std::shared_ptr<WaylandOutputManager> m_manager;
+      bool                                  m_has_initted;
+      bool                                  m_has_serial;
+      int                                   m_serial;
   };
 
   class WaylandOutputManager : public QObject, QtWayland::zwlr_output_manager_v1 {
@@ -59,10 +57,12 @@ namespace bd {
       WaylandOutputManager(QObject* parent, KWayland::Client::Registry* registry, uint32_t serial, uint32_t version);
       //      static WaylandOutputManager& instance();
 
-      WaylandOutputConfiguration*            configure();
-      QList<WaylandOutputMetaHead*>          getHeads();
-      std::optional<WaylandOutputMetaHead*>  getOutputHead(const QString& str);
-      QList<WaylandOutputConfigurationHead*> applyNoOpConfigurationForNonSpecifiedHeads(WaylandOutputConfiguration* config, const QStringList& identifiers);
+      std::shared_ptr<WaylandOutputConfiguration>            configure();
+      QList<std::shared_ptr<WaylandOutputMetaHead>>          getHeads();
+      std::shared_ptr<WaylandOutputMetaHead>                 getOutputHead(const QString& str);
+      QList<std::shared_ptr<WaylandOutputConfigurationHead>> applyNoOpConfigurationForNonSpecifiedHeads(
+          WaylandOutputConfiguration* config,
+          const QStringList&          identifiers);
 
       uint32_t getSerial();
       uint32_t getVersion();
@@ -76,11 +76,11 @@ namespace bd {
       void zwlr_output_manager_v1_done(uint32_t serial) override;
 
     private:
-      KWayland::Client::Registry*   m_registry;
-      QList<WaylandOutputMetaHead*> m_heads;
-      uint32_t                      m_serial;
-      bool                          m_has_serial;
-      uint32_t                      m_version;
+      KWayland::Client::Registry*                   m_registry;
+      QList<std::shared_ptr<WaylandOutputMetaHead>> m_heads;
+      uint32_t                                      m_serial;
+      bool                                          m_has_serial;
+      uint32_t                                      m_version;
   };
 
   class WaylandOutputConfiguration : public QObject, QtWayland::zwlr_output_configuration_v1 {
@@ -89,10 +89,10 @@ namespace bd {
     public:
       WaylandOutputConfiguration(QObject* parent, ::zwlr_output_configuration_v1* config);
 
-      void                            applySelf();
-      std::optional<WaylandOutputConfigurationHead*> enable(WaylandOutputMetaHead* head);
-      void                            disable(WaylandOutputMetaHead* head);
-      void                            release();
+      void                                            applySelf();
+      std::shared_ptr<WaylandOutputConfigurationHead> enable(WaylandOutputMetaHead* head);
+      void                                            disable(WaylandOutputMetaHead* head);
+      void                                            release();
 
     signals:
       void succeeded();

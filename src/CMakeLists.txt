@@ -39,7 +39,8 @@ add_library(
   displays/configuration.cpp
   displays/configuration.hpp
   sys/SysInfo.cpp
-  sys/SysInfo.hpp)
+  sys/SysInfo.hpp
+)
 
 add_executable(budgie-daemon-v2-app main.cpp)
 target_include_directories(
@@ -66,14 +67,14 @@ install(FILES dbus/org.buddiesofbudgie.BudgieDaemonX.conf
         DESTINATION ${CMAKE_INSTALL_DATADIR}/dbus-1/system.d)
 
 if(INSTALL_SERVICE_FILES)
-  if(INSTALL_LABWC)
-    install(FILES data/labwc/autostart DESTINATION /etc/xdg/labwc)
-  else()
-    ecm_install_configured_files(
+    if(INSTALL_LABWC)
+        install(FILES data/labwc/autostart DESTINATION /etc/xdg/labwc)
+    else()
+        ecm_install_configured_files(
       INPUT data/org.buddiesofbudgie.BudgieDaemonV2.desktop.in DESTINATION
       ${KDE_INSTALL_AUTOSTARTDIR})
-    ecm_install_configured_files(
+        ecm_install_configured_files(
       INPUT data/org.buddiesofbudgie.BudgieDaemonV2.service.in DESTINATION
       ${KDE_INSTALL_SYSTEMDUSERUNITDIR})
-  endif()
+    endif()
 endif()

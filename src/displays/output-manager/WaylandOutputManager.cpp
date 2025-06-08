@@ -5,9 +5,7 @@
 
 #include <cstdint>
 #include <cstring>
-#include <iostream>
-
-#include "SysInfo.hpp"
+#include <memory>
 
 namespace bd {
   WaylandOrchestrator::WaylandOrchestrator(QObject* parent)
@@ -19,17 +17,19 @@ namespace bd {
   }
 
   void WaylandOrchestrator::init() {
-    m_display = wl_display_connect(nullptr);
-    if (m_display == nullptr) {
+    auto display = wl_display_connect(nullptr);
+    if (display == nullptr) {
       emit orchestratorInitFailed(QString("Failed to connect to the Wayland display"));
       return;
     }
 
+    m_display = std::make_shared<wl_display>(display);
+
     m_registry = new KWayland::Client::Registry();
-    m_registry->create(m_display);  // Create using our existing display connection
+    m_registry->create(m_display.get());  // Create using our existing display connection
 
     if (!m_registry->isValid()) {
-      wl_display_disconnect(m_display);
+      wl_display_disconnect(m_display.get());
       m_registry->release();
       emit orchestratorInitFailed(QString("Failed to create our KWayland registry and manage it"));
       return;
@@ -37,27 +37,27 @@ namespace bd {
 
     connect(m_registry, &KWayland::Client::Registry::interfaceAnnounced, this, [this](const QByteArray& interface, quint32 name, quint32 version) {
       if (std::strcmp(interface, QtWayland::zwlr_output_manager_v1::interface()->name) == 0) {
-        m_manager = new WaylandOutputManager(nullptr, m_registry, name, QtWayland::zwlr_output_manager_v1::interface()->version);
-
-        connect(m_manager, &WaylandOutputManager::done, this, &WaylandOrchestrator::outputManagerDone);
+        auto manager = new WaylandOutputManager(nullptr, m_registry, name, QtWayland::zwlr_output_manager_v1::interface()->version);
+        connect(manager, &WaylandOutputManager::done, this, &WaylandOrchestrator::outputManagerDone);
+        m_manager = std::make_shared<WaylandOutputManager>(manager);
       }
     });
 
     m_registry->setup();
 
-    if (wl_display_roundtrip(m_display) < 0) {
+    if (wl_display_roundtrip(m_display.get()) < 0) {
       emit orchestratorInitFailed(QString("Failed to perform roundtrip on Wayland display"));
       return;
     }
 
-    wl_display_dispatch(m_display);
+    wl_display_dispatch(m_display.get());
   }
 
-  WaylandOutputManager* WaylandOrchestrator::getManager() {
+  std::shared_ptr<WaylandOutputManager> WaylandOrchestrator::getManager() {
     return m_manager;
   }
 
-  wl_display* WaylandOrchestrator::getDisplay() {
+  std::shared_ptr<wl_display> WaylandOrchestrator::getDisplay() {
     return m_display;
   }
 
@@ -91,7 +91,7 @@ namespace bd {
   void WaylandOutputManager::zwlr_output_manager_v1_head(zwlr_output_head_v1* wlr_head) {
     auto head = new WaylandOutputMetaHead(nullptr, m_registry, wlr_head);
     qInfo() << "WaylandOutputManager::zwlr_output_manager_v1_head with id:" << head->getIdentifier() << ", description:" << head->getDescription();
-    m_heads.append(head);
+    m_heads.append(std::make_shared<WaylandOutputMetaHead>(head));
   }
 
   void WaylandOutputManager::zwlr_output_manager_v1_finished() {
@@ -108,10 +108,10 @@ namespace bd {
   // applyNoOpConfigurationForNonSpecifiedHeads is a bit of a funky function, but effectively it applies a configuration that does nothing for every output
   // excluding the ones we are wanting to change (specified by the serial). This is to ensure we don't create protocol errors when performing output
   // configurations, as it is a protocol error to not specify everything else.
-  QList<WaylandOutputConfigurationHead*> WaylandOutputManager::applyNoOpConfigurationForNonSpecifiedHeads(
+  QList<std::shared_ptr<WaylandOutputConfigurationHead>> WaylandOutputManager::applyNoOpConfigurationForNonSpecifiedHeads(
       WaylandOutputConfiguration* config,
       const QStringList&          serials) {
-    auto configHeads = QList<WaylandOutputConfigurationHead*> {};
+    auto configHeads = QList<std::shared_ptr<WaylandOutputConfigurationHead>> {};
     qDebug() << "Applying no-op configuration for non-specified heads. Ignoring:" << serials.join(", ");
 
     for (const auto o : m_heads) {
@@ -124,22 +124,22 @@ namespace bd {
 
       if (o->isEnabled()) {
         qDebug() << "Ensuring head " << o->getIdentifier() << " is enabled";
-        auto head = config->enable(o);
-        if (!head.has_value()) {
+        auto head = config->enable(o.get());
+        if (!head) {
           qWarning() << "Failed to enable head " << o->getIdentifier() << ", wlr_head is not available";
           continue;
         }
-        configHeads.append(head.value());
+        configHeads.append(head);
       } else {
         qDebug() << "Ensuring head " << o->getIdentifier() << " is disabled";
-        config->disable(o);
+        config->disable(o.get());
       }
     }
 
     return configHeads;
   }
 
-  WaylandOutputConfiguration* WaylandOutputManager::configure() {
+  std::shared_ptr<WaylandOutputConfiguration> WaylandOutputManager::configure() {
     auto wlr_output_configuration = create_configuration(m_serial);
     auto config                   = new WaylandOutputConfiguration(nullptr, wlr_output_configuration);
     connect(config, &WaylandOutputConfiguration::cancelled, this, [this, config]() {
@@ -154,24 +154,19 @@ namespace bd {
       qDebug() << "Configuration failed";
       config->deleteLater();
     });
-    return config;
+    return std::make_shared<WaylandOutputConfiguration>(config);
   }
 
-  QList<WaylandOutputMetaHead*> WaylandOutputManager::getHeads() {
+  QList<std::shared_ptr<WaylandOutputMetaHead>> WaylandOutputManager::getHeads() {
     return m_heads;
   }
 
-  std::optional<WaylandOutputMetaHead*> WaylandOutputManager::getOutputHead(const QString& str) {
-    std::optional<WaylandOutputMetaHead*> output_head = std::nullopt;
-
+  std::shared_ptr<WaylandOutputMetaHead> WaylandOutputManager::getOutputHead(const QString& str) {
     for (auto head : m_heads) {
-      if (head->getIdentifier() == str) {
-        output_head = head;
-        break;
-      }
+      if (head->getIdentifier() == str) { return head; }
     }
 
-    return output_head;
+    return nullptr;
   }
 
   uint32_t WaylandOutputManager::getSerial() {
@@ -187,14 +182,15 @@ namespace bd {
   WaylandOutputConfiguration::WaylandOutputConfiguration(QObject* parent, ::zwlr_output_configuration_v1* config)
       : QObject(parent), zwlr_output_configuration_v1(config) {}
 
-  std::optional<WaylandOutputConfigurationHead*> WaylandOutputConfiguration::enable(WaylandOutputMetaHead* head) {
+  std::shared_ptr<WaylandOutputConfigurationHead> WaylandOutputConfiguration::enable(WaylandOutputMetaHead* head) {
     auto wlrHeadOpt = head->getWlrHead();
     if (!wlrHeadOpt.has_value()) {
-        qWarning() << "Tried to enable head, but wlr_head is not available";
-        return std::nullopt;
+      qWarning() << "Tried to enable head, but wlr_head is not available";
+      return nullptr;
     }
-    auto config_head = enable_head(wlrHeadOpt.value());
-    return new WaylandOutputConfigurationHead(nullptr, head, config_head);
+    auto zwlr_config_head = enable_head(wlrHeadOpt.value().get());
+    auto config_head      = new WaylandOutputConfigurationHead(nullptr, head, zwlr_config_head);
+    return std::make_shared<WaylandOutputConfigurationHead>(config_head);
   }
 
   void WaylandOutputConfiguration::applySelf() {
@@ -206,12 +202,12 @@ namespace bd {
   }
 
   void WaylandOutputConfiguration::disable(WaylandOutputMetaHead* head) {
-      auto wlrHeadOpt = head->getWlrHead();
-      if (!wlrHeadOpt.has_value()) {
-        qWarning() << "Tried to disable head, but wlr_head is not available";
-        return;
-      }
-    disable_head(wlrHeadOpt.value());
+    auto wlrHeadOpt = head->getWlrHead();
+    if (!wlrHeadOpt.has_value()) {
+      qWarning() << "Tried to disable head, but wlr_head is not available";
+      return;
+    }
+    disable_head(wlrHeadOpt.value().get());
   }
 
   void WaylandOutputConfiguration::zwlr_output_configuration_v1_succeeded() {
@@ -245,11 +241,11 @@ namespace bd {
 
   void WaylandOutputConfigurationHead::setMode(WaylandOutputMetaMode* mode) {
     auto wlrModeOpt = mode->getWlrMode();
-    if (!wlrModeOpt.has_value()) {
+    if (!wlrModeOpt) {
       qWarning() << "Tried to set mode on configuration head, but mode is not available";
       return;
     }
-    set_mode(wlrModeOpt.value());
+    set_mode(wlrModeOpt.get());
   }
 
   void WaylandOutputConfigurationHead::setCustomMode(signed int width, signed int height, double refresh) {
