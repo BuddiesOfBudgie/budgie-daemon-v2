@@ -53,7 +53,10 @@ namespace bd {
 
     bool should_apply = false;
 
-    for (auto& head : heads) {
+    for (auto& head_ptr : heads) {
+      if (!head_ptr) continue;
+      auto head = head_ptr.get();
+
       if (head->getIdentifier().isNull()) continue;
       qDebug() << "Checking head " << head->getIdentifier() << ": " << head->getDescription();
       for (const auto& qIdentifier : group->getOutputIdentifiers()) {
@@ -73,24 +76,24 @@ namespace bd {
         }
 
         // Enable the head and get the configuration head struct
-        auto config_head_opt = wlr_output_config->enable(head);
+        auto config_head_ptr = wlr_output_config->enable(head);
 
-        if (!config_head_opt.has_value()) {
+        if (!config_head_ptr) {
           qWarning() << "Failed to enable output " << qIdentifier << ", wlr_head is not available";
           continue;
         }
 
-        auto config_head = config_head_opt.value();
+        auto config_head = config_head_ptr.get();
 
         auto width    = config->getWidth();
         auto height   = config->getHeight();
         auto refresh  = config->getRefresh();
         auto position = config->getPosition();
 
-        auto mode_option = head->getModeForOutputHead(width, height, refresh);
+        auto mode_ptr = head->getModeForOutputHead(width, height, refresh);
 
-        if (mode_option.has_value()) {  // Found an existing mode for the head
-          auto mode = mode_option.value();
+        if (mode_ptr) {  // Found an existing mode for the head
+          auto mode = mode_ptr.get();
           qDebug() << "Found mode for output " << qIdentifier << ": " << width << "x" << height << "@" << refresh << "\n\t" << "Position: " << position.at(0)
                    << ", " << position.at(1);
           config_head->setMode(mode);
@@ -112,11 +115,12 @@ namespace bd {
     if (should_apply) {
       qDebug() << "Applying configuration";
       wlr_output_config->applySelf();
-      if (WaylandOrchestrator::instance().getDisplay() == nullptr) {
+      auto display_ptr = WaylandOrchestrator::instance().getDisplay();
+      if (!display_ptr) {
         qCritical() << "Display is null";
         return;
       }
-      wl_display_dispatch(WaylandOrchestrator::instance().getDisplay());
+      wl_display_dispatch(display_ptr);
     } else {
       qDebug() << "No configuration to apply";
     }
@@ -143,14 +147,14 @@ namespace bd {
 
     for (const auto& head : heads) {
       if (head->getIdentifier() == nullptr) continue;
-      auto head_mode_opt = head->getCurrentMode();
+      auto head_mode_ptr = head->getCurrentMode();
 
-      if (!head_mode_opt.has_value()) {
+      if (!head_mode_ptr) {
         qWarning() << "Head " << head->getIdentifier() << " has no current mode, skipping.";
         continue;
       }
 
-      auto head_mode = head_mode_opt.value();
+      auto head_mode = head_mode_ptr.get();
 
       auto mode_size_opt    = head_mode->getSize();
       auto mode_refresh_opt = head_mode->getRefresh();
@@ -271,7 +275,7 @@ namespace bd {
 
       for (const auto& group : toml::find<std::vector<toml::value>>(data, "group")) { this->m_groups.append(new DisplayGroup(group)); }
     } catch (const std::exception& e) {
-      if (std::basic_string(e.what()).contains("error opening file")) return;
+      if (QString(e.what()).contains("error opening file")) return;
       qWarning() << "Error parsing display-config.toml: " << e.what();
     }
   }

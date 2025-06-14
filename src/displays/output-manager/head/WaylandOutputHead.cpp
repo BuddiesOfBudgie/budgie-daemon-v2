@@ -4,9 +4,9 @@
 
 namespace bd {
   WaylandOutputHead::WaylandOutputHead(QObject* parent, ::zwlr_output_head_v1* wlr_head)
-      : QObject(parent), zwlr_output_head_v1(wlr_head), m_wlr_head(std::make_shared<::zwlr_output_head_v1>(wlr_head)) {}
+      : QObject(parent), zwlr_output_head_v1(wlr_head), m_wlr_head(QSharedPointer<::zwlr_output_head_v1>(wlr_head)) {}
 
-  std::shared_ptr<::zwlr_output_head_v1> WaylandOutputHead::getWlrHead() {
+  QSharedPointer<::zwlr_output_head_v1> WaylandOutputHead::getWlrHead() {
     return m_wlr_head;
   }
 

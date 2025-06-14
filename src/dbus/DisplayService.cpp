@@ -10,13 +10,13 @@ namespace bd {
 
   OutputModesList DisplayService::GetAvailableModes(const QString& identifier) {
     auto output = WaylandOrchestrator::instance().getManager()->getOutputHead(identifier);
-    if (!output.has_value()) {
+    if (!output) {
       qWarning() << "Received request for output " << identifier << " which does not exist";
       return {};
     }
 
     auto modes = OutputModesList {};
-    for (const auto& mode : output.value()->getModes()) {
+    for (const auto& mode : output.get()->getModes()) {
       auto modeSizeOpt    = mode->getSize();
       auto modeRefreshOpt = mode->getRefresh();
       if (!modeSizeOpt.has_value() || !modeRefreshOpt.has_value()) {
@@ -51,7 +51,7 @@ namespace bd {
 
   OutputDetailsList DisplayService::GetOutputDetails(const QString& identifier) {
     auto outputOption = WaylandOrchestrator::instance().getManager()->getOutputHead(identifier);
-    if (!outputOption.has_value()) {
+    if (!outputOption) {
       qWarning() << "Received request for output " << identifier << " which does not exist";
       // Create a QDBusMessage for the error, but note this doesn't send it.
       // The method will return an empty list, signaling success to D-Bus.
@@ -59,17 +59,17 @@ namespace bd {
       return {};
     }
 
-    auto output_head = outputOption.value();
+    auto output_head = outputOption.get();
     // Assuming getCurrentMode() returns a pointer to the mode, which can be nullptr
     auto current_mode_opt = output_head->getCurrentMode();
-    if (!current_mode_opt.has_value()) {
+    if (!current_mode_opt) {
       qWarning() << "Output " << identifier << " has no current mode set.";
       // Create a QDBusMessage for the error, but note this doesn't send it.
       QDBusMessage::createError(QDBusError::InternalError, "Output " + identifier + " has no current mode");
       return {};
     }
 
-    auto current_mode = current_mode_opt.value();
+    auto current_mode = current_mode_opt.get();
 
     auto list = QVariantList {};
     list.append(output_head->getName());
@@ -111,7 +111,7 @@ namespace bd {
       return;
     }
 
-    auto configuration_head = output_config->enable(output.get());
+    auto configuration_head = output_config->enable(output.data());
 
     if (!configuration_head) {
       qWarning() << "Failed to enable output " << identifier << ", wlr_head is not available";
@@ -123,7 +123,7 @@ namespace bd {
     auto mode            = output->getModeForOutputHead(width, height, refreshAsDouble);
 
     if (mode) {
-      configuration_head->setMode(mode.get());
+      configuration_head->setMode(mode.data());
     } else {
       configuration_head->setCustomMode(width, height, refreshAsDouble);
     }
@@ -133,7 +133,7 @@ namespace bd {
     output_config->applySelf();
 
     auto display = WaylandOrchestrator::instance().getDisplay();
-    if (display) wl_display_dispatch(display.get());
+    if (display) wl_display_dispatch(display);
 
     auto& displayConfig       = DisplayConfig::instance();
     auto  configForIdentifier = displayConfig.getActiveGroup()->getConfigForIdentifier(identifier);
@@ -153,13 +153,19 @@ namespace bd {
     auto manager      = WaylandOrchestrator::instance().getManager();
     auto outputOption = manager->getOutputHead(identifier);
 
-    if (!outputOption.has_value()) {
+    if (!outputOption) {
       qWarning() << "Received request for output " << identifier << " which does not exist";
       return;
     }
 
-    auto output_config = manager->configure();
-    auto output        = outputOption.value();
+    auto output_config_ptr = manager->configure();
+
+    if (!output_config_ptr) {
+      qWarning() << "Failed to create output configuration for " << identifier;
+      return;
+    }
+    auto output_config = output_config_ptr.get();
+    auto output        = outputOption.get();
 
     if (enabled) {
       output_config->enable(output);
@@ -174,9 +180,11 @@ namespace bd {
       output_config->release();
     } catch (const std::exception& e) { qWarning() << "Failed to apply configuration: " << e.what(); }
 
-    if (WaylandOrchestrator::instance().getDisplay()) {
+    auto display_ptr = WaylandOrchestrator::instance().getDisplay();
+
+    if (display_ptr) {
       try {
-        wl_display_roundtrip(WaylandOrchestrator::instance().getDisplay());
+        wl_display_roundtrip(display_ptr);
       } catch (const std::exception& e) { qWarning() << "Failed to dispatch display changes: " << e.what(); }
     } else {
       qWarning() << "Wayland display is not initialized.";
@@ -190,19 +198,19 @@ namespace bd {
       displayConfig.saveState();
     }
 
-    for (auto cleanup_head : heads) { delete cleanup_head; }
+    heads.clear();
   }
 
   void DisplayService::SetOutputPosition(const QString& identifier, int x, int y) {
     auto manager      = WaylandOrchestrator::instance().getManager();
     auto outputOption = manager->getOutputHead(identifier);
 
-    if (!outputOption.has_value()) {
+    if (!outputOption) {
       qWarning() << "Received request for output " << identifier << " which does not exist";
       return;
     }
 
-    auto output          = outputOption.value();
+    auto output          = outputOption.get();
     auto output_position = output->getPosition();
 
     qDebug() << "Found output " << identifier << "with name" << output->getName() << " at " << output_position.x() << ", " << output_position.y();
@@ -212,18 +220,24 @@ namespace bd {
       return;
     }
 
-    auto output_config = manager->configure();
+    auto output_config_ptr = manager->configure();
 
-    // TODO: Josh - Fix
+    if (!output_config_ptr) {
+      qWarning() << "Failed to create output configuration for " << identifier;
+      return;
+    }
+
+    auto output_config = output_config_ptr.get();
+
     auto configuration_head_opt = output_config->enable(output);
 
-    if (!configuration_head_opt.has_value()) {
+    if (!configuration_head_opt) {
       qWarning() << "Failed to enable output " << identifier << ", wlr_head is not available";
       QDBusMessage::createError(QDBusError::InternalError, "Failed to enable output " + identifier + ", wlr_head is not available");
       return;
     }
 
-    auto configuration_head = configuration_head_opt.value();
+    auto configuration_head = configuration_head_opt.get();
     configuration_head->setPosition(x, y);
 
     // It is a protocol error to not specify everything else
@@ -231,7 +245,14 @@ namespace bd {
 
     output_config->applySelf();
 
-    wl_display_dispatch(WaylandOrchestrator::instance().getDisplay());
+    auto display_ptr = WaylandOrchestrator::instance().getDisplay();
+
+    if (display_ptr == nullptr) {
+      qWarning() << "Failed to get wl_display during configuration of " << identifier;
+      return;
+    }
+
+    wl_display_dispatch(display_ptr);
 
     auto& displayConfig       = DisplayConfig::instance();
     auto  configForIdentifier = displayConfig.getActiveGroup()->getConfigForIdentifier(identifier);
@@ -241,7 +262,7 @@ namespace bd {
       displayConfig.saveState();
     }
 
-    for (auto cleanup_head : heads) { delete cleanup_head; }
+    heads.clear();
 
     output_config->release();
   }

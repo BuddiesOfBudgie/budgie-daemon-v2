@@ -60,7 +60,7 @@ namespace bd {
     connect(mode, &WaylandOutputMode::modeFinished, this, &WaylandOutputMetaMode::modeDisconnected);
     connect(mode, &WaylandOutputMode::propertyChanged, this, &WaylandOutputMetaMode::setProperty);
 
-    m_mode = std::make_shared<WaylandOutputMode>(mode);
+    m_mode = QSharedPointer<WaylandOutputMode>(mode);
   }
 
   // Slots

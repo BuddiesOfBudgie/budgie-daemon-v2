@@ -17,7 +17,6 @@ namespace bd {
       ::zwlr_output_mode_v1* getWlrMode();
 
     signals:
-      void done();
       void propertyChanged(WaylandOutputMetaModeProperty property, const QVariant& value);
       void modeFinished();
 
@@ -28,10 +27,6 @@ namespace bd {
       void zwlr_output_mode_v1_finished() override;
 
     private:
-      void                   checkIfDone();
-      bool                   m_emitted_preferred;
-      bool                   m_emitted_refresh;
-      bool                   m_emitted_size;
       ::zwlr_output_mode_v1* m_wlr_mode;
   };
 }

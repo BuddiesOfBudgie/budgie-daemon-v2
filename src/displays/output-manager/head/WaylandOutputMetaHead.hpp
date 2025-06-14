@@ -1,4 +1,5 @@
 #pragma once
+
 #include <KWayland/Client/registry.h>
 
 #include <QObject>
@@ -11,86 +12,86 @@
 
 namespace bd {
 
-  class WaylandOutputMetaHead : public QObject {
-      Q_OBJECT
+    class WaylandOutputMetaHead : public QObject {
+    Q_OBJECT
 
     public:
-      WaylandOutputMetaHead(QObject* parent, KWayland::Client::Registry* registry, ::zwlr_output_head_v1* wlr_head);
+        WaylandOutputMetaHead(QObject *parent, KWayland::Client::Registry *registry, ::zwlr_output_head_v1 *wlr_head);
 
-      ~WaylandOutputMetaHead() override;
+        ~WaylandOutputMetaHead() override;
 
-      QtWayland::zwlr_output_head_v1::adaptive_sync_state getAdaptiveSync();
+        QtWayland::zwlr_output_head_v1::adaptive_sync_state getAdaptiveSync();
 
-      std::shared_ptr<WaylandOutputMetaMode> getCurrentMode();
+        QSharedPointer<WaylandOutputMetaMode> getCurrentMode();
 
-      QString getDescription();
+        QString getDescription();
 
-      std::shared_ptr<WaylandOutputHead> getHead();
+        QSharedPointer<WaylandOutputHead> getHead();
 
-      QString getIdentifier();
+        QString getIdentifier();
 
-      QList<std::shared_ptr<WaylandOutputMetaMode>> getModes();
+        QList<QSharedPointer<WaylandOutputMetaMode>> getModes();
 
-      QString getMake();
+        QString getMake();
 
-      QString getModel();
+        QString getModel();
 
-      std::shared_ptr<WaylandOutputMetaMode> getModeForOutputHead(int width, int height, double refresh);
+        QSharedPointer<WaylandOutputMetaMode> getModeForOutputHead(int width, int height, double refresh);
 
-      QString getName();
+        QString getName();
 
-      QPoint getPosition();
+        QPoint getPosition();
 
-      double getScale();
+        double getScale();
 
-      int getTransform();
+        int getTransform();
 
-      std::optional<std::shared_ptr<::zwlr_output_head_v1>> getWlrHead();
+        std::optional<QSharedPointer<::zwlr_output_head_v1>> getWlrHead();
 
-      bool isAvailable();
+        bool isAvailable();
 
-      bool isBuiltIn();
+        bool isBuiltIn();
 
-      bool isEnabled();
+        bool isEnabled();
 
-      void setHead(::zwlr_output_head_v1* head);
+        void setHead(::zwlr_output_head_v1 *head);
 
-      void setPosition(QPoint* position);
+        void setPosition(QPoint position);
 
     signals:
 
-      void headNoLongerAvailable();
+        void headNoLongerAvailable();
 
-      void propertyChanged(WaylandOutputMetaHeadProperty property, const QVariant& value);
+        void propertyChanged(WaylandOutputMetaHeadProperty property, const QVariant &value);
 
     public slots:
 
-      void addMode(::zwlr_output_mode_v1* mode);
+        void addMode(::zwlr_output_mode_v1 *mode);
 
-      void currentModeChanged(::zwlr_output_mode_v1* mode);
+        void currentModeChanged(::zwlr_output_mode_v1 *mode);
 
-      void headDisconnected();
+        void headDisconnected();
 
-      void setProperty(WaylandOutputMetaHeadProperty property, const QVariant& value);
+        void setProperty(WaylandOutputMetaHeadProperty property, const QVariant &value);
 
     private:
-      KWayland::Client::Registry*                   m_registry;
-      std::shared_ptr<WaylandOutputHead>            m_head;
-      QString                                       m_make;
-      QString                                       m_model;
-      QString                                       m_name;
-      QString                                       m_description;
-      QString                                       m_identifier;
-      QList<std::shared_ptr<WaylandOutputMetaMode>> m_output_modes;
-      QString                                       m_serial;
-      std::shared_ptr<WaylandOutputMetaMode>        m_current_mode;
+        KWayland::Client::Registry *m_registry;
+        QSharedPointer<WaylandOutputHead> m_head;
+        QString m_make;
+        QString m_model;
+        QString m_name;
+        QString m_description;
+        QString m_identifier;
+        QList<QSharedPointer<WaylandOutputMetaMode>> m_output_modes;
+        QString m_serial;
+        QSharedPointer<WaylandOutputMetaMode> m_current_mode;
 
-      QPoint m_position;
-      int    m_transform;
-      double m_scale;
+        QPoint m_position;
+        int m_transform;
+        double m_scale;
 
-      bool                                                m_is_available;
-      bool                                                m_enabled;
-      QtWayland::zwlr_output_head_v1::adaptive_sync_state m_adaptive_sync;
-  };
+        bool m_is_available;
+        bool m_enabled;
+        QtWayland::zwlr_output_head_v1::adaptive_sync_state m_adaptive_sync;
+    };
 }
