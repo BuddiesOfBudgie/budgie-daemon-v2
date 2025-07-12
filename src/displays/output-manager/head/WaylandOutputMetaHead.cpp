@@ -9,8 +9,7 @@
 #include "output-manager/head/WaylandOutputHead.hpp"
 
 namespace bd {
-    WaylandOutputMetaHead::WaylandOutputMetaHead(QObject *parent, KWayland::Client::Registry *registry,
-                                                 ::zwlr_output_head_v1 *wlr_head)
+    WaylandOutputMetaHead::WaylandOutputMetaHead(QObject *parent, KWayland::Client::Registry *registry)
             : QObject(parent),
               m_registry(registry),
               m_current_mode(nullptr),
@@ -21,7 +20,6 @@ namespace bd {
               m_is_available(false),
               m_enabled(false),
               m_adaptive_sync() {
-        setHead(wlr_head);
     }
 
     WaylandOutputMetaHead::~WaylandOutputMetaHead() {
@@ -65,7 +63,7 @@ namespace bd {
         auto unique_name = QString{SysInfo::instance().getMachineId() + "_" + m_name};
 
         if (!m_make.isNull() && !m_model.isNull() && !m_make.isEmpty() && !m_model.isEmpty()) {
-            unique_name = QString{m_make + " " + m_model + " (" + m_name + ")"};
+            unique_name = QString {m_make + " " + m_model + " (" + m_name + ")"};
         }
 
         qDebug() << "Generated unique name:" << unique_name;
@@ -80,7 +78,6 @@ namespace bd {
     }
 
     QSharedPointer<WaylandOutputMetaMode> WaylandOutputMetaHead::getModeForOutputHead(int width, int height, double refresh) {
-        // debug here
         for (const auto& mode_ptr: m_output_modes) {
             if (!mode_ptr) continue;
 
@@ -126,8 +123,8 @@ namespace bd {
         return m_transform;
     }
 
-    std::optional<QSharedPointer<::zwlr_output_head_v1>> WaylandOutputMetaHead::getWlrHead() {
-        if (m_head == nullptr) return std::nullopt;
+    std::optional<::zwlr_output_head_v1*> WaylandOutputMetaHead::getWlrHead() {
+        if (!m_head) return std::nullopt;
         auto head = m_head.data()->getWlrHead();
         if (head == nullptr) return std::nullopt;
         return std::make_optional(head);
@@ -154,6 +151,7 @@ namespace bd {
         auto head = new WaylandOutputHead(this, wlr_head);
         m_head = QSharedPointer<WaylandOutputHead>(head);
         m_is_available = true;
+        emit headAvailable();
         connect(head, &WaylandOutputHead::headFinished, this, &WaylandOutputMetaHead::headDisconnected);
         connect(head, &WaylandOutputHead::modeAdded, this, &WaylandOutputMetaHead::addMode);
         connect(head, &WaylandOutputHead::modeChanged, this, &WaylandOutputMetaHead::currentModeChanged);
@@ -177,22 +175,35 @@ namespace bd {
         emit propertyChanged(WaylandOutputMetaHeadProperty::Position, QVariant{m_position});
     }
 
+    void WaylandOutputMetaHead::unsetModes() {
+        qDebug() << "Unsetting modes for head: " << getIdentifier();
+        for (const auto& mode_ptr: m_output_modes) {
+            if (!mode_ptr) continue;
+            auto mode = mode_ptr.data();
+            mode->unsetMode(); // Unset the mode so it no longer holds a reference to a zwlr_output_mode_v1 (WaylandOutputMode)
+        }
+    }
+
     // Slots
 
-    void WaylandOutputMetaHead::addMode(::zwlr_output_mode_v1 *mode) {
+    QSharedPointer<WaylandOutputMetaMode> WaylandOutputMetaHead::addMode(::zwlr_output_mode_v1 *mode) {
         auto output_mode = new WaylandOutputMetaMode(this, mode);
+        auto shared_ptr = QSharedPointer<WaylandOutputMetaMode>(output_mode);
 
-        connect(output_mode, &WaylandOutputMetaMode::done, this, [this, output_mode]() {
+        connect(output_mode, &WaylandOutputMetaMode::done, this, [this, output_mode, shared_ptr]() {
             // Check if this already exists
             for (const auto &mode_ptr: m_output_modes) {
                 if (!mode_ptr) continue;
-                auto mode = mode_ptr.data();
+                auto existing_mode = mode_ptr.data();
                 // Already exists, set the wlr_mode of the existing mode and delete this newly created meta mode
-                if (mode->isSameAs(output_mode)) {
+                if (existing_mode->isSameAs(output_mode)) {
                     qDebug() << "Found an output mode that matches one we already have, deleting the new one.";
-                    auto wlr_mode = output_mode->getWlrMode();
-                    if (wlr_mode != nullptr) mode->setMode(wlr_mode);
-                    output_mode->deleteLater();
+                    auto wlr_mode_opt = output_mode->getWlrMode();
+                    if (wlr_mode_opt.has_value() && wlr_mode_opt.value() != nullptr) {
+                        qDebug() << "Setting existing mode to the new wlr_mode.";
+                        existing_mode->setMode(const_cast<::zwlr_output_mode_v1*>(wlr_mode_opt.value()));
+                    }
+//                    shared_ptr.clear();
                     return;
                 }
             }
@@ -201,32 +212,64 @@ namespace bd {
             qDebug() << "Adding new output mode to head: " << getIdentifier() << " with size: "
                      << output_mode->getSize().value_or(QSize(0, 0))
                      << " and refresh: " << output_mode->getRefresh().value_or(0.0);
-            auto mode = QSharedPointer<WaylandOutputMetaMode>(output_mode);
-            m_output_modes.append(mode);
+            m_output_modes.append(shared_ptr);
         });
+
+        return shared_ptr;
     }
 
     void WaylandOutputMetaHead::currentModeChanged(::zwlr_output_mode_v1 *mode) {
+        qDebug() << "Current mode changed for output: " << getIdentifier();
         for (const auto &output_mode_ptr: m_output_modes) {
-            if (!output_mode_ptr) continue;
+            if (!output_mode_ptr || output_mode_ptr.isNull()) continue;
             auto output_mode = output_mode_ptr.data();
-            if (!output_mode->getWlrMode()) continue;
-            if (output_mode->getWlrMode() == mode) {
+
+            auto output_mode_opt = output_mode->getWlrMode();
+            if (!output_mode_opt || !output_mode_opt.has_value()) {
+                qWarning() << "Output mode is not available, skipping.";
+                continue;
+            }
+
+            if (output_mode_opt.value() == mode) {
                 auto outputModeSizeOpt = output_mode->getSize();
                 if (!outputModeSizeOpt.has_value()) return;
                 if (!outputModeSizeOpt.value().isValid()) return;
+
+                auto refreshOpt = output_mode->getRefresh();
+                if (!refreshOpt.has_value()) return;
+
                 auto outputModeSize = outputModeSizeOpt.value();
+                auto refresh = refreshOpt.value();
                 qDebug() << "Setting current mode to" << outputModeSize.width() << "x" << outputModeSize.height() << "@"
-                         << output_mode->getRefresh();
+                         << refresh;
                 m_current_mode = output_mode_ptr; // Set m_current_mode to same QSharedPointer as iterated output mode
                 return;
             }
         }
+
+//        auto meta_mode_ptr = addMode(mode); // Add the mode to the list of modes. If it already exists then we'll assign it to an existing Mode
+//        if (meta_mode_ptr.isNull()) {
+//            qWarning() << "Failed to add mode, meta_mode_ptr is null.";
+//            return;
+//        }
+//        auto meta_mode = meta_mode_ptr.data();
+//        if (meta_mode->isAvailable().value()) {
+//            qDebug() << "(Mode already available) Current mode set to:" << meta_mode->getSize().value_or(QSize(0, 0))
+//                     << "with refresh:" << meta_mode->getRefresh().value_or(0.0);
+//            m_current_mode = meta_mode_ptr; // Set the current mode already since it is available
+//        } else { // Not available yet
+//            connect(meta_mode, &WaylandOutputMetaMode::done, this, [this, meta_mode_ptr, meta_mode]() {
+//                // Set the current mode to the one that was just added
+//                qDebug() << "(Mode done) Current mode set to:" << meta_mode->getSize().value_or(QSize(0, 0))
+//                         << "with refresh:" << meta_mode->getRefresh().value_or(0.0);
+//                m_current_mode = meta_mode_ptr;
+//            });
+//        }
     }
 
     void WaylandOutputMetaHead::headDisconnected() {
         qDebug() << "Head disconnected for output: " << getIdentifier();
-        m_head = nullptr;
+        m_head.clear();
         m_is_available = false;
         emit headNoLongerAvailable();
     }

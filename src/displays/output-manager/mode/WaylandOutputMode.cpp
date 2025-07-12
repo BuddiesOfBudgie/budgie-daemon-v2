@@ -1,15 +1,14 @@
 #include "WaylandOutputMode.hpp"
 
 namespace bd {
-  WaylandOutputMode::WaylandOutputMode(QObject* parent, ::zwlr_output_mode_v1* mode) : QObject(parent), zwlr_output_mode_v1(mode), m_wlr_mode(mode) {}
+    WaylandOutputMode::WaylandOutputMode(::zwlr_output_mode_v1* mode) : zwlr_output_mode_v1(mode) {}
 
-  QtWayland::zwlr_output_mode_v1* WaylandOutputMode::getBase() {
-    return this;
-  }
-
-  zwlr_output_mode_v1* WaylandOutputMode::getWlrMode() {
-    return m_wlr_mode;
-  }
+    std::optional<::zwlr_output_mode_v1*> WaylandOutputMode::getWlrMode() {
+        if (isInitialized() && object()) {
+            return std::make_optional(object());
+        }
+        return std::nullopt;
+    }
 
   void WaylandOutputMode::zwlr_output_mode_v1_size(int32_t width, int32_t height) {
     emit propertyChanged(WaylandOutputMetaModeProperty::Size, QVariant {QSize(width, height)});
@@ -24,7 +23,7 @@ namespace bd {
     emit propertyChanged(WaylandOutputMetaModeProperty::Preferred, QVariant::fromValue(true));
   }
 
-  void WaylandOutputMode::zwlr_output_mode_v1_finished() {
-    emit modeFinished();
-  }
+//  void WaylandOutputMode::zwlr_output_mode_v1_finished() {
+//    emit modeFinished();
+//  }
 }

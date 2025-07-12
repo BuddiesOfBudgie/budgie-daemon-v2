@@ -13,6 +13,7 @@ namespace bd {
 
     public:
         WaylandOutputMetaMode(QObject *parent, ::zwlr_output_mode_v1 *wlr_mode);
+        ~WaylandOutputMetaMode() override;
 
         uint32_t getId();
 
@@ -20,7 +21,7 @@ namespace bd {
 
         std::optional<QSize> getSize();
 
-        ::zwlr_output_mode_v1* getWlrMode();
+        std::optional<const ::zwlr_output_mode_v1*> getWlrMode();
 
         std::optional<bool> isAvailable();
 
@@ -29,6 +30,10 @@ namespace bd {
         bool isSameAs(WaylandOutputMetaMode *mode);
 
         void setMode(::zwlr_output_mode_v1 *wlr_mode);
+
+        void setPreferred(bool preferred);
+
+        void unsetMode();
 
     signals:
 

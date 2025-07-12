@@ -16,7 +16,7 @@ namespace bd {
     Q_OBJECT
 
     public:
-        WaylandOutputMetaHead(QObject *parent, KWayland::Client::Registry *registry, ::zwlr_output_head_v1 *wlr_head);
+        WaylandOutputMetaHead(QObject *parent, KWayland::Client::Registry *registry);
 
         ~WaylandOutputMetaHead() override;
 
@@ -46,7 +46,7 @@ namespace bd {
 
         int getTransform();
 
-        std::optional<QSharedPointer<::zwlr_output_head_v1>> getWlrHead();
+        std::optional<::zwlr_output_head_v1*> getWlrHead();
 
         bool isAvailable();
 
@@ -58,7 +58,11 @@ namespace bd {
 
         void setPosition(QPoint position);
 
+        void unsetModes();
+
     signals:
+
+        void headAvailable();
 
         void headNoLongerAvailable();
 
@@ -66,7 +70,7 @@ namespace bd {
 
     public slots:
 
-        void addMode(::zwlr_output_mode_v1 *mode);
+        QSharedPointer<WaylandOutputMetaMode> addMode(::zwlr_output_mode_v1 *mode);
 
         void currentModeChanged(::zwlr_output_mode_v1 *mode);
 

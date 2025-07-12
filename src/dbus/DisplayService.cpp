@@ -60,36 +60,37 @@ namespace bd {
     }
 
     auto output_head = outputOption.get();
-    // Assuming getCurrentMode() returns a pointer to the mode, which can be nullptr
-    auto current_mode_opt = output_head->getCurrentMode();
-    if (!current_mode_opt) {
-      qWarning() << "Output " << identifier << " has no current mode set.";
-      // Create a QDBusMessage for the error, but note this doesn't send it.
-      QDBusMessage::createError(QDBusError::InternalError, "Output " + identifier + " has no current mode");
-      return {};
-    }
 
-    auto current_mode = current_mode_opt.get();
+    auto size         = QSize(0, 0);
+    auto refresh      = 0.0;
+    auto is_preferred = false;
+
+    auto current_mode_opt = output_head->getCurrentMode();
+
+    if (current_mode_opt) {  // If we have a mode
+      auto current_mode = current_mode_opt.get();
+      size              = current_mode->getSize().value_or(QSize(0, 0));
+      refresh           = current_mode->getRefresh().value_or(0.0);
+
+      // TODO: Fix later so we have it as display being preferred not mode
+      is_preferred = current_mode->isPreferred().value_or(false);
+    }
 
     auto list = QVariantList {};
     list.append(output_head->getName());
     list.append(output_head->getDescription());
 
-    // Assuming current_mode->getSize() returns std::optional<QSize>
-    // and current_mode->getRefresh() returns std::optional<double>
-    auto size    = current_mode->getSize().value_or(QSize(0, 0));
-    auto refresh = current_mode->getRefresh().value_or(0.0);
-    auto pos     = output_head->getPosition();
+    auto pos = output_head->getPosition();
 
     // These are all "out" parameters
-    list.append(size.width());   // Corrected: QSize uses .width()
-    list.append(size.height());  // Corrected: QSize uses .height()
+    list.append(size.width());
+    list.append(size.height());
     list.append(pos.x());
     list.append(pos.y());
     list.append(output_head->getScale());
     list.append(refresh);
     list.append(output_head->isAvailable());
-    list.append(current_mode->isPreferred().value_or(false));  // Use current_mode
+    list.append(is_preferred);
     list.append(output_head->isEnabled());
 
     return list;
@@ -168,8 +169,45 @@ namespace bd {
     auto output        = outputOption.get();
 
     if (enabled) {
-      output_config->enable(output);
+        qDebug() << "Enabling output " << identifier;
+      auto config_head_ptr = output_config->enable(output);
+      if (!config_head_ptr.isNull()) {
+          qDebug() << "Have output configuration head ptr for " << identifier;
+        auto config_head = config_head_ptr.get();
+
+        // If we have a current mode, set it as preferred
+        auto current_mode_ptr = output->getCurrentMode();
+//        if (!current_mode_ptr) current_mode_ptr = output->getModes().last();
+
+        if (current_mode_ptr.isNull()) {
+          qWarning() << "No current mode found for output " << identifier;
+          QDBusMessage::createError(QDBusError::InternalError, "No current mode found for output " + identifier);
+          return;
+        }
+
+        auto current_mode = current_mode_ptr.data();
+
+        auto size    = current_mode->getSize().value_or(QSize(0, 0));
+        auto refresh = current_mode->getRefresh().value_or(0.0);
+
+        config_head->setCustomMode(size.width(), size.height(), refresh);
+
+        // Set position and scale
+        auto position = output->getPosition();
+        config_head->setPosition(position.x(), position.y());
+        config_head->setScale(output->getScale());
+        config_head->setTransform(output->getTransform());
+        config_head->setAdaptiveSync(output->getAdaptiveSync() ? 1 : 0);
+        qDebug() << "Enabling output" << identifier << "with mode" << size.width() << "x" << size.height() << "@" << refresh
+                 << ", position:" << position.x() << ", " << position.y() << ", scale:" << output->getScale()
+                 << ", transform:" << output->getTransform() << ", adaptive sync:" << output->getAdaptiveSync();
+      } else {
+        qWarning() << "Failed to enable output " << identifier << ", wlr_head is not available";
+        QDBusMessage::createError(QDBusError::InternalError, "Failed to enable output " + identifier + ", wlr_head is not available");
+        return;
+      }
     } else {
+      //            output->unsetModes(); // Unset all the references to WaylandOutputMode so we don't get wayland client segfaults when re-enabling the output
       output_config->disable(output);
     }
 
@@ -177,14 +215,13 @@ namespace bd {
 
     try {
       output_config->applySelf();
-      output_config->release();
     } catch (const std::exception& e) { qWarning() << "Failed to apply configuration: " << e.what(); }
 
     auto display_ptr = WaylandOrchestrator::instance().getDisplay();
 
     if (display_ptr) {
       try {
-        wl_display_roundtrip(display_ptr);
+        wl_display_dispatch(display_ptr);
       } catch (const std::exception& e) { qWarning() << "Failed to dispatch display changes: " << e.what(); }
     } else {
       qWarning() << "Wayland display is not initialized.";
@@ -194,11 +231,12 @@ namespace bd {
     auto  configForIdentifier = displayConfig.getActiveGroup()->getConfigForIdentifier(identifier);
 
     if (configForIdentifier.has_value()) {
-      configForIdentifier.value()->setDisabled(!enabled);
-      displayConfig.saveState();
+//      configForIdentifier.value()->setDisabled(!enabled);
+      //            displayConfig.saveState();
     }
 
     heads.clear();
+    output_config->release();
   }
 
   void DisplayService::SetOutputPosition(const QString& identifier, int x, int y) {

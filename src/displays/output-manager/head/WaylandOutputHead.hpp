@@ -12,7 +12,7 @@ namespace bd {
     public:
       WaylandOutputHead(QObject* parent, ::zwlr_output_head_v1* wlr_head);
 
-      QSharedPointer<::zwlr_output_head_v1> getWlrHead();
+      ::zwlr_output_head_v1* getWlrHead();
 
     signals:
       void propertyChanged(WaylandOutputMetaHeadProperty property, const QVariant& value);
@@ -36,6 +36,6 @@ namespace bd {
       void zwlr_output_head_v1_finished() override;
 
     private:
-      QSharedPointer<::zwlr_output_head_v1> m_wlr_head;
+      ::zwlr_output_head_v1* m_wlr_head;
   };
 }

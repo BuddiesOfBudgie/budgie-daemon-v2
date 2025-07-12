@@ -89,9 +89,29 @@ namespace bd {
 
   // Overridden methods from QtWayland::zwlr_output_manager_v1
   void WaylandOutputManager::zwlr_output_manager_v1_head(zwlr_output_head_v1* wlr_head) {
-    auto head = new WaylandOutputMetaHead(nullptr, m_registry, wlr_head);
+    auto head = new WaylandOutputMetaHead(nullptr, m_registry);
     qInfo() << "WaylandOutputManager::zwlr_output_manager_v1_head with id:" << head->getIdentifier() << ", description:" << head->getDescription();
-    m_heads.append(QSharedPointer<WaylandOutputMetaHead>(head));
+
+    connect(head, &WaylandOutputMetaHead::headAvailable, this, [this, head]() {
+        qDebug() << "Head available for output: " << head->getIdentifier();
+        bool headAlreadyExists = false;
+        for (const auto& existingHead : m_heads) {
+            qDebug() << "Checking existing head: " << existingHead->getIdentifier();
+          if (existingHead->getIdentifier() == head->getIdentifier()) {
+            qDebug() << "Head already exists for output: " << head->getIdentifier();
+            headAlreadyExists = true;
+            existingHead->setHead(head->getWlrHead().value());
+            break;
+          }
+        }
+
+        if (!headAlreadyExists) {
+            qDebug() << "Adding new head for output: " << head->getIdentifier();
+            m_heads.append(QSharedPointer<WaylandOutputMetaHead>(head));
+        }
+    });
+
+    head->setHead(wlr_head);
   }
 
   void WaylandOutputManager::zwlr_output_manager_v1_finished() {
@@ -114,7 +134,7 @@ namespace bd {
     auto configHeads = QList<QSharedPointer<WaylandOutputConfigurationHead>> {};
     qDebug() << "Applying no-op configuration for non-specified heads. Ignoring:" << serials.join(", ");
 
-    for (const auto o : m_heads) {
+    for (const auto& o : m_heads) {
       qDebug() << "Checking head " << o->getIdentifier() << ": " << o->getDescription();
       // Skip the output for the serial we are changing
       if (serials.contains(o->getIdentifier())) {
@@ -188,7 +208,7 @@ namespace bd {
       qWarning() << "Tried to enable head, but wlr_head is not available";
       return nullptr;
     }
-    auto zwlr_config_head = enable_head(wlrHeadOpt.value().data());
+    auto zwlr_config_head = enable_head(wlrHeadOpt.value());
     auto config_head      = new WaylandOutputConfigurationHead(nullptr, head, zwlr_config_head);
     return QSharedPointer<WaylandOutputConfigurationHead>(config_head);
   }
@@ -207,7 +227,7 @@ namespace bd {
       qWarning() << "Tried to disable head, but wlr_head is not available";
       return;
     }
-    disable_head(wlrHeadOpt.value().data());
+    disable_head(wlrHeadOpt.value());
   }
 
   void WaylandOutputConfiguration::zwlr_output_configuration_v1_succeeded() {
@@ -241,11 +261,11 @@ namespace bd {
 
   void WaylandOutputConfigurationHead::setMode(WaylandOutputMetaMode* mode) {
     auto wlrModeOpt = mode->getWlrMode();
-    if (!wlrModeOpt) {
+    if (wlrModeOpt == nullptr || (wlrModeOpt != nullptr && !wlrModeOpt.has_value())) {
       qWarning() << "Tried to set mode on configuration head, but mode is not available";
       return;
     }
-    set_mode(wlrModeOpt);
+    set_mode(const_cast<::zwlr_output_mode_v1*>(wlrModeOpt.value()));
   }
 
   void WaylandOutputConfigurationHead::setCustomMode(signed int width, signed int height, double refresh) {

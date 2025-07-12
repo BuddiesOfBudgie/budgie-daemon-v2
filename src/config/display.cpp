@@ -96,6 +96,7 @@ namespace bd {
           auto mode = mode_ptr.get();
           qDebug() << "Found mode for output " << qIdentifier << ": " << width << "x" << height << "@" << refresh << "\n\t" << "Position: " << position.at(0)
                    << ", " << position.at(1);
+          mode->setPreferred(true);  // Set the mode as preferred
           config_head->setMode(mode);
         } else {
           qDebug() << "Found no mode for output " << qIdentifier << ", applying custom: \n\t" << width << "x" << height << "@" << refresh << "\n\t"
@@ -138,6 +139,11 @@ namespace bd {
       if (head->getIdentifier() == nullptr) return QString {};
       return head->getIdentifier();
     });
+
+    if (names_of_active_outputs.isEmpty()) {
+      qWarning() << "No active outputs found, cannot create display group for state.";
+      return nullptr;
+    }
 
     auto defaultDisplayGroupForState = new DisplayGroup();
     defaultDisplayGroupForState->setName(names_of_active_outputs.join(", ").append(" (Auto Generated)"));

@@ -9,10 +9,11 @@
  */
 
 #include "DisplayAdaptorGen.h"
-#include <QtCore/QMetaObject>
+
 #include <QtCore/QByteArray>
 #include <QtCore/QList>
 #include <QtCore/QMap>
+#include <QtCore/QMetaObject>
 #include <QtCore/QString>
 #include <QtCore/QStringList>
 #include <QtCore/QVariant>
@@ -21,57 +22,48 @@
  * Implementation of adaptor class DisplaysAdaptor
  */
 
-DisplaysAdaptor::DisplaysAdaptor(QObject *parent)
-    : QDBusAbstractAdaptor(parent)
-{
-    // constructor
-    setAutoRelaySignals(true);
+DisplaysAdaptor::DisplaysAdaptor(QObject* parent) : QDBusAbstractAdaptor(parent) {
+  // constructor
+  setAutoRelaySignals(true);
 }
 
-DisplaysAdaptor::~DisplaysAdaptor()
-{
-    // destructor
+DisplaysAdaptor::~DisplaysAdaptor() {
+  // destructor
 }
 
-OutputModesList DisplaysAdaptor::GetAvailableModes(const QString &identifier)
-{
-    // handle method call org.buddiesofbudgie.BudgieDaemonX.Displays.GetAvailableModes
-    OutputModesList modes;
-    QMetaObject::invokeMethod(parent(), "GetAvailableModes", Q_RETURN_ARG(OutputModesList, modes), Q_ARG(QString, identifier));
-    return modes;
+OutputModesList DisplaysAdaptor::GetAvailableModes(const QString& identifier) {
+  // handle method call org.buddiesofbudgie.BudgieDaemonX.Displays.GetAvailableModes
+  OutputModesList modes;
+  QMetaObject::invokeMethod(parent(), "GetAvailableModes", Q_RETURN_ARG(OutputModesList, modes), Q_ARG(QString, identifier));
+  return modes;
 }
 
-QStringList DisplaysAdaptor::GetAvailableOutputs()
-{
-    // handle method call org.buddiesofbudgie.BudgieDaemonX.Displays.GetAvailableOutputs
-    QStringList outputs;
-    QMetaObject::invokeMethod(parent(), "GetAvailableOutputs", Q_RETURN_ARG(QStringList, outputs));
-    return outputs;
+QStringList DisplaysAdaptor::GetAvailableOutputs() {
+  // handle method call org.buddiesofbudgie.BudgieDaemonX.Displays.GetAvailableOutputs
+  QStringList outputs;
+  QMetaObject::invokeMethod(parent(), "GetAvailableOutputs", Q_RETURN_ARG(QStringList, outputs));
+  return outputs;
 }
 
-OutputDetailsList DisplaysAdaptor::GetOutputDetails(const QString &identifier)
-{
-    // handle method call org.buddiesofbudgie.BudgieDaemonX.Displays.GetOutputDetails
-    OutputDetailsList details;
-    QMetaObject::invokeMethod(parent(), "GetOutputDetails", Q_RETURN_ARG(OutputDetailsList, details), Q_ARG(QString, identifier));
-    return details;
+OutputDetailsList DisplaysAdaptor::GetOutputDetails(const QString& identifier) {
+  // handle method call org.buddiesofbudgie.BudgieDaemonX.Displays.GetOutputDetails
+  OutputDetailsList details;
+  QMetaObject::invokeMethod(parent(), "GetOutputDetails", Q_RETURN_ARG(OutputDetailsList, details), Q_ARG(QString, identifier));
+  return details;
 }
 
-void DisplaysAdaptor::SetCurrentMode(const QString &identifier, int width, int height, int refresh, bool preferred)
-{
-    // handle method call org.buddiesofbudgie.BudgieDaemonX.Displays.SetCurrentMode
-    QMetaObject::invokeMethod(parent(), "SetCurrentMode", Q_ARG(QString, identifier), Q_ARG(int, width), Q_ARG(int, height), Q_ARG(int, refresh), Q_ARG(bool, preferred));
+void DisplaysAdaptor::SetCurrentMode(const QString& identifier, int width, int height, int refresh, bool preferred) {
+  // handle method call org.buddiesofbudgie.BudgieDaemonX.Displays.SetCurrentMode
+  QMetaObject::invokeMethod(
+      parent(), "SetCurrentMode", Q_ARG(QString, identifier), Q_ARG(int, width), Q_ARG(int, height), Q_ARG(int, refresh), Q_ARG(bool, preferred));
 }
 
-void DisplaysAdaptor::SetOutputEnabled(const QString &identifier, bool enabled)
-{
-    // handle method call org.buddiesofbudgie.BudgieDaemonX.Displays.SetOutputEnabled
-    QMetaObject::invokeMethod(parent(), "SetOutputEnabled", Q_ARG(QString, identifier), Q_ARG(bool, enabled));
+void DisplaysAdaptor::SetOutputEnabled(const QString& identifier, bool enabled) {
+  // handle method call org.buddiesofbudgie.BudgieDaemonX.Displays.SetOutputEnabled
+  QMetaObject::invokeMethod(parent(), "SetOutputEnabled", Q_ARG(QString, identifier), Q_ARG(bool, enabled));
 }
 
-void DisplaysAdaptor::SetOutputPosition(const QString &identifier, int x, int y)
-{
-    // handle method call org.buddiesofbudgie.BudgieDaemonX.Displays.SetOutputPosition
-    QMetaObject::invokeMethod(parent(), "SetOutputPosition", Q_ARG(QString, identifier), Q_ARG(int, x), Q_ARG(int, y));
+void DisplaysAdaptor::SetOutputPosition(const QString& identifier, int x, int y) {
+  // handle method call org.buddiesofbudgie.BudgieDaemonX.Displays.SetOutputPosition
+  QMetaObject::invokeMethod(parent(), "SetOutputPosition", Q_ARG(QString, identifier), Q_ARG(int, x), Q_ARG(int, y));
 }
-
