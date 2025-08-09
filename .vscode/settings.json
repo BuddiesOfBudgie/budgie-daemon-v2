@@ -1,0 +1,21 @@
+{
+  "files.associations": {
+    "*.bu": "yaml",
+    "*.css": "tailwindcss",
+    "optional": "cpp",
+    "charconv": "cpp",
+    "ranges": "cpp",
+    "ratio": "cpp",
+    "array": "cpp",
+    "functional": "cpp",
+    "tuple": "cpp",
+    "type_traits": "cpp",
+    "utility": "cpp",
+    "compare": "cpp",
+    "cstdint": "cpp",
+    "string_view": "cpp",
+    "format": "cpp",
+    "initializer_list": "cpp",
+    "span": "cpp"
+  }
+}

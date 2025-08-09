@@ -91,8 +91,8 @@ namespace bd {
         QSharedPointer<WaylandOutputMetaMode> m_current_mode;
 
         QPoint m_position;
-        int m_transform;
-        double m_scale;
+        qint16 m_transform;
+        qreal m_scale;
 
         bool m_is_available;
         bool m_enabled;

@@ -40,6 +40,11 @@ add_library(
   displays/configuration.hpp
   sys/SysInfo.cpp
   sys/SysInfo.hpp
+        displays/batch-system/ConfigurationBatchSystem.cpp
+        displays/batch-system/ConfigurationBatchSystem.hpp
+        displays/batch-system/enums.hpp
+        displays/batch-system/ConfigurationAction.cpp
+        displays/batch-system/ConfigurationAction.hpp
 )
 
 add_executable(budgie-daemon-v2-app main.cpp)
