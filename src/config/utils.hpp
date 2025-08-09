@@ -1,11 +1,11 @@
 #pragma once
 
 #include <filesystem>
-#include <optional>
 #include <string>
 
 #include "format.hpp"
 #include "toml.hpp"
+#include "displays/batch-system/enums.hpp"
 
 namespace bd::ConfigUtils {
   void                  ensureConfigPathExists(const std::filesystem::path& p);
@@ -15,4 +15,10 @@ namespace bd::ConfigUtils {
 namespace bd::DisplayConfigurationUtils {
   DisplayRelativePosition getDisplayRelativePositionFromString(std::string_view& str);
   std::string             getDisplayRelativePositionString(DisplayRelativePosition pos);
+  
+  // Anchoring conversion functions
+  ConfigurationHorizontalAnchor getHorizontalAnchorFromString(const std::string& str);
+  std::string                   getHorizontalAnchorString(ConfigurationHorizontalAnchor anchor);
+  ConfigurationVerticalAnchor   getVerticalAnchorFromString(const std::string& str);
+  std::string                   getVerticalAnchorString(ConfigurationVerticalAnchor anchor);
 }

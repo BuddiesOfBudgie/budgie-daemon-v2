@@ -12,7 +12,7 @@ namespace bd {
     Q_OBJECT
 
     public:
-        ConfigurationBatchSystem(QObject* parent);
+        ConfigurationBatchSystem(QObject* parent = nullptr);
         static ConfigurationBatchSystem& instance();
         static ConfigurationBatchSystem* create() { return &instance(); }
 

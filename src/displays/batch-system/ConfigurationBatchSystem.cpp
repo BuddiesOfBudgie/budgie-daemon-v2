@@ -1,5 +1,6 @@
 #include "ConfigurationBatchSystem.hpp"
 #include <output-manager/WaylandOutputManager.hpp>
+#include <config/display.hpp>
 #include <QSet>
 #include <QRect>
 #include <QStringList>
@@ -9,6 +10,11 @@ namespace bd {
     ConfigurationBatchSystem::ConfigurationBatchSystem(QObject *parent) : QObject(parent),
         m_calculation_result(QSharedPointer<CalculationResult>()),
         m_actions(QList<QSharedPointer<ConfigurationAction>>()) {
+    }
+
+    ConfigurationBatchSystem& ConfigurationBatchSystem::instance() {
+        static ConfigurationBatchSystem _instance(nullptr);
+        return _instance;
     }
 
     void ConfigurationBatchSystem::addAction(QSharedPointer<ConfigurationAction> action) {
@@ -150,6 +156,19 @@ namespace bd {
         // Connect to configuration result signals
         connect(config.data(), &WaylandOutputConfiguration::succeeded, this, [this, config]() {
             qDebug() << "Configuration applied successfully";
+            
+            // Update and save the configuration
+            auto& displayConfig = bd::DisplayConfig::instance();
+            
+            // Force creation of a new active group from the current state and save it
+            auto activeGroup = displayConfig.getActiveGroup();
+            if (activeGroup) {
+                displayConfig.saveState();
+                qDebug() << "Configuration saved to disk";
+            } else {
+                qWarning() << "Failed to get active group for saving configuration";
+            }
+            
             emit configurationApplied(true);
             config->deleteLater();
         });

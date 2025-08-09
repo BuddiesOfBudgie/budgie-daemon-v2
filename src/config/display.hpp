@@ -4,6 +4,7 @@
 
 #include "format.hpp"
 #include "utils.hpp"
+#include "displays/batch-system/enums.hpp"
 
 namespace bd {
   class DisplayConfig;
@@ -78,7 +79,9 @@ namespace bd {
       bool               getAdaptiveSync() const;
       bool               getDisabled() const;
       int                getHeight() const;
-      std::array<int, 2> getPosition() const;
+      QString            getRelativeOutput() const;
+      ConfigurationHorizontalAnchor getHorizontalAnchor() const;
+      ConfigurationVerticalAnchor getVerticalAnchor() const;
       double             getRefresh() const;
       int                getRotation() const;
       double             getScale() const;
@@ -91,7 +94,9 @@ namespace bd {
       void setDisabled(bool disabled);
       void setHeight(int height);
       void setIdentifier(const QString& identifier);
-      void setPosition(const std::array<int, 2>& position);
+      void setRelativeOutput(const QString& relativeOutput);
+      void setHorizontalAnchor(ConfigurationHorizontalAnchor horizontalAnchor);
+      void setVerticalAnchor(ConfigurationVerticalAnchor verticalAnchor);
       void setRefresh(double refresh);
       void setRotation(int rotation);
       void setScale(double scale);
@@ -102,7 +107,9 @@ namespace bd {
       int                m_width;
       int                m_height;
       double             m_refresh;
-      std::array<int, 2> m_position;
+      QString            m_relative_output;
+      ConfigurationHorizontalAnchor m_horizontal_anchor;
+      ConfigurationVerticalAnchor m_vertical_anchor;
       double             m_scale;
       int                m_rotation;
       bool               m_adaptive_sync;

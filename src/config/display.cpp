@@ -3,16 +3,13 @@
 #include <QFile>
 #include <QTextStream>
 #include <QtDebug>
-#include <iostream>
-#include <map>
 #include <string>
 #include <vector>
 
 #include "configuration.hpp"
 #include "output-manager/WaylandOutputManager.hpp"
+#include "displays/batch-system/ConfigurationBatchSystem.hpp"
 #include "utils.hpp"
-
-namespace fs = std::filesystem;
 
 namespace bd {
   DisplayConfig::DisplayConfig(QObject* parent)
@@ -24,109 +21,125 @@ namespace bd {
   }
 
   void DisplayConfig::apply() {
+    // Get current system outputs
+    auto& orchestrator = WaylandOrchestrator::instance();
+    auto  manager      = orchestrator.getManager();
+    auto  heads        = manager->getHeads();
+
+    // Find a matching group for current system configuration
     auto matchOption = getMatchingGroup();
 
-    // Didn't find a match, so create a new group based on the orchestrator state
-    // This in the background sets properties on our DisplayConfig class, so we just need to return at this point.
+    // No matching group found - don't apply anything
     if (!matchOption.has_value()) {
-      qInfo() << "No matching group found, creating new group";
-      getActiveGroup();
-
-      // Save the state to our config
-      qInfo() << "Saving state";
-      saveState();
-
+      qInfo() << "No matching display group found for current system configuration";
+      qInfo() << "Available outputs:" << [&heads]() {
+        QStringList identifiers;
+        for (const auto& head : heads) {
+          if (head && !head->getIdentifier().isNull()) {
+            identifiers.append(head->getIdentifier());
+          }
+        }
+        return identifiers.join(", ");
+      }();
       return;
     }
 
-    auto& orchestrator = WaylandOrchestrator::instance();
-    auto  manager      = orchestrator.getManager();
-
     auto group = matchOption.value();
+    qInfo() << "Found matching display group:" << group->getName();
 
     // Set the active group to the matched group
     m_activeGroup = group;
 
-    auto heads = manager->getHeads();
+    // Reset the batch system and prepare for new configuration
+    auto& batchSystem = bd::ConfigurationBatchSystem::instance();
+    batchSystem.reset();
 
-    auto wlr_output_config = manager->configure();
+    // Connect to batch system completion signals
+    connect(&batchSystem, &ConfigurationBatchSystem::configurationApplied, this, [this, &batchSystem](bool success) {
+      if (success) {
+        qDebug() << "Display configuration applied successfully via batch system";
+        emit applied();
+      } else {
+        qWarning() << "Display configuration failed via batch system";
+        emit failed();
+      }
+      // Disconnect to avoid duplicate signals on subsequent uses
+      disconnect(&batchSystem, &ConfigurationBatchSystem::configurationApplied, this, nullptr);
+    }, Qt::SingleShotConnection);
 
-    bool should_apply = false;
+    // Create actions for each output in the group
+    for (const auto& serial : group->getOutputIdentifiers()) {
+      auto config_option = group->getConfigForIdentifier(serial);
+      if (!config_option.has_value()) {
+        qWarning() << "No configuration found for output:" << serial;
+        continue;
+      }
 
-    for (auto& head_ptr : heads) {
-      if (!head_ptr) continue;
-      auto head = head_ptr.get();
+      const auto& config = config_option.value();
+      qDebug() << "Creating batch actions for output:" << serial;
 
-      if (head->getIdentifier().isNull()) continue;
-      qDebug() << "Checking head " << head->getIdentifier() << ": " << head->getDescription();
-      for (const auto& qIdentifier : group->getOutputIdentifiers()) {
-        if (head->getIdentifier() != qIdentifier) continue;
-        qDebug() << "Checking output " << qIdentifier;
+      if (config->getDisabled()) {
+        // Create action to disable this output
+        auto offAction = ConfigurationAction::explicitOff(serial);
+        batchSystem.addAction(offAction);
+        qDebug() << "  - Disable output";
+      } else {
+        // Create action to enable this output
+        auto onAction = ConfigurationAction::explicitOn(serial);
+        batchSystem.addAction(onAction);
 
-        auto config_option = DisplayConfiguration::getDisplayOutputConfigurationForIdentifier(qIdentifier, group);
-        if (!config_option.has_value()) continue;
-        qDebug() << "Got configuration for output " << qIdentifier;
-        const auto& config = config_option.value();
-        should_apply       = true;
+        // Set mode (dimensions and refresh)
+        auto modeAction = ConfigurationAction::mode(serial, 
+          QSize(config->getWidth(), config->getHeight()), 
+          static_cast<int>(config->getRefresh()));
+        batchSystem.addAction(modeAction);
 
-        if (config->getDisabled()) {
-          qDebug() << "Disabling output " << qIdentifier;
-          wlr_output_config->disable(head);
-          continue;
+        // Set anchoring if specified
+        auto relativeOutput = config->getRelativeOutput();
+        if (!relativeOutput.isEmpty()) {
+          auto horizontalAnchor = config->getHorizontalAnchor();
+          auto verticalAnchor = config->getVerticalAnchor();
+          auto anchorAction = ConfigurationAction::setPositionAnchor(serial, relativeOutput, 
+            horizontalAnchor, verticalAnchor);
+          batchSystem.addAction(anchorAction);
+          qDebug() << "  - Set anchoring relative to:" << relativeOutput 
+                   << "H:" << static_cast<int>(horizontalAnchor) 
+                   << "V:" << static_cast<int>(verticalAnchor);
         }
 
-        // Enable the head and get the configuration head struct
-        auto config_head_ptr = wlr_output_config->enable(head);
+        // Set scale
+        auto scaleAction = ConfigurationAction::scale(serial, config->getScale());
+        batchSystem.addAction(scaleAction);
 
-        if (!config_head_ptr) {
-          qWarning() << "Failed to enable output " << qIdentifier << ", wlr_head is not available";
-          continue;
-        }
+        // Set transform (rotation)
+        auto transformAction = ConfigurationAction::transform(serial, 
+          static_cast<qint16>(config->getRotation()));
+        batchSystem.addAction(transformAction);
 
-        auto config_head = config_head_ptr.get();
+        // Set adaptive sync
+        auto adaptiveSyncAction = ConfigurationAction::adaptiveSync(serial, 
+          config->getAdaptiveSync() ? 1 : 0);
+        batchSystem.addAction(adaptiveSyncAction);
 
-        auto width    = config->getWidth();
-        auto height   = config->getHeight();
-        auto refresh  = config->getRefresh();
-        auto position = config->getPosition();
-
-        auto mode_ptr = head->getModeForOutputHead(width, height, refresh);
-
-        if (mode_ptr) {  // Found an existing mode for the head
-          auto mode = mode_ptr.get();
-          qDebug() << "Found mode for output " << qIdentifier << ": " << width << "x" << height << "@" << refresh << "\n\t" << "Position: " << position.at(0)
-                   << ", " << position.at(1);
-          mode->setPreferred(true);  // Set the mode as preferred
-          config_head->setMode(mode);
-        } else {
-          qDebug() << "Found no mode for output " << qIdentifier << ", applying custom: \n\t" << width << "x" << height << "@" << refresh << "\n\t"
-                   << "Position: " << position.at(0) << ", " << position.at(1);
-          config_head->setCustomMode(width, height, refresh);
-        }
-
-        config_head->setPosition(position.at(0), position.at(1));  // Apply related position to the head
-        config_head->setScale(config->getScale());                 // Apply related scale to the head
-        config_head->setTransform(config->getRotation());
-        config_head->setAdaptiveSync(
-            config->getAdaptiveSync() ? QtWayland::zwlr_output_head_v1::adaptive_sync_state_enabled
-                                      : QtWayland::zwlr_output_head_v1::adaptive_sync_state_disabled);  // Apply related transform to the head
+        qDebug() << "  - Enable output with mode:" << config->getWidth() << "x" << config->getHeight() 
+                 << "@" << config->getRefresh() << "Hz";
+        qDebug() << "  - Scale:" << config->getScale();
+        qDebug() << "  - Rotation:" << config->getRotation();
+        qDebug() << "  - Adaptive Sync:" << config->getAdaptiveSync();
       }
     }
 
-    if (should_apply) {
-      qDebug() << "Applying configuration";
-      wlr_output_config->applySelf();
-      auto display_ptr = WaylandOrchestrator::instance().getDisplay();
-      if (!display_ptr) {
-        qCritical() << "Display is null";
-        return;
-      }
-      wl_display_dispatch(display_ptr);
-    } else {
-      qDebug() << "No configuration to apply";
+    // Set primary output if specified
+    auto primaryOutput = group->getPrimaryOutput();
+    if (!primaryOutput.isEmpty()) {
+      // TODO: Add SetPrimary action - this needs to be implemented
+      qDebug() << "Primary output:" << primaryOutput;
     }
 
-    wlr_output_config->release();
+    // Calculate and apply the configuration
+    qDebug() << "Calculating and applying display configuration via batch system";
+    batchSystem.calculate();
+    batchSystem.apply();
   }
 
   DisplayGroup* DisplayConfig::createDisplayGroupForState() {
@@ -179,10 +192,17 @@ namespace bd {
       config->setWidth(mode_size.width());
       config->setHeight(mode_size.height());
       config->setRefresh(mode_refresh);
-      config->setPosition({head_pos.x(), head_pos.y()});
+      
+      // For auto-generated configs, don't set anchoring - let the batch system determine layout
+      // The batch system will calculate positions automatically for enabled outputs
+      config->setRelativeOutput(""); // No specific relative output
+      config->setHorizontalAnchor(ConfigurationHorizontalAnchor::NoHorizontalAnchor);
+      config->setVerticalAnchor(ConfigurationVerticalAnchor::NoVerticalAnchor);
+      
       config->setScale(head->getScale());
       config->setRotation(head->getTransform());
-      config->setAdaptiveSync(head->getAdaptiveSync());
+      config->setAdaptiveSync(head->getAdaptiveSync() != 0);
+      config->setDisabled(!head->isEnabled());
       defaultDisplayGroupForState->addConfig(config);
       config->deleteLater();
     }
@@ -201,10 +221,13 @@ namespace bd {
         qDebug() << "    Width: " << config->getWidth();
         qDebug() << "    Height: " << config->getHeight();
         qDebug() << "    Refresh: " << config->getRefresh();
-        qDebug() << "    Position: " << config->getPosition()[0] << ", " << config->getPosition()[1];
+        qDebug() << "    Relative Output: " << config->getRelativeOutput();
+        qDebug() << "    Horizontal Anchor: " << static_cast<int>(config->getHorizontalAnchor());
+        qDebug() << "    Vertical Anchor: " << static_cast<int>(config->getVerticalAnchor());
         qDebug() << "    Scale: " << config->getScale();
         qDebug() << "    Rotation: " << config->getRotation();
         qDebug() << "    Adaptive Sync: " << config->getAdaptiveSync();
+        qDebug() << "    Disabled: " << config->getDisabled();
       }
     }
   }
@@ -338,7 +361,12 @@ namespace bd {
       dgo->setWidth(toml::find<int>(output, "width"));
       dgo->setHeight(toml::find<int>(output, "height"));
       dgo->setRefresh(toml::find<double>(output, "refresh"));
-      dgo->setPosition(toml::find<std::array<int, 2>>(output, "position"));
+      
+      // Parse anchoring information (new format)
+      dgo->setRelativeOutput(QString::fromStdString(toml::find_or<std::string>(output, "relative_output", "")));
+      dgo->setHorizontalAnchor(DisplayConfigurationUtils::getHorizontalAnchorFromString(toml::find_or<std::string>(output, "horizontal_anchor", "none")));
+      dgo->setVerticalAnchor(DisplayConfigurationUtils::getVerticalAnchorFromString(toml::find_or<std::string>(output, "vertical_anchor", "none")));
+      
       dgo->setScale(toml::find_or<double>(output, "scale", 1.0));
       dgo->setRotation(toml::find_or<int>(output, "rotation", 0));
       dgo->setAdaptiveSync(toml::find_or<bool>(output, "adaptive_sync", false));
@@ -423,7 +451,11 @@ namespace bd {
 
   // DisplayGroupOutputConfig
 
-  DisplayGroupOutputConfig::DisplayGroupOutputConfig(QObject* parent) : QObject(parent) {}
+  DisplayGroupOutputConfig::DisplayGroupOutputConfig(QObject* parent) : QObject(parent),
+    m_width(0), m_height(0), m_refresh(0.0), m_relative_output(""),
+    m_horizontal_anchor(ConfigurationHorizontalAnchor::NoHorizontalAnchor),
+    m_vertical_anchor(ConfigurationVerticalAnchor::NoVerticalAnchor),
+    m_scale(1.0), m_rotation(0), m_adaptive_sync(false), m_disabled(false) {}
 
   bool DisplayGroupOutputConfig::getAdaptiveSync() const {
     return this->m_adaptive_sync;
@@ -441,8 +473,16 @@ namespace bd {
     return this->m_identifier;
   }
 
-  std::array<int, 2> DisplayGroupOutputConfig::getPosition() const {
-    return this->m_position;
+  QString DisplayGroupOutputConfig::getRelativeOutput() const {
+    return this->m_relative_output;
+  }
+
+  ConfigurationHorizontalAnchor DisplayGroupOutputConfig::getHorizontalAnchor() const {
+    return this->m_horizontal_anchor;
+  }
+
+  ConfigurationVerticalAnchor DisplayGroupOutputConfig::getVerticalAnchor() const {
+    return this->m_vertical_anchor;
   }
 
   double DisplayGroupOutputConfig::getRefresh() const {
@@ -477,8 +517,16 @@ namespace bd {
     this->m_identifier = identifier;
   }
 
-  void DisplayGroupOutputConfig::setPosition(const std::array<int, 2>& position) {
-    this->m_position = position;
+  void DisplayGroupOutputConfig::setRelativeOutput(const QString& relativeOutput) {
+    this->m_relative_output = relativeOutput;
+  }
+
+  void DisplayGroupOutputConfig::setHorizontalAnchor(ConfigurationHorizontalAnchor horizontalAnchor) {
+    this->m_horizontal_anchor = horizontalAnchor;
+  }
+
+  void DisplayGroupOutputConfig::setVerticalAnchor(ConfigurationVerticalAnchor verticalAnchor) {
+    this->m_vertical_anchor = verticalAnchor;
   }
 
   void DisplayGroupOutputConfig::setRefresh(double refresh) {
@@ -505,7 +553,14 @@ namespace bd {
     config_table["width"]         = this->m_width;
     config_table["height"]        = this->m_height;
     config_table["refresh"]       = this->m_refresh;
-    config_table["position"]      = this->m_position;
+    
+    // Serialize anchoring information (new format)
+    if (!this->m_relative_output.isEmpty()) {
+      config_table["relative_output"] = this->m_relative_output.toStdString();
+    }
+    config_table["horizontal_anchor"] = DisplayConfigurationUtils::getHorizontalAnchorString(this->m_horizontal_anchor);
+    config_table["vertical_anchor"] = DisplayConfigurationUtils::getVerticalAnchorString(this->m_vertical_anchor);
+    
     config_table["scale"]         = this->m_scale;
     config_table["rotation"]      = this->m_rotation;
     config_table["adaptive_sync"] = this->m_adaptive_sync;
