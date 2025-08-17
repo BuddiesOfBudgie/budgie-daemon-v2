@@ -33,7 +33,7 @@ int main(int argc, char* argv[]) {
 
   app.connect(&orchestrator, &bd::WaylandOrchestrator::ready, &bd::DisplayObjectManager::instance(), &bd::DisplayObjectManager::onOutputManagerReady);
 
-  if (!QDBusConnection::sessionBus().registerObject(DISPLAY_SERVICE_PATH, displayService.GetAdaptor(), QDBusConnection::ExportAllSlots)) {
+  if (!QDBusConnection::sessionBus().registerObject(DISPLAY_SERVICE_PATH, displayService.GetAdaptor(), QDBusConnection::ExportAllContents)) {
     qCritical() << "Failed to register DBus object at path" << DISPLAY_SERVICE_PATH;
     return EXIT_FAILURE;
   }

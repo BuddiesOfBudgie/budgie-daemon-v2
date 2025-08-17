@@ -14,7 +14,7 @@
 
 #include <QtCore/QObject>
 #include <QtDBus/QtDBus>
-#include "DisplaySchemaTypes.hpp"
+#include "../DisplaySchemaTypes.hpp"
 #include <QtCore/qcontainerfwd.h>
 
 /*

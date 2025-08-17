@@ -9,10 +9,10 @@ tasks:
     desc: "Generate qdbus adaptors"
     dir: src/dbus
     cmds:
-      - /usr/lib64/qt6/bin/qdbusxml2cpp -i DisplaySchemaTypes.hpp -a DisplayAdaptorGen DisplaySchema.Displays.xml
-      - /usr/lib64/qt6/bin/qdbusxml2cpp -i DisplaySchemaTypes.hpp -a BatchSystemAdaptorGen DisplaySchema.BatchSystem.xml
-      - /usr/lib64/qt6/bin/qdbusxml2cpp -i DisplaySchemaTypes.hpp -a OutputAdaptorGen DisplaySchema.Output.xml
-      - /usr/lib64/qt6/bin/qdbusxml2cpp -i DisplaySchemaTypes.hpp -a OutputModeAdaptorGen DisplaySchema.OutputMode.xml
+      - /usr/lib64/qt6/bin/qdbusxml2cpp -i ../DisplaySchemaTypes.hpp -a generated/DisplayAdaptorGen schemas/DisplaySchema.Displays.xml
+      - /usr/lib64/qt6/bin/qdbusxml2cpp -i ../DisplaySchemaTypes.hpp -a generated/BatchSystemAdaptorGen schemas/DisplaySchema.BatchSystem.xml
+      - /usr/lib64/qt6/bin/qdbusxml2cpp -i ../DisplaySchemaTypes.hpp -a generated/OutputAdaptorGen schemas/DisplaySchema.Output.xml
+      - /usr/lib64/qt6/bin/qdbusxml2cpp -i ../DisplaySchemaTypes.hpp -a generated/OutputModeAdaptorGen schemas/DisplaySchema.OutputMode.xml
   setup:
     desc: "Run cmake configuration"
     cmds:

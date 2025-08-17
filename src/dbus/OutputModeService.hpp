@@ -1,5 +1,5 @@
 #pragma once
-#include "OutputModeAdaptorGen.h"
+#include "generated/OutputModeAdaptorGen.h"
 #include <QSharedPointer>
 #include "displays/output-manager/mode/WaylandOutputMetaMode.hpp"
 

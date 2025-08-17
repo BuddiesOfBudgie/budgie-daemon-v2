@@ -1,5 +1,5 @@
 #pragma once
-#include "BatchSystemAdaptorGen.h"
+#include "generated/BatchSystemAdaptorGen.h"
 #include <QObject>
 
 namespace bd {

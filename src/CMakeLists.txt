@@ -19,21 +19,21 @@ add_library(
   config/format.hpp
   config/utils.cpp
   config/utils.hpp
-  dbus/BatchSystemAdaptorGen.cpp
-  dbus/BatchSystemAdaptorGen.h
+  dbus/generated/BatchSystemAdaptorGen.cpp
+  dbus/generated/BatchSystemAdaptorGen.h
+  dbus/generated/DisplayAdaptorGen.cpp
+  dbus/generated/DisplayAdaptorGen.h
+  dbus/generated/OutputAdaptorGen.cpp
+  dbus/generated/OutputAdaptorGen.h
+  dbus/generated/OutputModeAdaptorGen.cpp
+  dbus/generated/OutputModeAdaptorGen.h
+  dbus/DisplaySchemaTypes.hpp
   dbus/BatchSystemService.cpp
   dbus/BatchSystemService.hpp
-  dbus/DisplayAdaptorGen.cpp
-  dbus/DisplayAdaptorGen.h
   dbus/DisplayObjectManager.cpp
   dbus/DisplayObjectManager.hpp
-  dbus/DisplaySchemaTypes.hpp
   dbus/DisplayService.cpp
   dbus/DisplayService.hpp
-  dbus/OutputAdaptorGen.cpp
-  dbus/OutputAdaptorGen.h
-  dbus/OutputModeAdaptorGen.cpp
-  dbus/OutputModeAdaptorGen.h
   dbus/OutputModeService.cpp
   dbus/OutputModeService.hpp
   dbus/OutputService.cpp

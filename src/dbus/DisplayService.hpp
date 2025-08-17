@@ -1,5 +1,5 @@
 #pragma once
-#include "DisplayAdaptorGen.h"
+#include "generated/DisplayAdaptorGen.h"
 
 #define DISPLAY_SERVICE_NAME "org.buddiesofbudgie.BudgieDaemonX.Displays"
 #define DISPLAY_SERVICE_PATH "/org/buddiesofbudgie/BudgieDaemonX/Displays"

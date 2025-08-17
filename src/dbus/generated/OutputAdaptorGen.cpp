@@ -8,7 +8,7 @@
  * Do not edit! All changes made to it will be lost.
  */
 
-#include "OutputAdaptorGen.h"
+#include "generated/OutputAdaptorGen.h"
 #include <QtCore/QMetaObject>
 #include <QtCore/QByteArray>
 #include <QtCore/QList>

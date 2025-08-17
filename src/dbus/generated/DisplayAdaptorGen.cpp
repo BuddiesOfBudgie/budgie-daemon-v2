@@ -8,7 +8,7 @@
  * Do not edit! All changes made to it will be lost.
  */
 
-#include "DisplayAdaptorGen.h"
+#include "generated/DisplayAdaptorGen.h"
 #include <QtCore/QMetaObject>
 #include <QtCore/QByteArray>
 #include <QtCore/QList>

@@ -1,6 +1,7 @@
 #pragma once
-#include "OutputAdaptorGen.h"
+#include "generated/OutputAdaptorGen.h"
 #include <QSharedPointer>
+#include "DisplaySchemaTypes.hpp"
 #include "displays/output-manager/head/WaylandOutputMetaHead.hpp"
 
 namespace bd {
