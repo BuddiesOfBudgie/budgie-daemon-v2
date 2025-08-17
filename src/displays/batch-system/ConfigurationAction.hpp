@@ -16,7 +16,7 @@ namespace bd {
 
         static QSharedPointer<ConfigurationAction> mirrorOf(const QString& serial, QString relative, QObject *parent = nullptr);
 
-        static QSharedPointer<ConfigurationAction> mode(const QString& serial, QSize dimensions, int refresh,
+        static QSharedPointer<ConfigurationAction> mode(const QString& serial, QSize dimensions, double refresh,
                                              QObject *parent = nullptr);
 
         static QSharedPointer<ConfigurationAction> setPositionAnchor(const QString& serial, QString relative, ConfigurationHorizontalAnchor horizontal,
@@ -33,7 +33,7 @@ namespace bd {
         bool isOn() const;
         QString getRelative() const;
         QSize getDimensions() const;
-        int getRefresh() const;
+        double getRefresh() const;
         ConfigurationHorizontalAnchor getHorizontalAnchor() const;
         ConfigurationVerticalAnchor getVerticalAnchor() const;
         qreal getScale() const;
@@ -56,7 +56,7 @@ namespace bd {
 
         // Mode
         QSize m_dimensions;
-        int m_refresh;
+        double m_refresh;
 
         // Position Anchor
         ConfigurationHorizontalAnchor m_horizontal_anchor;

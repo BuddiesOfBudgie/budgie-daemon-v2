@@ -52,7 +52,6 @@ namespace bd {
     QString WaylandOutputMetaHead::getIdentifier() {
         // Have a valid serial, use that as the identifier
         if (!m_serial.isNull() && !m_serial.isEmpty()) {
-            qDebug() << "Using serial as identifier:" << m_serial;
             return m_serial;
         }
 
@@ -66,13 +65,9 @@ namespace bd {
             unique_name = QString {m_make + " " + m_model + " (" + m_name + ")"};
         }
 
-        qDebug() << "Generated unique name:" << unique_name;
-
         auto hash = QCryptographicHash::hash(unique_name.toUtf8(), QCryptographicHash::Md5);
 
         m_identifier = QString{hash.toHex()};
-
-        qDebug() << "Generated identifier:" << m_identifier;
 
         return m_identifier;
     }

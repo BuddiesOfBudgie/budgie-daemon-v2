@@ -1,28 +1,34 @@
 #include "ConfigurationAction.hpp"
+#include <qdebug.h>
+#include "utils.hpp"
 
 namespace bd {
     ConfigurationAction::ConfigurationAction(ConfigurationActionType action_type, QString serial, QObject *parent) : QObject(parent), m_action_type(action_type), m_serial(QString {serial}),
-        m_on(false), m_dimensions(QSize()), m_refresh(0), m_horizontal_anchor(ConfigurationHorizontalAnchor::NoHorizontalAnchor),
+        m_on(false), m_dimensions(QSize()), m_refresh(0.0), m_horizontal_anchor(ConfigurationHorizontalAnchor::NoHorizontalAnchor),
         m_vertical_anchor(ConfigurationVerticalAnchor::NoVerticalAnchor), m_scale(1.0), m_transform(0), m_adaptive_sync(0) {
     }
 
     QSharedPointer<ConfigurationAction> ConfigurationAction::explicitOn(const QString& serial, QObject *parent) {
+        qDebug() << "ConfigurationAction::explicitOn" << serial;
         auto action = QSharedPointer<ConfigurationAction>(new ConfigurationAction(ConfigurationActionType::SetOnOff, serial, parent));
         action->m_on = true;
         return action;
     }
 
     QSharedPointer<ConfigurationAction> ConfigurationAction::explicitOff(const QString& serial, QObject *parent) {
+        qDebug() << "ConfigurationAction::explicitOff" << serial;
         return QSharedPointer<ConfigurationAction>(new ConfigurationAction(ConfigurationActionType::SetOnOff, serial, parent));
     }
 
     QSharedPointer<ConfigurationAction> ConfigurationAction::mirrorOf(const QString& serial, QString relative, QObject *parent) {
+        qDebug() << "ConfigurationAction::mirrorOf" << serial << relative;
         auto action = QSharedPointer<ConfigurationAction>(new ConfigurationAction(ConfigurationActionType::SetMirrorOf, serial, parent));
         action->m_relative = QString { relative };
         return action;
     }
 
-    QSharedPointer<ConfigurationAction> ConfigurationAction::mode(const QString& serial, QSize dimensions, int refresh, QObject *parent) {
+    QSharedPointer<ConfigurationAction> ConfigurationAction::mode(const QString& serial, QSize dimensions, double refresh, QObject *parent) {
+        qDebug() << "ConfigurationAction::mode" << serial << dimensions << refresh;
         auto action = QSharedPointer<ConfigurationAction>(new ConfigurationAction(ConfigurationActionType::SetMode, serial, parent));
         action->m_dimensions = QSize {dimensions};
         action->m_refresh = refresh;
@@ -31,6 +37,7 @@ namespace bd {
 
     QSharedPointer<ConfigurationAction> ConfigurationAction::setPositionAnchor(const QString& serial, QString relative, ConfigurationHorizontalAnchor horizontal,
                                                                                  ConfigurationVerticalAnchor vertical, QObject *parent) {
+        qDebug() << "ConfigurationAction::setPositionAnchor" << serial << relative << bd::DisplayConfigurationUtils::getHorizontalAnchorString(horizontal) << bd::DisplayConfigurationUtils::getVerticalAnchorString(vertical);
         auto action = QSharedPointer<ConfigurationAction>(new ConfigurationAction(ConfigurationActionType::SetPositionAnchor, serial, parent));
         action->m_relative = QString { relative };
         action->m_horizontal_anchor = horizontal;
@@ -39,18 +46,21 @@ namespace bd {
     }
 
     QSharedPointer<ConfigurationAction> ConfigurationAction::scale(const QString& serial, qreal scale, QObject *parent) {
+        qDebug() << "ConfigurationAction::scale" << serial << scale;
         auto action = QSharedPointer<ConfigurationAction>(new ConfigurationAction(ConfigurationActionType::SetScale, serial, parent));
         action->m_scale = scale;
         return action;
     }
 
     QSharedPointer<ConfigurationAction> ConfigurationAction::transform(const QString& serial, qint16 transform, QObject *parent) {
+        qDebug() << "ConfigurationAction::transform" << serial << transform;
         auto action = QSharedPointer<ConfigurationAction>(new ConfigurationAction(ConfigurationActionType::SetTransform, serial, parent));
         action->m_transform = transform;
         return action;
     }
 
     QSharedPointer<ConfigurationAction> ConfigurationAction::adaptiveSync(const QString& serial, uint32_t adaptiveSync, QObject *parent) {
+        qDebug() << "ConfigurationAction::adaptiveSync" << serial << adaptiveSync;
         auto action = QSharedPointer<ConfigurationAction>(new ConfigurationAction(ConfigurationActionType::SetAdaptiveSync, serial, parent));
         action->m_adaptive_sync = adaptiveSync;
         return action;
@@ -76,7 +86,7 @@ namespace bd {
         return m_dimensions;
     }
 
-    int ConfigurationAction::getRefresh() const {
+    double ConfigurationAction::getRefresh() const {
         return m_refresh;
     }
 

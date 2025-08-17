@@ -132,11 +132,14 @@ namespace bd {
                 auto refresh = outputState->getRefresh();
                 
                 if (!dimensions.isEmpty() && refresh > 0) {
+                    qDebug() << "Setting mode for output" << serial << "Dimensions:" << dimensions << "Refresh:" << refresh;
                     // Try to find an existing mode that matches
                     auto mode = head->getModeForOutputHead(dimensions.width(), dimensions.height(), refresh);
                     if (!mode.isNull()) {
+                        qDebug() << "Found existing mode for output" << serial << "Setting mode";
                         configHead->setMode(mode.data());
                     } else {
+                        qDebug() << "No existing mode found for output" << serial << "Setting custom mode";
                         // Use custom mode if no existing mode matches
                         configHead->setCustomMode(dimensions.width(), dimensions.height(), refresh);
                     }
@@ -170,24 +173,27 @@ namespace bd {
             }
             
             emit configurationApplied(true);
-            config->deleteLater();
+            // config->deleteLater();
+            config->release();
         });
         
         connect(config.data(), &WaylandOutputConfiguration::failed, this, [this, config]() {
             qWarning() << "Configuration application failed";
             emit configurationApplied(false);
-            config->deleteLater();
+            // config->deleteLater();
+            config->release();
         });
         
         connect(config.data(), &WaylandOutputConfiguration::cancelled, this, [this, config]() {
             qWarning() << "Configuration application was cancelled";
             emit configurationApplied(false);
-            config->deleteLater();
+            // config->deleteLater();
+            config->release();
         });
 
         // Apply the configuration
+        qDebug() << "Applying configuration for" << outputStates.size() << "outputs";
         config->applySelf();
-        qDebug() << "Applied configuration for" << outputStates.size() << "outputs";
     }
 
     void ConfigurationBatchSystem::calculate() {
@@ -278,17 +284,17 @@ namespace bd {
 
         // Calculate positions based on anchoring
         auto positionedOutputs = QSet<QString>();
-        auto anchorMap = QMap<QString, QString>(); // serial -> relative_serial
         
         // Build anchor relationships
+        auto anchorMap = QMap<QString, QString>(); // serial -> relative_serial
+        auto unanchoredOutputs = QList<QString>();
+
         for (auto action : m_actions) {
             if (action->getActionType() == ConfigurationActionType::SetPositionAnchor) {
                 anchorMap.insert(action->getSerial(), action->getRelative());
             }
         }
 
-        // Find outputs without anchors (these will be positioned first)
-        auto unanchoredOutputs = QList<QString>();
         for (auto serial : pendingOutputStates.keys()) {
             auto outputState = pendingOutputStates[serial];
             if (!outputState.isNull() && outputState->isOn() && !anchorMap.contains(serial)) {
@@ -296,36 +302,34 @@ namespace bd {
             }
         }
 
-        // Position unanchored outputs starting from origin
+        // Build horizontal chain for positioning
+        QList<QString> horizontalChain = buildHorizontalChain(pendingOutputStates, m_actions);
+        qDebug() << "Horizontal output chain order:" << horizontalChain;
+
+        // Position outputs in horizontal chain from left to right
         QPoint nextPosition(0, 0);
-        for (auto serial : unanchoredOutputs) {
+        for (const auto& serial : horizontalChain) {
             auto outputState = pendingOutputStates[serial];
-            if (!outputState.isNull()) {
+            if (!outputState.isNull() && outputState->isOn()) {
                 outputState->setPosition(nextPosition);
                 positionedOutputs.insert(serial);
-                
                 // Move next position to the right
                 auto dimensions = outputState->getResultingDimensions();
                 nextPosition.setX(nextPosition.x() + dimensions.width());
             }
         }
 
-        // Position anchored outputs iteratively
+        // Position anchored outputs iteratively (vertical and other anchors)
         bool progressMade = true;
         while (progressMade && positionedOutputs.size() < pendingOutputStates.size()) {
             progressMade = false;
-            
             for (auto serial : anchorMap.keys()) {
                 if (positionedOutputs.contains(serial)) continue;
-                
                 auto relativeSerial = anchorMap[serial];
                 if (!positionedOutputs.contains(relativeSerial)) continue;
-                
                 auto outputState = pendingOutputStates[serial];
                 auto relativeState = pendingOutputStates[relativeSerial];
-                
                 if (outputState.isNull() || relativeState.isNull() || !outputState->isOn()) continue;
-                
                 // Calculate position based on anchor (mirrored outputs will be handled separately)
                 QPoint newPosition = calculateAnchoredPosition(outputState, relativeState);
                 outputState->setPosition(newPosition);
@@ -449,4 +453,78 @@ namespace bd {
         m_actions.clear(); // Clear the actions
     }
     
+    QList<QSharedPointer<ConfigurationAction>> ConfigurationBatchSystem::getActions() const {
+        return m_actions;
+    }
+
+    QSharedPointer<CalculationResult> ConfigurationBatchSystem::getCalculationResult() const {
+        return m_calculation_result;
+    }
+}
+
+QList<QString> bd::ConfigurationBatchSystem::buildHorizontalChain(const QMap<QString, QSharedPointer<OutputTargetState>>& pendingOutputStates, const QList<QSharedPointer<ConfigurationAction>>& actions) const {
+    // Map: serial -> relative_serial (for Right anchors only, not Above/Below)
+    QMap<QString, QString> rightOfMap;
+    // Reverse map: relative_serial -> serial
+    QMap<QString, QString> referencedByMap;
+    QSet<QString> allSerials;
+    QSet<QString> allRelatives;
+
+    for (const auto& action : actions) {
+        if (action->getActionType() == ConfigurationActionType::SetPositionAnchor &&
+            action->getHorizontalAnchor() == ConfigurationHorizontalAnchor::Right &&
+            action->getVerticalAnchor() != ConfigurationVerticalAnchor::Above &&
+            action->getVerticalAnchor() != ConfigurationVerticalAnchor::Below) {
+            rightOfMap.insert(action->getSerial(), action->getRelative());
+            referencedByMap.insert(action->getRelative(), action->getSerial());
+            allSerials.insert(action->getSerial());
+            allRelatives.insert(action->getRelative());
+        }
+    }
+    // All outputs
+    for (const auto& serial : pendingOutputStates.keys()) {
+        allSerials.insert(serial);
+    }
+
+    // Find the leftmost output: one that is referenced as a relative, but is not a serial in rightOfMap
+    // (i.e., appears as a relative, but not as a serial)
+    QString leftmost;
+    for (const auto& rel : allRelatives) {
+        if (!rightOfMap.contains(rel)) {
+            leftmost = rel;
+            break;
+        }
+    }
+    // If not found, fallback: pick any output not a serial in rightOfMap
+    if (leftmost.isEmpty()) {
+        for (const auto& serial : pendingOutputStates.keys()) {
+            if (!rightOfMap.contains(serial)) {
+                leftmost = serial;
+                break;
+            }
+        }
+    }
+
+    QList<QString> chain;
+    QSet<QString> visited;
+    // Walk the chain from leftmost to rightmost
+    QString current = leftmost;
+    while (!current.isEmpty() && !visited.contains(current)) {
+        chain.append(current);
+        visited.insert(current);
+        // Find who is right of current
+        if (referencedByMap.contains(current)) {
+            current = referencedByMap[current];
+        } else {
+            break;
+        }
+    }
+
+    // Append unanchored outputs (not in chain)
+    for (const auto& serial : pendingOutputStates.keys()) {
+        if (!visited.contains(serial)) {
+            chain.append(serial);
+        }
+    }
+    return chain;
 }

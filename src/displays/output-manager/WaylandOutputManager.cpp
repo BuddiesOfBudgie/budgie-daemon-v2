@@ -5,7 +5,6 @@
 
 #include <cstdint>
 #include <cstring>
-#include <memory>
 
 namespace bd {
   WaylandOrchestrator::WaylandOrchestrator(QObject* parent)
@@ -164,15 +163,15 @@ namespace bd {
     auto config                   = new WaylandOutputConfiguration(nullptr, wlr_output_configuration);
     connect(config, &WaylandOutputConfiguration::cancelled, this, [this, config]() {
       qDebug() << "Configuration cancelled";
-      config->deleteLater();
+      // config->deleteLater();
     });
     connect(config, &WaylandOutputConfiguration::succeeded, this, [this, config]() {
       qDebug() << "Configuration succeeded";
-      config->deleteLater();
+      // config->deleteLater();
     });
     connect(config, &WaylandOutputConfiguration::failed, this, [this, config]() {
       qDebug() << "Configuration failed";
-      config->deleteLater();
+      // config->deleteLater();
     });
     return QSharedPointer<WaylandOutputConfiguration>(config);
   }

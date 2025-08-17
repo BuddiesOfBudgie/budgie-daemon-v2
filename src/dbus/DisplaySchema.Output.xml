@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<node name="/org/buddiesofbudgie/BudgieDaemonX/Displays/Outputs/Output">
+    <interface name="org.buddiesofbudgie.BudgieDaemonX.Output">
+        <property name="Serial" type="s" access="read"/>
+        <property name="Name" type="s" access="read"/>
+        <property name="Description" type="s" access="read"/>
+        <property name="Make" type="s" access="read"/>
+        <property name="Model" type="s" access="read"/>
+        <property name="Enabled" type="b" access="read"/>
+        <property name="Width" type="i" access="read"/>
+        <property name="Height" type="i" access="read"/>
+        <property name="X" type="i" access="read"/>
+        <property name="Y" type="i" access="read"/>
+        <property name="Scale" type="d" access="read"/>
+        <property name="RefreshRate" type="d" access="read"/>
+        <property name="Transform" type="n" access="read"/>
+        <property name="AdaptiveSync" type="u" access="read"/>
+        <property name="Primary" type="b" access="read"/>
+        <property name="MirrorOf" type="s" access="read"/>
+        <method name="GetAvailableModes">
+            <annotation name="org.qtproject.QtDBus.QtTypeName.Out0" value="QStringList"/>
+            <arg name="modePaths" type="as" direction="out"/>
+        </method>
+        <method name="GetCurrentMode">
+            <arg name="modePath" type="s" direction="out"/>
+        </method>
+        <method name="GetModeNodePath">
+            <arg name="width" type="i" direction="in"/>
+            <arg name="height" type="i" direction="in"/>
+            <arg name="refreshRate" type="d" direction="in"/>
+            <arg name="objectPath" type="s" direction="out"/>
+        </method>
+        <signal name="PropertyChanged">
+            <arg name="property" type="s"/>
+            <arg name="value" type="v"/>
+        </signal>
+        <signal name="ModeChanged">
+            <arg name="oldModePath" type="s"/>
+            <arg name="newModePath" type="s"/>
+        </signal>
+        <signal name="EnabledChanged">
+            <arg name="enabled" type="b"/>
+        </signal>
+        <signal name="PositionChanged">
+            <arg name="x" type="i"/>
+            <arg name="y" type="i"/>
+        </signal>
+        <signal name="ScaleChanged">
+            <arg name="scale" type="d"/>
+        </signal>
+        <signal name="TransformChanged">
+            <arg name="transform" type="n"/>
+        </signal>
+    </interface>
+</node>

@@ -15,6 +15,7 @@ namespace bd {
 
         QSharedPointer<QRect> getGlobalSpace() const;
         QMap<QString, QSharedPointer<OutputTargetState>> getOutputStates() const;
+        QVariantMap toVariantMap() const;
 
         void setOutputState(QString serial, QSharedPointer<OutputTargetState> output_state);
 

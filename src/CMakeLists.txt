@@ -19,11 +19,36 @@ add_library(
   config/format.hpp
   config/utils.cpp
   config/utils.hpp
+  dbus/BatchSystemAdaptorGen.cpp
+  dbus/BatchSystemAdaptorGen.h
+  dbus/BatchSystemService.cpp
+  dbus/BatchSystemService.hpp
   dbus/DisplayAdaptorGen.cpp
   dbus/DisplayAdaptorGen.h
+  dbus/DisplayObjectManager.cpp
+  dbus/DisplayObjectManager.hpp
   dbus/DisplaySchemaTypes.hpp
   dbus/DisplayService.cpp
   dbus/DisplayService.hpp
+  dbus/OutputAdaptorGen.cpp
+  dbus/OutputAdaptorGen.h
+  dbus/OutputModeAdaptorGen.cpp
+  dbus/OutputModeAdaptorGen.h
+  dbus/OutputModeService.cpp
+  dbus/OutputModeService.hpp
+  dbus/OutputService.cpp
+  dbus/OutputService.hpp
+  displays/batch-system/CalculationResult.cpp
+  displays/batch-system/CalculationResult.hpp
+  displays/batch-system/ConfigurationAction.cpp
+  displays/batch-system/ConfigurationAction.hpp
+  displays/batch-system/ConfigurationBatchSystem.cpp
+  displays/batch-system/ConfigurationBatchSystem.hpp
+  displays/batch-system/enums.hpp
+  displays/batch-system/OutputTargetState.cpp
+  displays/batch-system/OutputTargetState.hpp
+  displays/configuration.cpp
+  displays/configuration.hpp
   displays/output-manager/head/enums.hpp
   displays/output-manager/head/WaylandOutputHead.cpp
   displays/output-manager/head/WaylandOutputHead.hpp
@@ -36,15 +61,8 @@ add_library(
   displays/output-manager/mode/WaylandOutputMode.hpp
   displays/output-manager/WaylandOutputManager.cpp
   displays/output-manager/WaylandOutputManager.hpp
-  displays/configuration.cpp
-  displays/configuration.hpp
   sys/SysInfo.cpp
   sys/SysInfo.hpp
-        displays/batch-system/ConfigurationBatchSystem.cpp
-        displays/batch-system/ConfigurationBatchSystem.hpp
-        displays/batch-system/enums.hpp
-        displays/batch-system/ConfigurationAction.cpp
-        displays/batch-system/ConfigurationAction.hpp
 )
 
 add_executable(budgie-daemon-v2-app main.cpp)

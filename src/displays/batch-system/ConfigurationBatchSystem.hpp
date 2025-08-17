@@ -27,6 +27,7 @@ namespace bd {
         void calculate();
 
         QSharedPointer<CalculationResult> getCalculationResult() const;
+        QList<QSharedPointer<ConfigurationAction>> getActions() const;
 
         // Clears any actions, resets any state
         void reset();
@@ -40,5 +41,8 @@ namespace bd {
 
         // Helper method for calculating anchored positions
         QPoint calculateAnchoredPosition(QSharedPointer<OutputTargetState> outputState, QSharedPointer<OutputTargetState> relativeState);
+
+        // Helper to build the horizontal chain for output positioning
+        QList<QString> buildHorizontalChain(const QMap<QString, QSharedPointer<OutputTargetState>>& pendingOutputStates, const QList<QSharedPointer<ConfigurationAction>>& actions) const;
     };
 }

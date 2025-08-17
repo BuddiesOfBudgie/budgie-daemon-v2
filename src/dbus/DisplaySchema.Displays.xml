@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<node name="/org/buddiesofbudgie/BudgieDaemonX/Displays">
+    <interface name="org.buddiesofbudgie.BudgieDaemonX.Displays">
+        <method name="GetAvailableOutputs">
+            <annotation name="org.qtproject.QtDBus.QtTypeName.Out0" value="QStringList"/>
+            <arg name="outputSerials" type="as" direction="out"/>
+        </method>
+    </interface>
+</node>
