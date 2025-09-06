@@ -145,11 +145,3 @@ QString OutputAdaptor::GetCurrentMode()
     return modePath;
 }
 
-QString OutputAdaptor::GetModeNodePath(int width, int height, double refreshRate)
-{
-    // handle method call org.buddiesofbudgie.BudgieDaemonX.Output.GetModeNodePath
-    QString objectPath{};
-    QMetaObject::invokeMethod(parent(), "GetModeNodePath", Q_RETURN_ARG(QString, objectPath), Q_ARG(int, width), Q_ARG(int, height), Q_ARG(double, refreshRate));
-    return objectPath;
-}
-

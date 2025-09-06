@@ -17,7 +17,7 @@ OutputModeService::OutputModeService(QSharedPointer<WaylandOutputMetaMode> mode,
     : QObject(parent), m_mode(mode), m_outputId(outputId) {
     QString objectPath = QString("/org/buddiesofbudgie/BudgieDaemonX/Displays/Outputs/%1/Modes/%2").arg(outputId).arg(mode->getId());
     m_adaptor = new OutputModeAdaptor(this);
-    QDBusConnection::sessionBus().registerObject(objectPath, this);
+    QDBusConnection::sessionBus().registerObject(objectPath, this, QDBusConnection::ExportAdaptors);
 }
 
 OutputModeService::~OutputModeService() {}
@@ -53,9 +53,7 @@ bool OutputModeService::isCurrentMode() const {
     // Compare pointer identity
     return currentMode.data() == m_mode.data();
 }
-void OutputModeService::Activate() {
-    // TODO: Implement activation logic (e.g., signal to orchestrator)
-}
+
 QVariantMap OutputModeService::GetModeInfo() {
     QVariantMap info;
     auto size = m_mode->getSize();

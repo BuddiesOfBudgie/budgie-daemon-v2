@@ -48,7 +48,6 @@ public:
     // D-Bus methods
     Q_INVOKABLE QStringList GetAvailableModes();
     Q_INVOKABLE QString GetCurrentMode();
-    Q_INVOKABLE QString GetModeNodePath(int width, int height, double refreshRate);
 
 private:
     QSharedPointer<WaylandOutputMetaHead> m_output;

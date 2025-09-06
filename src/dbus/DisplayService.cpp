@@ -7,6 +7,11 @@ namespace bd {
     m_adaptor = new DisplaysAdaptor(this);
   }
 
+  DisplayService& DisplayService::instance() {
+    static DisplayService _instance(nullptr);
+    return _instance;
+  }
+
   QStringList DisplayService::GetAvailableOutputs() {
     auto outputs = QStringList {};
     for (const auto& output : WaylandOrchestrator::instance().getManager()->getHeads()) {

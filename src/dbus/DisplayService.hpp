@@ -10,6 +10,8 @@ namespace bd {
 
     public:
       explicit DisplayService(QObject* parent = nullptr);
+      static DisplayService& instance();
+      static DisplayService* create() { return &instance(); }
       DisplaysAdaptor* GetAdaptor();
 
     public slots:

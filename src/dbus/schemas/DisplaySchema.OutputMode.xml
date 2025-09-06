@@ -6,7 +6,6 @@
         <property name="RefreshRate" type="d" access="read"/>
         <property name="Preferred" type="b" access="read"/>
         <property name="Current" type="b" access="read"/>
-        <method name="Activate"/>
         <method name="GetModeInfo">
             <annotation name="org.qtproject.QtDBus.QtTypeName.Out0" value="QVariantMap"/>
             <arg name="modeInfo" type="a{sv}" direction="out"/>

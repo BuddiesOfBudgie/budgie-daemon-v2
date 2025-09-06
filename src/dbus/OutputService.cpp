@@ -7,7 +7,7 @@ OutputService::OutputService(QSharedPointer<WaylandOutputMetaHead> output, QObje
     : QObject(parent), m_output(output) {
     QString objectPath = QString("/org/buddiesofbudgie/BudgieDaemonX/Displays/Outputs/%1").arg(output->getIdentifier());
     m_adaptor = new OutputAdaptor(this);
-    QDBusConnection::sessionBus().registerObject(objectPath, this);
+    QDBusConnection::sessionBus().registerObject(objectPath, this, QDBusConnection::ExportAdaptors);
 }
 
 OutputService::~OutputService() {}
@@ -57,19 +57,6 @@ QString OutputService::GetCurrentMode() {
         return QString("/org/buddiesofbudgie/BudgieDaemonX/Displays/Outputs/%1/Modes/%2")
             .arg(m_output->getIdentifier())
             .arg(mode->getId());
-    }
-    return QString();
-}
-
-QString OutputService::GetModeNodePath(int width, int height, double refreshRate) {
-    for (const auto& mode : m_output->getModes()) {
-        auto size = mode->getSize();
-        auto refresh = mode->getRefresh();
-        if (size && refresh && size->width() == width && size->height() == height && qFuzzyCompare(refresh.value(), refreshRate)) {
-            return QString("/org/buddiesofbudgie/BudgieDaemonX/Displays/Outputs/%1/Modes/%2")
-                .arg(m_output->getIdentifier())
-                .arg(mode->getId());
-        }
     }
     return QString();
 }

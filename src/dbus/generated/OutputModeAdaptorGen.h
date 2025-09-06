@@ -31,7 +31,6 @@ class OutputModeAdaptor: public QDBusAbstractAdaptor
 "    <property access=\"read\" type=\"d\" name=\"RefreshRate\"/>\n"
 "    <property access=\"read\" type=\"b\" name=\"Preferred\"/>\n"
 "    <property access=\"read\" type=\"b\" name=\"Current\"/>\n"
-"    <method name=\"Activate\"/>\n"
 "    <method name=\"GetModeInfo\">\n"
 "      <annotation value=\"QVariantMap\" name=\"org.qtproject.QtDBus.QtTypeName.Out0\"/>\n"
 "      <arg direction=\"out\" type=\"a{sv}\" name=\"modeInfo\"/>\n"
@@ -66,7 +65,6 @@ public: // PROPERTIES
     int width() const;
 
 public Q_SLOTS: // METHODS
-    void Activate();
     QVariantMap GetModeInfo();
 Q_SIGNALS: // SIGNALS
     void Activated(bool success);

@@ -2,11 +2,16 @@
 #include "generated/BatchSystemAdaptorGen.h"
 #include <QObject>
 
+#define BATCH_SYSTEM_SERVICE_PATH "/org/buddiesofbudgie/BudgieDaemonX/Displays/BatchSystem"
+
 namespace bd {
 class BatchSystemService : public QObject {
     Q_OBJECT
 public:
     explicit BatchSystemService(QObject* parent = nullptr);
+    static BatchSystemService& instance();
+    static BatchSystemService* create() { return &instance(); }
+    BatchSystemAdaptor* GetAdaptor();
 
 public slots:
     void ResetConfiguration();

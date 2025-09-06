@@ -3,7 +3,7 @@
 
 namespace bd {
     WaylandOutputMetaMode::WaylandOutputMetaMode(QObject *parent, ::zwlr_output_mode_v1 *wlr_mode)
-            : QObject(parent), m_id(0), m_mode(QSharedPointer<WaylandOutputMode>(nullptr)), m_refresh(0.0), m_preferred(std::nullopt), m_size(QSize{0, 0}),
+            : QObject(parent), m_id(QString()), m_mode(QSharedPointer<WaylandOutputMode>(nullptr)), m_refresh(0.0), m_preferred(std::nullopt), m_size(QSize{0, 0}),
               m_is_available(std::nullopt) {
         setMode(wlr_mode);
     }
@@ -13,7 +13,7 @@ namespace bd {
         m_preferred = std::nullopt; // Clear preferred state
     }
 
-    uint32_t WaylandOutputMetaMode::getId() {
+    QString WaylandOutputMetaMode::getId() {
         return m_id;
     }
 
@@ -127,6 +127,12 @@ namespace bd {
             if (!refresh.has_value()) return;
             if (!size.has_value()) return;
             if (!size.value().isValid()) return;
+
+            // Compute ID string as {width}_{height}_{refresh} and ensure it's DBus object-path safe
+            const auto sz = size.value();
+            const auto ref = refresh.value();
+            m_id = QString("%1_%2_%3").arg(sz.width()).arg(sz.height()).arg(ref);
+            m_id.replace('.', '_');
 
             m_is_available = true;
             emit done();

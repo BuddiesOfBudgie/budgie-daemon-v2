@@ -23,7 +23,6 @@ public:
     bool Current() const;
 
     // D-Bus methods
-    Q_INVOKABLE void Activate();
     Q_INVOKABLE QVariantMap GetModeInfo();
 
 private:

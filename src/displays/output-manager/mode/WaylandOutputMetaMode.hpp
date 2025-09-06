@@ -3,6 +3,7 @@
 #include <QObject>
 #include <QSize>
 #include <QVariant>
+#include <QString>
 #include <optional>
 
 #include "WaylandOutputMode.hpp"
@@ -15,7 +16,7 @@ namespace bd {
         WaylandOutputMetaMode(QObject *parent, ::zwlr_output_mode_v1 *wlr_mode);
         ~WaylandOutputMetaMode() override;
 
-        uint32_t getId();
+        QString getId();
 
         std::optional<double> getRefresh();
 
@@ -51,7 +52,7 @@ namespace bd {
 
     private:
         QSharedPointer<WaylandOutputMode> m_mode;
-        uint32_t m_id;
+        QString m_id;
         QSize m_size;
         double m_refresh;
         std::optional<bool> m_preferred;

@@ -49,12 +49,6 @@ class OutputAdaptor: public QDBusAbstractAdaptor
 "    <method name=\"GetCurrentMode\">\n"
 "      <arg direction=\"out\" type=\"s\" name=\"modePath\"/>\n"
 "    </method>\n"
-"    <method name=\"GetModeNodePath\">\n"
-"      <arg direction=\"in\" type=\"i\" name=\"width\"/>\n"
-"      <arg direction=\"in\" type=\"i\" name=\"height\"/>\n"
-"      <arg direction=\"in\" type=\"d\" name=\"refreshRate\"/>\n"
-"      <arg direction=\"out\" type=\"s\" name=\"objectPath\"/>\n"
-"    </method>\n"
 "    <signal name=\"PropertyChanged\">\n"
 "      <arg type=\"s\" name=\"property\"/>\n"
 "      <arg type=\"v\" name=\"value\"/>\n"
@@ -134,7 +128,6 @@ public: // PROPERTIES
 public Q_SLOTS: // METHODS
     QStringList GetAvailableModes();
     QString GetCurrentMode();
-    QString GetModeNodePath(int width, int height, double refreshRate);
 Q_SIGNALS: // SIGNALS
     void EnabledChanged(bool enabled);
     void ModeChanged(const QString &oldModePath, const QString &newModePath);

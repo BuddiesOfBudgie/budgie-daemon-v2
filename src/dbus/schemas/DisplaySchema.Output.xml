@@ -24,12 +24,6 @@
         <method name="GetCurrentMode">
             <arg name="modePath" type="s" direction="out"/>
         </method>
-        <method name="GetModeNodePath">
-            <arg name="width" type="i" direction="in"/>
-            <arg name="height" type="i" direction="in"/>
-            <arg name="refreshRate" type="d" direction="in"/>
-            <arg name="objectPath" type="s" direction="out"/>
-        </method>
         <signal name="PropertyChanged">
             <arg name="property" type="s"/>
             <arg name="value" type="v"/>

@@ -63,12 +63,6 @@ int OutputModeAdaptor::width() const
     return qvariant_cast< int >(parent()->property("Width"));
 }
 
-void OutputModeAdaptor::Activate()
-{
-    // handle method call org.buddiesofbudgie.BudgieDaemonX.OutputMode.Activate
-    QMetaObject::invokeMethod(parent(), "Activate");
-}
-
 QVariantMap OutputModeAdaptor::GetModeInfo()
 {
     // handle method call org.buddiesofbudgie.BudgieDaemonX.OutputMode.GetModeInfo

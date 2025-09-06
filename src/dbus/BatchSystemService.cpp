@@ -13,6 +13,15 @@ BatchSystemService::BatchSystemService(QObject* parent)
             this, &BatchSystemService::ConfigurationApplied);
 }
 
+BatchSystemService& BatchSystemService::instance() {
+    static BatchSystemService _instance(nullptr);
+    return _instance;
+}
+
+BatchSystemAdaptor* BatchSystemService::GetAdaptor() {
+    return m_adaptor;
+}
+
 void BatchSystemService::ResetConfiguration() {
     ConfigurationBatchSystem::instance().reset();
 }
@@ -23,7 +32,7 @@ void BatchSystemService::SetOutputEnabled(const QString& serial, bool enabled) {
 }
 
 void BatchSystemService::SetOutputMode(const QString& serial, int width, int height, double refreshRate) {
-    auto action = ConfigurationAction::mode(serial, QSize(width, height), static_cast<int>(refreshRate * 1000));
+    auto action = ConfigurationAction::mode(serial, QSize(width, height), refreshRate);
     ConfigurationBatchSystem::instance().addAction(action);
 }
 
