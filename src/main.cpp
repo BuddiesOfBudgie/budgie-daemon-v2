@@ -1,5 +1,4 @@
 #include <QCoreApplication>
-#include <iostream>
 #include <QDBusConnection>
 
 #include "config/display.hpp"
