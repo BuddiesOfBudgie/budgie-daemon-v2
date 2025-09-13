@@ -75,6 +75,8 @@ primary_output = "<monitor_id>"
 - Wayland, QtWaylandScanner
 - Extra CMake Modules (ECM)
 - CMake >= 3.20, Ninja
+- toml11 >= 4.4.0
+  - We use CMake's FetchContent_Declare to pull this in, however will prefer toml11 from pkgconfig (FIND_PACKAGE_ARGS for toml11). If toml11 (header-only library) is available in your distribution's repository and meets our version requirement, we'd prefer you use that!
 
 Optional for development:
 
