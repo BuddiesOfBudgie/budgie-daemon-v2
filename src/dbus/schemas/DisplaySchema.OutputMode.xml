@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<node name="/org/buddiesofbudgie/BudgieDaemonX/Displays/Outputs/Output/Modes/Mode">
+    <interface name="org.buddiesofbudgie.BudgieDaemonX.OutputMode">
+        <property name="Width" type="i" access="read"/>
+        <property name="Height" type="i" access="read"/>
+        <property name="RefreshRate" type="d" access="read"/>
+        <property name="Preferred" type="b" access="read"/>
+        <property name="Current" type="b" access="read"/>
+        <method name="GetModeInfo">
+            <annotation name="org.qtproject.QtDBus.QtTypeName.Out0" value="QVariantMap"/>
+            <arg name="modeInfo" type="a{sv}" direction="out"/>
+        </method>
+        <signal name="PropertyChanged">
+            <arg name="property" type="s"/>
+            <arg name="value" type="v"/>
+        </signal>
+        <signal name="Activated">
+            <arg name="success" type="b"/>
+        </signal>
+    </interface>
+</node>

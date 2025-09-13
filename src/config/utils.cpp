@@ -1,7 +1,6 @@
 #include "utils.hpp"
 
 #include <QtLogging>
-#include <iostream>
 
 namespace fs = std::filesystem;
 
@@ -52,5 +51,41 @@ std::string bd::DisplayConfigurationUtils::getDisplayRelativePositionString(Disp
       return "below";
     default:
       return "none";
+  }
+}
+
+bd::ConfigurationHorizontalAnchor bd::DisplayConfigurationUtils::getHorizontalAnchorFromString(const std::string& str) {
+  if (str == "left") return bd::ConfigurationHorizontalAnchor::Left;
+  if (str == "right") return bd::ConfigurationHorizontalAnchor::Right;
+  if (str == "center") return bd::ConfigurationHorizontalAnchor::Center;
+  return bd::ConfigurationHorizontalAnchor::NoHorizontalAnchor;
+}
+
+std::string bd::DisplayConfigurationUtils::getHorizontalAnchorString(bd::ConfigurationHorizontalAnchor anchor) {
+  switch (anchor) {
+    case bd::ConfigurationHorizontalAnchor::Left: return "left";
+    case bd::ConfigurationHorizontalAnchor::Right: return "right";
+    case bd::ConfigurationHorizontalAnchor::Center: return "center";
+    default: return "none";
+  }
+}
+
+bd::ConfigurationVerticalAnchor bd::DisplayConfigurationUtils::getVerticalAnchorFromString(const std::string& str) {
+  if (str == "above") return bd::ConfigurationVerticalAnchor::Above;
+  if (str == "top") return bd::ConfigurationVerticalAnchor::Top;
+  if (str == "middle") return bd::ConfigurationVerticalAnchor::Middle;
+  if (str == "bottom") return bd::ConfigurationVerticalAnchor::Bottom;
+  if (str == "below") return bd::ConfigurationVerticalAnchor::Below;
+  return bd::ConfigurationVerticalAnchor::NoVerticalAnchor;
+}
+
+std::string bd::DisplayConfigurationUtils::getVerticalAnchorString(bd::ConfigurationVerticalAnchor anchor) {
+  switch (anchor) {
+    case bd::ConfigurationVerticalAnchor::Above: return "above";
+    case bd::ConfigurationVerticalAnchor::Top: return "top";
+    case bd::ConfigurationVerticalAnchor::Middle: return "middle";
+    case bd::ConfigurationVerticalAnchor::Bottom: return "bottom";
+    case bd::ConfigurationVerticalAnchor::Below: return "below";
+    default: return "none";
   }
 }

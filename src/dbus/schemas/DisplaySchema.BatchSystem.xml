@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<node name="/org/buddiesofbudgie/BudgieDaemonX/Displays/BatchSystem">
+    <interface name="org.buddiesofbudgie.BudgieDaemonX.BatchSystem">
+        <method name="ResetConfiguration"/>
+        <method name="SetOutputEnabled">
+            <arg name="serial" type="s" direction="in"/>
+            <arg name="enabled" type="b" direction="in"/>
+        </method>
+        <method name="SetOutputMode">
+            <arg name="serial" type="s" direction="in"/>
+            <arg name="width" type="i" direction="in"/>
+            <arg name="height" type="i" direction="in"/>
+            <arg name="refreshRate" type="d" direction="in"/>
+        </method>
+        <method name="SetOutputPositionAnchor">
+            <arg name="serial" type="s" direction="in"/>
+            <arg name="relativeSerial" type="s" direction="in"/>
+            <arg name="horizontalAnchor" type="i" direction="in"/>
+            <arg name="verticalAnchor" type="i" direction="in"/>
+        </method>
+        <method name="SetOutputScale">
+            <arg name="serial" type="s" direction="in"/>
+            <arg name="scale" type="d" direction="in"/>
+        </method>
+        <method name="SetOutputTransform">
+            <arg name="serial" type="s" direction="in"/>
+            <arg name="transform" type="n" direction="in"/>
+        </method>
+        <method name="SetOutputAdaptiveSync">
+            <arg name="serial" type="s" direction="in"/>
+            <arg name="adaptiveSync" type="u" direction="in"/>
+        </method>
+        <method name="SetOutputPrimary">
+            <arg name="serial" type="s" direction="in"/>
+        </method>
+        <method name="SetOutputMirrorOf">
+            <arg name="serial" type="s" direction="in"/>
+            <arg name="mirrorSerial" type="s" direction="in"/>
+        </method>
+        <method name="CalculateConfiguration">
+            <annotation name="org.qtproject.QtDBus.QtTypeName.Out0" value="QVariantMap"/>
+            <arg name="calculationResult" type="a{sv}" direction="out"/>
+        </method>
+        <method name="ApplyConfiguration">
+            <arg name="success" type="b" direction="out"/>
+        </method>
+        <method name="GetActions">
+            <annotation name="org.qtproject.QtDBus.QtTypeName.Out0" value="QVariantList"/>
+            <arg name="actions" type="a{sv}" direction="out"/>
+        </method>
+        <signal name="ConfigurationApplied">
+            <arg name="success" type="b"/>
+        </signal>
+    </interface>
+</node>
