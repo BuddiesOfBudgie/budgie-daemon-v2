@@ -78,7 +78,7 @@ target_include_directories(
           ${CMAKE_CURRENT_SOURCE_DIR}/displays ${CMAKE_CURRENT_SOURCE_DIR}/sys)
 
 target_link_libraries(
-  budgie-daemon-v2 PUBLIC Qt::Core Qt::DBus Qt::WaylandClient Wayland::Client
+  budgie-daemon-v2 PUBLIC Qt::Core Qt::DBus Qt::WaylandClient toml11::toml11 Wayland::Client
                           WaylandProtocols_xml)
 
 set_target_properties(

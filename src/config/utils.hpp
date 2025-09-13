@@ -2,9 +2,9 @@
 
 #include <filesystem>
 #include <string>
+#include <toml.hpp>
 
 #include "format.hpp"
-#include "toml.hpp"
 #include "displays/batch-system/enums.hpp"
 
 namespace bd::ConfigUtils {

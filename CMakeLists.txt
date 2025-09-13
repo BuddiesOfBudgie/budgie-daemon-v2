@@ -20,6 +20,7 @@ set(KF6_MIN_VERSION "6.6.0")
 find_package(ECM ${KF6_MIN_VERSION} REQUIRED NO_MODULE)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${ECM_MODULE_PATH})
 
+include(FetchContent)
 include(KDEClangFormat)
 include(KDEGitCommitHooks)
 include(FeatureSummary)
@@ -40,6 +41,19 @@ set_package_properties(
 find_package(Wayland REQUIRED)
 find_package(QtWaylandScanner REQUIRED)
 find_package(KWayland REQUIRED)
+
+# Please do not build the universe with toml11
+set(TOML11_BUILD_EXAMPLES OFF)
+set(TOML11_BUILD_TESTS OFF)
+
+FetchContent_Declare(
+  toml11
+  FIND_PACKAGE_ARGS NAMES toml11
+  GIT_REPOSITORY https://github.com/ToruNiina/toml11.git
+  GIT_SUBMODULES ""
+  GIT_TAG        v4.4.0
+)
+FetchContent_MakeAvailable(toml11)
 
 option(INSTALL_SERVICE_FILES "Install service files for autostarting" ON)
 option(INSTALL_LABWC "Install autostart files for labwc" ON)
