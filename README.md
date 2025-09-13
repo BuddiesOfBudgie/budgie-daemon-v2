@@ -1,15 +1,12 @@
 ### Budgie Daemon v2
 
-Budgie Daemon v2 is the future central hub and orchestrator for Budgie Desktop (with a focus on Budgie 11). Today, it primarily provides Wayland-native display configuration; over time it will coordinate broader desktop logic for Budgie 11. It targets Budgie 10.10 and Budgie 11, both of which are Wayland-only.
-
-This project is Wayland-only.
+Budgie Daemon v2 is the future central hub and orchestrator for Budgie Desktop (with a focus on Budgie 11). Today, it primarily provides Wayland-native display configuration for Budgie 10.10; over time it will coordinate broader desktop logic for Budgie 11.
 
 ### Highlights
 
 - **Wayland-native**: Uses `wlr-output-management-unstable-v1` to discover and configure outputs
-- **Batch configuration**: Build atomic display configuration changes and apply them safely in one go
+- **Display Configuration Batch System**: Build atomic display configuration changes and apply them safely in one go
 - **Profiles via TOML**: Persist and auto-apply display groups matched to current hardware
-- **Autostart ready**: Installs desktop autostart entry and optional systemd user unit
 - **Future scope**: Will evolve into Budgie 11's core orchestrator beyond displays
 
 ### TODO
