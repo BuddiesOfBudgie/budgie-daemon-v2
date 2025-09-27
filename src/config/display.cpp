@@ -155,7 +155,6 @@ namespace bd {
 
     // Calculate and apply the configuration
     qDebug() << "Calculating and applying display configuration via batch system";
-    batchSystem.calculate();
     batchSystem.apply();
   }
 

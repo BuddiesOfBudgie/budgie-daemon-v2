@@ -53,10 +53,8 @@ namespace bd {
     }
 
     void ConfigurationBatchSystem::apply() {
-        // Ensure we have calculated the configuration first
         if (m_calculation_result.isNull()) {
-            qWarning() << "No calculation result available. Call calculate() first.";
-            return;
+            calculate(); // Ensure it's calculated
         }
 
         auto &orchestrator = bd::WaylandOrchestrator::instance();
@@ -88,6 +86,8 @@ namespace bd {
                 qWarning() << "ConfigurationBatchSystem error: Head" << serial 
                           << "does not have a corresponding OutputTargetState. This indicates a bug in the calculation logic.";
                 return;
+            } else {
+                qDebug() << "ConfigurationBatchSystem: Head" << serial << "has a corresponding OutputTargetState";
             }
         }
 
@@ -184,21 +184,18 @@ namespace bd {
             }
             
             emit configurationApplied(true);
-            // config->deleteLater();
             config->release();
         });
         
         connect(config.data(), &WaylandOutputConfiguration::failed, this, [this, config]() {
             qWarning() << "Configuration application failed";
             emit configurationApplied(false);
-            // config->deleteLater();
             config->release();
         });
         
         connect(config.data(), &WaylandOutputConfiguration::cancelled, this, [this, config]() {
             qWarning() << "Configuration application was cancelled";
             emit configurationApplied(false);
-            // config->deleteLater();
             config->release();
         });
 
@@ -271,7 +268,7 @@ namespace bd {
                         outputState->setVerticalAnchor(action->getVerticalAnchor());
                         break;
                     case ConfigurationActionType::SetMirrorOf:
-                        // Mirroring will be handled during position calculation
+                        outputState->setMirrorOf(action->getRelative());
                         break;
                     default:
                         break;
@@ -294,9 +291,6 @@ namespace bd {
             }
         }
 
-        // Calculate positions based on anchoring
-        auto positionedOutputs = QSet<QString>();
-        
         // Build anchor relationships
         auto anchorMap = QMap<QString, QString>(); // serial -> relative_serial
         auto unanchoredOutputs = QList<QString>();
@@ -319,10 +313,12 @@ namespace bd {
         qDebug() << "Horizontal output chain order:" << horizontalChain;
 
         // Position outputs in horizontal chain from left to right
+        auto positionedOutputs = QSet<QString>();
         QPoint nextPosition(0, 0);
         for (const auto& serial : horizontalChain) {
             auto outputState = pendingOutputStates[serial];
-            if (!outputState.isNull() && outputState->isOn()) {
+            // If the output is enabled and not mirroring, position it in the chain
+            if (!outputState.isNull() && outputState->isOn() && !outputState->isMirroring()) {
                 outputState->setPosition(nextPosition);
                 positionedOutputs.insert(serial);
                 // Move next position to the right
@@ -341,7 +337,7 @@ namespace bd {
                 if (!positionedOutputs.contains(relativeSerial)) continue;
                 auto outputState = pendingOutputStates[serial];
                 auto relativeState = pendingOutputStates[relativeSerial];
-                if (outputState.isNull() || relativeState.isNull() || !outputState->isOn()) continue;
+                if (outputState.isNull() || relativeState.isNull() || !outputState->isOn() || outputState->isMirroring()) continue;
                 // Calculate position based on anchor (mirrored outputs will be handled separately)
                 QPoint newPosition = calculateAnchoredPosition(outputState, relativeState);
                 outputState->setPosition(newPosition);
@@ -349,17 +345,17 @@ namespace bd {
                 progressMade = true;
             }
         }
-
-        // Handle mirrored outputs positioning - only share position if no explicit anchoring
+        // Position mirrored outputs
         for (auto serial : mirrorActions.keys()) {
             auto mirroredSerial = mirrorActions[serial];
             auto outputState = pendingOutputStates[serial];
             auto mirroredState = pendingOutputStates[mirroredSerial];
             
-            if (!outputState.isNull() && !mirroredState.isNull() && outputState->isOn()) {
+            if (!outputState.isNull() && !mirroredState.isNull() && outputState->isOn() && outputState->isMirroring()) {
                 // Only inherit position if this output has no explicit anchoring and hasn't been positioned yet
                 if (!positionedOutputs.contains(serial) && !anchorMap.contains(serial)) {
-                    outputState->setPosition(mirroredState->getPosition());
+                    QPoint newPosition = calculateAnchoredPosition(outputState, mirroredState);
+                    outputState->setPosition(newPosition);
                     positionedOutputs.insert(serial);
                 }
             }
@@ -388,9 +384,7 @@ namespace bd {
         m_calculation_result->getOutputStates().clear();
         for (auto serial : pendingOutputStates.keys()) {
             auto outputState = pendingOutputStates[serial];
-            if (!outputState.isNull() && outputState->isOn()) {
-                m_calculation_result->setOutputState(serial, outputState);
-            }
+            m_calculation_result->setOutputState(serial, outputState);
         }
 
         // Update global space
@@ -424,8 +418,8 @@ namespace bd {
                 newPosition.setX(relativePos.x() + (relativeDimensions.width() - outputDimensions.width()) / 2);
                 break;
             default:
-                // Default to right of relative output
-                newPosition.setX(relativePos.x() + relativeDimensions.width());
+                // Default behavior: for mirrors, align left; otherwise place to the right
+                newPosition.setX(outputState->isMirroring() ? relativePos.x() : relativePos.x() + relativeDimensions.width());
                 break;
         }
         
@@ -452,8 +446,8 @@ namespace bd {
                 newPosition.setY(relativePos.y() + relativeDimensions.height());
                 break;
             default:
-                // Default to same vertical position as relative
-                newPosition.setY(relativePos.y());
+                // Default behavior: for mirrors, align top; otherwise keep same Y
+                newPosition.setY(outputState->isMirroring() ? relativePos.y() : relativePos.y());
                 break;
         }
         

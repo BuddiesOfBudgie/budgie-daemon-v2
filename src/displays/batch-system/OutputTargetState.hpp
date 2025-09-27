@@ -19,11 +19,13 @@ namespace bd {
         QString getSerial() const;
         bool isOn() const;
         QSize getDimensions() const;
+        QString getMirrorOf() const;
         double getRefresh() const;
         QString getRelative() const;
         ConfigurationHorizontalAnchor getHorizontalAnchor() const;
         ConfigurationVerticalAnchor getVerticalAnchor() const;
         QPoint getPosition() const;
+        bool isMirroring() const;
         bool isPrimary() const;
         qreal getScale() const;
         qint16 getTransform() const;
@@ -35,6 +37,7 @@ namespace bd {
         void setOn(bool on);
         void setDimensions(QSize dimensions);
         void setRefresh(double refresh);
+        void setMirrorOf(const QString& mirrorOf);
         void setRelative(const QString& relative);
         void setHorizontalAnchor(ConfigurationHorizontalAnchor horizontal_anchor);
         void setVerticalAnchor(ConfigurationVerticalAnchor vertical_anchor);
@@ -52,6 +55,7 @@ namespace bd {
         QSize m_dimensions;
         QSize m_resulting_dimensions;
         double m_refresh;
+        QString m_mirrorOf;
         QString m_relative;
         ConfigurationHorizontalAnchor m_horizontal_anchor;
         ConfigurationVerticalAnchor m_vertical_anchor;
