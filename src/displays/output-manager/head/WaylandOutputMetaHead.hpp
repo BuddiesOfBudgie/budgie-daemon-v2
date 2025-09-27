@@ -9,6 +9,7 @@
 #include "displays/output-manager/head/WaylandOutputHead.hpp"
 #include "displays/output-manager/mode/WaylandOutputMetaMode.hpp"
 #include "enums.hpp"
+#include "displays/batch-system/enums.hpp"
 
 namespace bd {
 
@@ -28,9 +29,9 @@ namespace bd {
 
         QSharedPointer<WaylandOutputHead> getHead();
 
-        QString getIdentifier();
+        ConfigurationHorizontalAnchor getHorizontalAnchor();
 
-        QList<QSharedPointer<WaylandOutputMetaMode>> getModes();
+        QString getIdentifier();
 
         QString getMake();
 
@@ -38,25 +39,35 @@ namespace bd {
 
         QSharedPointer<WaylandOutputMetaMode> getModeForOutputHead(int width, int height, double refresh);
 
+        QList<QSharedPointer<WaylandOutputMetaMode>> getModes();
+
         QString getName();
 
         QPoint getPosition();
+
+        QString getRelativeOutput();
 
         double getScale();
 
         int getTransform();
 
+        ConfigurationVerticalAnchor getVerticalAnchor();
+
         std::optional<::zwlr_output_head_v1*> getWlrHead();
 
         bool isAvailable();
-
         bool isBuiltIn();
-
         bool isEnabled();
 
         void setHead(::zwlr_output_head_v1 *head);
 
+        void setHorizontalAnchoring(ConfigurationHorizontalAnchor horizontal);
+
         void setPosition(QPoint position);
+
+        void setRelativeOutput(const QString &relative);
+
+        void setVerticalAnchoring(ConfigurationVerticalAnchor vertical);
 
         void unsetModes();
 
@@ -97,5 +108,10 @@ namespace bd {
         bool m_is_available;
         bool m_enabled;
         QtWayland::zwlr_output_head_v1::adaptive_sync_state m_adaptive_sync;
+
+        // Non-protocol metadata persisted via config
+        QString m_relative_output;
+        ConfigurationHorizontalAnchor m_horizontal_anchor;
+        ConfigurationVerticalAnchor m_vertical_anchor;
     };
 }

@@ -94,7 +94,7 @@ namespace bd {
           config->getRefresh());
         batchSystem.addAction(modeAction);
 
-        // Set anchoring if specified
+        // Set anchoring if specified; also update the meta head so defaults propagate
         auto relativeOutput = config->getRelativeOutput();
         if (!relativeOutput.isEmpty()) {
           auto horizontalAnchor = config->getHorizontalAnchor();
@@ -103,7 +103,21 @@ namespace bd {
             horizontalAnchor, verticalAnchor);
           batchSystem.addAction(anchorAction);
           qDebug() << "  - Set anchoring relative to:" << relativeOutput;
+          // Update meta head anchoring
+          auto head = manager->getOutputHead(serial);
+          if (!head.isNull()) {
+            head->setRelativeOutput(relativeOutput);
+            head->setHorizontalAnchoring(horizontalAnchor);
+            head->setVerticalAnchoring(verticalAnchor);
+          }
         } else {
+          // Clear meta head anchoring explicitly
+          auto head = manager->getOutputHead(serial);
+          if (!head.isNull()) {
+            head->setRelativeOutput("");
+            head->setHorizontalAnchoring(ConfigurationHorizontalAnchor::NoHorizontalAnchor);
+            head->setVerticalAnchoring(ConfigurationVerticalAnchor::NoVerticalAnchor);
+          }
           qDebug() << "  - No anchoring set";
         }
 
@@ -193,11 +207,10 @@ namespace bd {
       config->setHeight(mode_size.height());
       config->setRefresh(mode_refresh);
       
-      // For auto-generated configs, don't set anchoring - let the batch system determine layout
-      // The batch system will calculate positions automatically for enabled outputs
-      config->setRelativeOutput(""); // No specific relative output
-      config->setHorizontalAnchor(ConfigurationHorizontalAnchor::NoHorizontalAnchor);
-      config->setVerticalAnchor(ConfigurationVerticalAnchor::NoVerticalAnchor);
+      // Use meta-head anchoring if present so config can persist it
+      config->setRelativeOutput(head->getRelativeOutput());
+      config->setHorizontalAnchor(head->getHorizontalAnchor());
+      config->setVerticalAnchor(head->getVerticalAnchor());
       
       config->setScale(head->getScale());
       config->setRotation(head->getTransform());

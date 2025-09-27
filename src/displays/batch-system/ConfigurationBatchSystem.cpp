@@ -255,6 +255,7 @@ namespace bd {
                         outputState->setPrimary(true);
                         break;
                     case ConfigurationActionType::SetPositionAnchor:
+                        outputState->setRelative(action->getRelative());
                         outputState->setHorizontalAnchor(action->getHorizontalAnchor());
                         outputState->setVerticalAnchor(action->getVerticalAnchor());
                         break;
