@@ -57,6 +57,12 @@ int OutputAdaptor::height() const
     return qvariant_cast< int >(parent()->property("Height"));
 }
 
+int OutputAdaptor::horizontalAnchor() const
+{
+    // get the value of property HorizontalAnchor
+    return qvariant_cast< int >(parent()->property("HorizontalAnchor"));
+}
+
 QString OutputAdaptor::make() const
 {
     // get the value of property Make
@@ -93,6 +99,12 @@ double OutputAdaptor::refreshRate() const
     return qvariant_cast< double >(parent()->property("RefreshRate"));
 }
 
+QString OutputAdaptor::relativeTo() const
+{
+    // get the value of property RelativeTo
+    return qvariant_cast< QString >(parent()->property("RelativeTo"));
+}
+
 double OutputAdaptor::scale() const
 {
     // get the value of property Scale
@@ -109,6 +121,12 @@ short OutputAdaptor::transform() const
 {
     // get the value of property Transform
     return qvariant_cast< short >(parent()->property("Transform"));
+}
+
+int OutputAdaptor::verticalAnchor() const
+{
+    // get the value of property VerticalAnchor
+    return qvariant_cast< int >(parent()->property("VerticalAnchor"));
 }
 
 int OutputAdaptor::width() const

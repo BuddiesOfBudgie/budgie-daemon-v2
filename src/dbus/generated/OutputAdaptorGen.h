@@ -42,6 +42,9 @@ class OutputAdaptor: public QDBusAbstractAdaptor
 "    <property access=\"read\" type=\"u\" name=\"AdaptiveSync\"/>\n"
 "    <property access=\"read\" type=\"b\" name=\"Primary\"/>\n"
 "    <property access=\"read\" type=\"s\" name=\"MirrorOf\"/>\n"
+"    <property access=\"read\" type=\"i\" name=\"HorizontalAnchor\"/>\n"
+"    <property access=\"read\" type=\"i\" name=\"VerticalAnchor\"/>\n"
+"    <property access=\"read\" type=\"s\" name=\"RelativeTo\"/>\n"
 "    <method name=\"GetAvailableModes\">\n"
 "      <annotation value=\"QStringList\" name=\"org.qtproject.QtDBus.QtTypeName.Out0\"/>\n"
 "      <arg direction=\"out\" type=\"as\" name=\"modePaths\"/>\n"
@@ -89,6 +92,9 @@ public: // PROPERTIES
     Q_PROPERTY(int Height READ height)
     int height() const;
 
+    Q_PROPERTY(int HorizontalAnchor READ horizontalAnchor)
+    int horizontalAnchor() const;
+
     Q_PROPERTY(QString Make READ make)
     QString make() const;
 
@@ -107,6 +113,9 @@ public: // PROPERTIES
     Q_PROPERTY(double RefreshRate READ refreshRate)
     double refreshRate() const;
 
+    Q_PROPERTY(QString RelativeTo READ relativeTo)
+    QString relativeTo() const;
+
     Q_PROPERTY(double Scale READ scale)
     double scale() const;
 
@@ -115,6 +124,9 @@ public: // PROPERTIES
 
     Q_PROPERTY(short Transform READ transform)
     short transform() const;
+
+    Q_PROPERTY(int VerticalAnchor READ verticalAnchor)
+    int verticalAnchor() const;
 
     Q_PROPERTY(int Width READ width)
     int width() const;

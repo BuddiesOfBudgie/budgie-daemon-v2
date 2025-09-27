@@ -98,7 +98,7 @@ namespace bd {
         m_relative = headData->getRelativeOutput();
         m_horizontal_anchor = headData->getHorizontalAnchor();
         m_vertical_anchor = headData->getVerticalAnchor();
-        m_primary = false;
+        m_primary = headData->isPrimary();
 
         qDebug() << "horizontalAnchor" << bd::DisplayConfigurationUtils::getHorizontalAnchorString(m_horizontal_anchor) << "\n" << "verticalAnchor" << bd::DisplayConfigurationUtils::getVerticalAnchorString(m_vertical_anchor) << "\n" << "primary" << m_primary;
     }
