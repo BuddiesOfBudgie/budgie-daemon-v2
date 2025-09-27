@@ -3,7 +3,7 @@
 
 namespace bd {
     OutputTargetState::OutputTargetState(QString serial, QObject *parent) : QObject(parent),
-        m_serial(serial), m_on(false), m_dimensions(QSize(0, 0)), m_refresh(0.0), m_horizontal_anchor(ConfigurationHorizontalAnchor::NoHorizontalAnchor),
+        m_serial(serial), m_on(false), m_dimensions(QSize(0, 0)), m_refresh(0.0), m_relative(""), m_horizontal_anchor(ConfigurationHorizontalAnchor::NoHorizontalAnchor),
         m_vertical_anchor(ConfigurationVerticalAnchor::NoVerticalAnchor), m_primary(false), m_position(QPoint(0, 0)), m_scale(1.0), m_transform(0), m_adaptive_sync(0) {
     }
 
@@ -21,6 +21,10 @@ namespace bd {
 
     double OutputTargetState::getRefresh() const {
         return m_refresh;
+    }
+
+    QString OutputTargetState::getRelative() const {
+        return m_relative;
     }
     
     ConfigurationHorizontalAnchor OutputTargetState::getHorizontalAnchor() const {
@@ -90,8 +94,10 @@ namespace bd {
         auto adaptiveSync = headData->getAdaptiveSync();
         m_adaptive_sync = static_cast<uint32_t>(adaptiveSync);
 
-        m_horizontal_anchor = ConfigurationHorizontalAnchor::NoHorizontalAnchor;
-        m_vertical_anchor = ConfigurationVerticalAnchor::NoVerticalAnchor;
+        // Default anchoring from meta head if present (user or config provided)
+        m_relative = headData->getRelativeOutput();
+        m_horizontal_anchor = headData->getHorizontalAnchor();
+        m_vertical_anchor = headData->getVerticalAnchor();
         m_primary = false;
 
         qDebug() << "horizontalAnchor" << bd::DisplayConfigurationUtils::getHorizontalAnchorString(m_horizontal_anchor) << "\n" << "verticalAnchor" << bd::DisplayConfigurationUtils::getVerticalAnchorString(m_vertical_anchor) << "\n" << "primary" << m_primary;
@@ -110,6 +116,11 @@ namespace bd {
     void OutputTargetState::setRefresh(double refresh) {
         qDebug() << "OutputTargetState::setRefresh" << m_serial << refresh;
         m_refresh = refresh;
+    }
+
+    void OutputTargetState::setRelative(const QString& relative) {
+        qDebug() << "OutputTargetState::setRelative" << m_serial << relative;
+        m_relative = relative;
     }
     
     void OutputTargetState::setHorizontalAnchor(ConfigurationHorizontalAnchor horizontal_anchor) {

@@ -20,6 +20,7 @@ namespace bd {
         bool isOn() const;
         QSize getDimensions() const;
         double getRefresh() const;
+        QString getRelative() const;
         ConfigurationHorizontalAnchor getHorizontalAnchor() const;
         ConfigurationVerticalAnchor getVerticalAnchor() const;
         QPoint getPosition() const;
@@ -34,6 +35,7 @@ namespace bd {
         void setOn(bool on);
         void setDimensions(QSize dimensions);
         void setRefresh(double refresh);
+        void setRelative(const QString& relative);
         void setHorizontalAnchor(ConfigurationHorizontalAnchor horizontal_anchor);
         void setVerticalAnchor(ConfigurationVerticalAnchor vertical_anchor);
         void setPosition(QPoint position);
@@ -50,6 +52,7 @@ namespace bd {
         QSize m_dimensions;
         QSize m_resulting_dimensions;
         double m_refresh;
+        QString m_relative;
         ConfigurationHorizontalAnchor m_horizontal_anchor;
         ConfigurationVerticalAnchor m_vertical_anchor;
         bool m_primary;

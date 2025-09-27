@@ -7,6 +7,7 @@
 #include "SysInfo.hpp"
 #include "displays/output-manager/mode/WaylandOutputMetaMode.hpp"
 #include "output-manager/head/WaylandOutputHead.hpp"
+#include "config/utils.hpp"
 
 namespace bd {
     WaylandOutputMetaHead::WaylandOutputMetaHead(QObject *parent, KWayland::Client::Registry *registry)
@@ -19,7 +20,10 @@ namespace bd {
               m_scale(1.0),
               m_is_available(false),
               m_enabled(false),
-              m_adaptive_sync() {
+              m_adaptive_sync(),
+              m_relative_output(""),
+              m_horizontal_anchor(ConfigurationHorizontalAnchor::NoHorizontalAnchor),
+              m_vertical_anchor(ConfigurationVerticalAnchor::NoVerticalAnchor) {
     }
 
     WaylandOutputMetaHead::~WaylandOutputMetaHead() {
@@ -318,5 +322,35 @@ namespace bd {
         }
 
         if (changed) { emit propertyChanged(property, value); }
+    }
+
+    // Anchoring/relative configuration accessors
+    QString WaylandOutputMetaHead::getRelativeOutput() {
+        return m_relative_output;
+    }
+
+    ConfigurationHorizontalAnchor WaylandOutputMetaHead::getHorizontalAnchor() {
+        return m_horizontal_anchor;
+    }
+
+    ConfigurationVerticalAnchor WaylandOutputMetaHead::getVerticalAnchor() {
+        return m_vertical_anchor;
+    }
+
+    void WaylandOutputMetaHead::setRelativeOutput(const QString &relative) {
+        m_relative_output = relative;
+        qDebug() << "Relative output set for head" << getIdentifier() << "relative:" << m_relative_output;
+    }
+
+    void WaylandOutputMetaHead::setHorizontalAnchoring(ConfigurationHorizontalAnchor horizontal) {
+        m_horizontal_anchor = horizontal;
+        qDebug() << "Horizontal anchoring set for head" << getIdentifier()
+                 << "h:" << bd::DisplayConfigurationUtils::getHorizontalAnchorString(m_horizontal_anchor).c_str();
+    }
+
+    void WaylandOutputMetaHead::setVerticalAnchoring(ConfigurationVerticalAnchor vertical) {
+        m_vertical_anchor = vertical;
+        qDebug() << "Vertical anchoring set for head" << getIdentifier()
+                 << "v:" << bd::DisplayConfigurationUtils::getVerticalAnchorString(m_vertical_anchor).c_str();
     }
 }
