@@ -17,6 +17,10 @@
         <property name="AdaptiveSync" type="u" access="read"/>
         <property name="Primary" type="b" access="read"/>
         <property name="MirrorOf" type="s" access="read"/>
+        <!-- Read-only properties for anchoring and relative positioning -->
+        <property name="HorizontalAnchor" type="i" access="read"/>
+        <property name="VerticalAnchor" type="i" access="read"/>
+        <property name="RelativeTo" type="s" access="read"/>
         <method name="GetAvailableModes">
             <annotation name="org.qtproject.QtDBus.QtTypeName.Out0" value="QStringList"/>
             <arg name="modePaths" type="as" direction="out"/>

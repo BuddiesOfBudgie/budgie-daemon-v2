@@ -146,8 +146,11 @@ namespace bd {
     // Set primary output if specified
     auto primaryOutput = group->getPrimaryOutput();
     if (!primaryOutput.isEmpty()) {
-      // TODO: Add SetPrimary action - this needs to be implemented
       qDebug() << "Primary output:" << primaryOutput;
+      for (const auto& head : heads) {
+        if (head.isNull()) continue;
+        head->setPrimary(head->getIdentifier() == primaryOutput);
+      }
     }
 
     // Calculate and apply the configuration

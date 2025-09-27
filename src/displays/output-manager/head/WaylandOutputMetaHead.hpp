@@ -58,6 +58,7 @@ namespace bd {
         bool isAvailable();
         bool isBuiltIn();
         bool isEnabled();
+        bool isPrimary();
 
         void setHead(::zwlr_output_head_v1 *head);
 
@@ -66,6 +67,7 @@ namespace bd {
         void setPosition(QPoint position);
 
         void setRelativeOutput(const QString &relative);
+        void setPrimary(bool primary);
 
         void setVerticalAnchoring(ConfigurationVerticalAnchor vertical);
 
@@ -113,5 +115,6 @@ namespace bd {
         QString m_relative_output;
         ConfigurationHorizontalAnchor m_horizontal_anchor;
         ConfigurationVerticalAnchor m_vertical_anchor;
+        bool m_primary;
     };
 }

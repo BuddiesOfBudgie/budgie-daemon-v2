@@ -23,7 +23,8 @@ namespace bd {
               m_adaptive_sync(),
               m_relative_output(""),
               m_horizontal_anchor(ConfigurationHorizontalAnchor::NoHorizontalAnchor),
-              m_vertical_anchor(ConfigurationVerticalAnchor::NoVerticalAnchor) {
+              m_vertical_anchor(ConfigurationVerticalAnchor::NoVerticalAnchor),
+              m_primary(false) {
     }
 
     WaylandOutputMetaHead::~WaylandOutputMetaHead() {
@@ -144,6 +145,10 @@ namespace bd {
         return m_enabled;
     }
 
+    bool WaylandOutputMetaHead::isPrimary() {
+        return m_primary;
+    }
+
     // Setters
 
     void WaylandOutputMetaHead::setHead(::zwlr_output_head_v1 *wlr_head) {
@@ -172,6 +177,11 @@ namespace bd {
         m_position.setX(position.x());
         m_position.setY(position.y());
         emit propertyChanged(WaylandOutputMetaHeadProperty::Position, QVariant{m_position});
+    }
+
+    void WaylandOutputMetaHead::setPrimary(bool primary) {
+        if (m_primary == primary) return;
+        m_primary = primary;
     }
 
     void WaylandOutputMetaHead::unsetModes() {

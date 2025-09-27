@@ -166,6 +166,17 @@ namespace bd {
             // Force creation of a new active group from the current state and save it
             auto activeGroup = displayConfig.getActiveGroup();
             if (activeGroup) {
+                // After success, update primary in meta heads based on group's primary
+                auto &orchestrator = bd::WaylandOrchestrator::instance();
+                auto manager = orchestrator.getManager();
+                auto heads = manager->getHeads();
+                auto primary = activeGroup->getPrimaryOutput();
+                if (!primary.isEmpty()) {
+                    for (const auto &head : heads) {
+                        if (head.isNull()) continue;
+                        head->setPrimary(head->getIdentifier() == primary);
+                    }
+                }
                 displayConfig.saveState();
                 qDebug() << "Configuration saved to disk";
             } else {

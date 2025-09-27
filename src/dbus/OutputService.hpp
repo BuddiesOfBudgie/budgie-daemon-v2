@@ -23,6 +23,9 @@ class OutputService : public QObject {
     Q_PROPERTY(uint AdaptiveSync READ AdaptiveSync)
     Q_PROPERTY(bool Primary READ Primary)
     Q_PROPERTY(QString MirrorOf READ MirrorOf)
+    Q_PROPERTY(int HorizontalAnchor READ HorizontalAnchor)
+    Q_PROPERTY(int VerticalAnchor READ VerticalAnchor)
+    Q_PROPERTY(QString RelativeTo READ RelativeTo)
 public:
     OutputService(QSharedPointer<WaylandOutputMetaHead> output, QObject* parent = nullptr);
     ~OutputService();
@@ -44,10 +47,14 @@ public:
     uint AdaptiveSync() const;
     bool Primary() const;
     QString MirrorOf() const;
+    int HorizontalAnchor() const;
+    int VerticalAnchor() const;
+    QString RelativeTo() const;
 
     // D-Bus methods
     Q_INVOKABLE QStringList GetAvailableModes();
     Q_INVOKABLE QString GetCurrentMode();
+
 
 private:
     QSharedPointer<WaylandOutputMetaHead> m_output;

@@ -12,34 +12,11 @@ OutputService::OutputService(QSharedPointer<WaylandOutputMetaHead> output, QObje
 
 OutputService::~OutputService() {}
 
-QString OutputService::Serial() const { return m_output->getIdentifier(); }
-QString OutputService::Name() const { return m_output->getName(); }
-QString OutputService::Description() const { return m_output->getDescription(); }
-QString OutputService::Make() const { return m_output->getMake(); }
-QString OutputService::Model() const { return m_output->getModel(); }
-bool OutputService::Enabled() const { return m_output->isEnabled(); }
-int OutputService::Width() const {
-    auto mode = m_output->getCurrentMode();
-    if (mode) return mode->getSize().value_or(QSize(0,0)).width();
-    return 0;
-}
-int OutputService::Height() const {
-    auto mode = m_output->getCurrentMode();
-    if (mode) return mode->getSize().value_or(QSize(0,0)).height();
-    return 0;
-}
-int OutputService::X() const { return m_output->getPosition().x(); }
-int OutputService::Y() const { return m_output->getPosition().y(); }
-double OutputService::Scale() const { return m_output->getScale(); }
-double OutputService::RefreshRate() const {
-    auto mode = m_output->getCurrentMode();
-    if (mode) return mode->getRefresh().value_or(0.0);
-    return 0.0;
-}
-int OutputService::Transform() const { return m_output->getTransform(); }
 uint OutputService::AdaptiveSync() const { return static_cast<uint>(m_output->getAdaptiveSync()); }
-bool OutputService::Primary() const { return false; /* TODO: implement if available */ }
-QString OutputService::MirrorOf() const { return QString(); /* TODO: implement if available */ }
+
+QString OutputService::Description() const { return m_output->getDescription(); }
+
+bool OutputService::Enabled() const { return m_output->isEnabled(); }
 
 QStringList OutputService::GetAvailableModes() {
     QStringList modePaths;
@@ -60,5 +37,49 @@ QString OutputService::GetCurrentMode() {
     }
     return QString();
 }
+
+int OutputService::Height() const {
+    auto mode = m_output->getCurrentMode();
+    if (mode) return mode->getSize().value_or(QSize(0,0)).height();
+    return 0;
+}
+
+int OutputService::HorizontalAnchor() const { return static_cast<int>(m_output->getHorizontalAnchor()); }
+
+QString OutputService::Make() const { return m_output->getMake(); }
+
+QString OutputService::MirrorOf() const { return QString(); /* TODO: implement if available */ }
+
+QString OutputService::Model() const { return m_output->getModel(); }
+
+QString OutputService::Name() const { return m_output->getName(); }
+
+bool OutputService::Primary() const { return m_output->isPrimary(); }
+
+double OutputService::RefreshRate() const {
+    auto mode = m_output->getCurrentMode();
+    if (mode) return mode->getRefresh().value_or(0.0);
+    return 0.0;
+}
+
+QString OutputService::RelativeTo() const { return m_output->getRelativeOutput(); }
+
+double OutputService::Scale() const { return m_output->getScale(); }
+
+QString OutputService::Serial() const { return m_output->getIdentifier(); }
+
+int OutputService::Transform() const { return m_output->getTransform(); }
+
+int OutputService::VerticalAnchor() const { return static_cast<int>(m_output->getVerticalAnchor()); }
+
+int OutputService::Width() const {
+    auto mode = m_output->getCurrentMode();
+    if (mode) return mode->getSize().value_or(QSize(0,0)).width();
+    return 0;
+}
+
+int OutputService::X() const { return m_output->getPosition().x(); }
+
+int OutputService::Y() const { return m_output->getPosition().y(); }
 
 } // namespace bd
