@@ -80,7 +80,7 @@ primary_output = "<monitor_id>"
 
 Optional for development:
 
-- `go-task` (Taskfile runner), `watchman` (for `build-watch`), `wldbg`
+- `task` (Taskfile runner), `watchman` (for `build-watch`), `wldbg`
 
 ### Build
 
@@ -100,8 +100,8 @@ sudo ninja install -C build
 Using Taskfile:
 
 ```bash
-go-task cook     # configure + build
-sudo go-task install
+task cook     # configure + build
+sudo task install
 ```
 
 ### Run
@@ -124,12 +124,28 @@ wldbg -r ./build/src/org.buddiesofbudgie.BudgieDaemonV2 -g
 - Generated D-Bus adaptors live in `src/dbus/generated/` and are produced from XML in `src/dbus/schemas/`
   - Regenerate with:
     ```bash
-    go-task qdbus-gen
+    task qdbus-gen
     ```
   - Do not hand-edit generated files
 - Code style: run clang-format
   ```bash
-  go-task fmt
+  task fmt
+  ```
+
+### Conventional Commits
+
+We strive to follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit messages.
+
+- Common types we use: `feat`, `fix`, `docs`, `chore`, `ci`.
+- Breaking changes: append `!` after type/scope (e.g., `feat(api)!:`) or include a `BREAKING CHANGE:` footer.
+- Examples:
+
+  ```
+  feat(displays): add GetPrimaryOutput and GetPrimaryOutputRect methods
+
+  docs(readme): document Conventional Commits usage
+
+  fix(displays): correct refresh rate conversion to qulonglong
   ```
 
 ### Status and compatibility

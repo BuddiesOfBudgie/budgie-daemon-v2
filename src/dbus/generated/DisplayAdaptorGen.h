@@ -30,6 +30,13 @@ class DisplaysAdaptor: public QDBusAbstractAdaptor
 "      <annotation value=\"QStringList\" name=\"org.qtproject.QtDBus.QtTypeName.Out0\"/>\n"
 "      <arg direction=\"out\" type=\"as\" name=\"outputSerials\"/>\n"
 "    </method>\n"
+"    <method name=\"GetPrimaryOutput\">\n"
+"      <arg direction=\"out\" type=\"s\" name=\"outputSerial\"/>\n"
+"    </method>\n"
+"    <method name=\"GetPrimaryOutputRect\">\n"
+"      <annotation value=\"QVariantMap\" name=\"org.qtproject.QtDBus.QtTypeName.Out0\"/>\n"
+"      <arg direction=\"out\" type=\"a{sv}\" name=\"rect\"/>\n"
+"    </method>\n"
 "  </interface>\n"
         "")
 public:
@@ -39,6 +46,8 @@ public:
 public: // PROPERTIES
 public Q_SLOTS: // METHODS
     QStringList GetAvailableOutputs();
+    QString GetPrimaryOutput();
+    QVariantMap GetPrimaryOutputRect();
 Q_SIGNALS: // SIGNALS
 };
 

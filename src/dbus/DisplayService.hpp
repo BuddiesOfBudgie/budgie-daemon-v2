@@ -16,6 +16,8 @@ namespace bd {
 
     public slots:
       QStringList GetAvailableOutputs();
+      QString GetPrimaryOutput();
+      QVariantMap GetPrimaryOutputRect();
 
     private:
       DisplaysAdaptor* m_adaptor;

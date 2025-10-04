@@ -41,3 +41,19 @@ QStringList DisplaysAdaptor::GetAvailableOutputs()
     return outputSerials;
 }
 
+QString DisplaysAdaptor::GetPrimaryOutput()
+{
+    // handle method call org.buddiesofbudgie.BudgieDaemonX.Displays.GetPrimaryOutput
+    QString outputSerial{};
+    QMetaObject::invokeMethod(parent(), "GetPrimaryOutput", Q_RETURN_ARG(QString, outputSerial));
+    return outputSerial;
+}
+
+QVariantMap DisplaysAdaptor::GetPrimaryOutputRect()
+{
+    // handle method call org.buddiesofbudgie.BudgieDaemonX.Displays.GetPrimaryOutputRect
+    QVariantMap rect{};
+    QMetaObject::invokeMethod(parent(), "GetPrimaryOutputRect", Q_RETURN_ARG(QVariantMap, rect));
+    return rect;
+}
+

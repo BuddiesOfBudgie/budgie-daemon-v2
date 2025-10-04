@@ -5,5 +5,12 @@
             <annotation name="org.qtproject.QtDBus.QtTypeName.Out0" value="QStringList"/>
             <arg name="outputSerials" type="as" direction="out"/>
         </method>
+        <method name="GetPrimaryOutput">
+            <arg name="outputSerial" type="s" direction="out"/>
+        </method>
+        <method name="GetPrimaryOutputRect">
+            <annotation name="org.qtproject.QtDBus.QtTypeName.Out0" value="QVariantMap"/>
+            <arg name="rect" type="a{sv}" direction="out"/>
+        </method>
     </interface>
 </node>

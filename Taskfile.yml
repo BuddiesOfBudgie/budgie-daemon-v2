@@ -28,8 +28,8 @@ tasks:
   cook:
     desc: "Run cmake setup and build"
     cmds:
-      - go-task setup
-      - go-task build
+      - task: setup
+      - task: build
   install:
     desc: "Run ninja install"
     cmds:
