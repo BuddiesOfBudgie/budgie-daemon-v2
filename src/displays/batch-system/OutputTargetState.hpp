@@ -19,14 +19,16 @@ namespace bd {
         QString getSerial() const;
         bool isOn() const;
         QSize getDimensions() const;
-        double getRefresh() const;
+        QString getMirrorOf() const;
+        qulonglong getRefresh() const;
         QString getRelative() const;
         ConfigurationHorizontalAnchor getHorizontalAnchor() const;
         ConfigurationVerticalAnchor getVerticalAnchor() const;
         QPoint getPosition() const;
+        bool isMirroring() const;
         bool isPrimary() const;
         qreal getScale() const;
-        qint16 getTransform() const;
+        quint8 getTransform() const;
         QSize getResultingDimensions() const;
         uint32_t getAdaptiveSync() const;
 
@@ -34,14 +36,15 @@ namespace bd {
 
         void setOn(bool on);
         void setDimensions(QSize dimensions);
-        void setRefresh(double refresh);
+        void setRefresh(qulonglong refresh);
+        void setMirrorOf(const QString& mirrorOf);
         void setRelative(const QString& relative);
         void setHorizontalAnchor(ConfigurationHorizontalAnchor horizontal_anchor);
         void setVerticalAnchor(ConfigurationVerticalAnchor vertical_anchor);
         void setPosition(QPoint position);
         void setPrimary(bool primary);
         void setScale(qreal scale);
-        void setTransform(qint16 transform);
+        void setTransform(quint8 transform);
         void setAdaptiveSync(uint32_t adaptiveSync);
 
         void updateResultingDimensions();
@@ -51,14 +54,15 @@ namespace bd {
         bool m_on;
         QSize m_dimensions;
         QSize m_resulting_dimensions;
-        double m_refresh;
+        qulonglong m_refresh;
+        QString m_mirrorOf;
         QString m_relative;
         ConfigurationHorizontalAnchor m_horizontal_anchor;
         ConfigurationVerticalAnchor m_vertical_anchor;
         bool m_primary;
         QPoint m_position;
         qreal m_scale;
-        qint16 m_transform;
+        quint8 m_transform;
         uint32_t m_adaptive_sync;
     };
 }

@@ -32,10 +32,10 @@ int OutputModeService::Height() const {
     if (size) return size->height();
     return 0;
 }
-double OutputModeService::RefreshRate() const {
+qulonglong OutputModeService::RefreshRate() const {
     auto refresh = m_mode->getRefresh();
-    if (refresh) return refresh.value();
-    return 0.0;
+    if (refresh) return static_cast<qulonglong>(refresh.value());
+    return 0;
 }
 bool OutputModeService::Preferred() const {
     auto preferred = m_mode->isPreferred();
@@ -61,7 +61,7 @@ QVariantMap OutputModeService::GetModeInfo() {
     auto preferred = m_mode->isPreferred();
     info["Width"] = size ? size->width() : 0;
     info["Height"] = size ? size->height() : 0;
-    info["RefreshRate"] = refresh ? refresh.value() : 0.0;
+    info["RefreshRate"] = refresh ? static_cast<qulonglong>(refresh.value()) : static_cast<qulonglong>(0);
     info["Preferred"] = preferred ? preferred.value() : false;
     info["Current"] = Current();
     return info;

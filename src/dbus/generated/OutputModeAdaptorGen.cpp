@@ -51,10 +51,10 @@ bool OutputModeAdaptor::preferred() const
     return qvariant_cast< bool >(parent()->property("Preferred"));
 }
 
-double OutputModeAdaptor::refreshRate() const
+qulonglong OutputModeAdaptor::refreshRate() const
 {
     // get the value of property RefreshRate
-    return qvariant_cast< double >(parent()->property("RefreshRate"));
+    return qvariant_cast< qulonglong >(parent()->property("RefreshRate"));
 }
 
 int OutputModeAdaptor::width() const

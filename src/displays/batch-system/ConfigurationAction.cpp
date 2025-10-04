@@ -4,8 +4,8 @@
 
 namespace bd {
     ConfigurationAction::ConfigurationAction(ConfigurationActionType action_type, QString serial, QObject *parent) : QObject(parent), m_action_type(action_type), m_serial(QString {serial}),
-        m_on(false), m_dimensions(QSize()), m_refresh(0.0), m_horizontal_anchor(ConfigurationHorizontalAnchor::NoHorizontalAnchor),
-        m_vertical_anchor(ConfigurationVerticalAnchor::NoVerticalAnchor), m_scale(1.0), m_transform(0), m_adaptive_sync(0) {
+        m_on(false), m_dimensions(QSize()), m_refresh(0), m_horizontal_anchor(ConfigurationHorizontalAnchor::NoHorizontalAnchor),
+        m_vertical_anchor(ConfigurationVerticalAnchor::NoVerticalAnchor), m_scale(1.0), m_transform(0), m_adaptive_sync(0), m_primary(false) {
     }
 
     QSharedPointer<ConfigurationAction> ConfigurationAction::explicitOn(const QString& serial, QObject *parent) {
@@ -27,7 +27,7 @@ namespace bd {
         return action;
     }
 
-    QSharedPointer<ConfigurationAction> ConfigurationAction::mode(const QString& serial, QSize dimensions, double refresh, QObject *parent) {
+    QSharedPointer<ConfigurationAction> ConfigurationAction::mode(const QString& serial, QSize dimensions, qulonglong refresh, QObject *parent) {
         qDebug() << "ConfigurationAction::mode" << serial << dimensions << refresh;
         auto action = QSharedPointer<ConfigurationAction>(new ConfigurationAction(ConfigurationActionType::SetMode, serial, parent));
         action->m_dimensions = QSize {dimensions};
@@ -52,7 +52,7 @@ namespace bd {
         return action;
     }
 
-    QSharedPointer<ConfigurationAction> ConfigurationAction::transform(const QString& serial, qint16 transform, QObject *parent) {
+    QSharedPointer<ConfigurationAction> ConfigurationAction::transform(const QString& serial, quint8 transform, QObject *parent) {
         qDebug() << "ConfigurationAction::transform" << serial << transform;
         auto action = QSharedPointer<ConfigurationAction>(new ConfigurationAction(ConfigurationActionType::SetTransform, serial, parent));
         action->m_transform = transform;
@@ -63,6 +63,13 @@ namespace bd {
         qDebug() << "ConfigurationAction::adaptiveSync" << serial << adaptiveSync;
         auto action = QSharedPointer<ConfigurationAction>(new ConfigurationAction(ConfigurationActionType::SetAdaptiveSync, serial, parent));
         action->m_adaptive_sync = adaptiveSync;
+        return action;
+    }
+
+    QSharedPointer<ConfigurationAction> ConfigurationAction::primary(const QString& serial, QObject *parent) {
+        qDebug() << "ConfigurationAction::primary" << serial;
+        auto action = QSharedPointer<ConfigurationAction>(new ConfigurationAction(ConfigurationActionType::SetPrimary, serial, parent));
+        action->m_primary = true;
         return action;
     }
 
@@ -78,6 +85,10 @@ namespace bd {
         return m_on;
     }
 
+    bool ConfigurationAction::isPrimary() const {
+        return m_primary;
+    }
+
     QString ConfigurationAction::getRelative() const {
         return m_relative;
     }
@@ -86,7 +97,7 @@ namespace bd {
         return m_dimensions;
     }
 
-    double ConfigurationAction::getRefresh() const {
+    qulonglong ConfigurationAction::getRefresh() const {
         return m_refresh;
     }
 
@@ -102,7 +113,7 @@ namespace bd {
         return m_scale;
     }
 
-    qint16 ConfigurationAction::getTransform() const {
+    quint8 ConfigurationAction::getTransform() const {
         return m_transform;
     }
 

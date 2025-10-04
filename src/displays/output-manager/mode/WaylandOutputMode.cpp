@@ -15,7 +15,7 @@ namespace bd {
   }
 
   void WaylandOutputMode::zwlr_output_mode_v1_refresh(int32_t refresh) {
-    auto val = QVariant::fromValue(refresh / 1000.0);
+    auto val = QVariant::fromValue(refresh);
     emit propertyChanged(WaylandOutputMetaModeProperty::Refresh, val);
   }
 

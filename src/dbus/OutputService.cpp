@@ -56,10 +56,10 @@ QString OutputService::Name() const { return m_output->getName(); }
 
 bool OutputService::Primary() const { return m_output->isPrimary(); }
 
-double OutputService::RefreshRate() const {
+qulonglong OutputService::RefreshRate() const {
     auto mode = m_output->getCurrentMode();
-    if (mode) return mode->getRefresh().value_or(0.0);
-    return 0.0;
+    if (mode) return static_cast<qulonglong>(mode->getRefresh().value_or(0.0));
+    return 0;
 }
 
 QString OutputService::RelativeTo() const { return m_output->getRelativeOutput(); }
@@ -68,7 +68,7 @@ double OutputService::Scale() const { return m_output->getScale(); }
 
 QString OutputService::Serial() const { return m_output->getIdentifier(); }
 
-int OutputService::Transform() const { return m_output->getTransform(); }
+quint8 OutputService::Transform() const { return static_cast<quint8>(m_output->getTransform()); }
 
 int OutputService::VerticalAnchor() const { return static_cast<int>(m_output->getVerticalAnchor()); }
 

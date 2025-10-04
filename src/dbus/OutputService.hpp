@@ -18,8 +18,8 @@ class OutputService : public QObject {
     Q_PROPERTY(int X READ X)
     Q_PROPERTY(int Y READ Y)
     Q_PROPERTY(double Scale READ Scale)
-    Q_PROPERTY(double RefreshRate READ RefreshRate)
-    Q_PROPERTY(int Transform READ Transform)
+    Q_PROPERTY(qulonglong RefreshRate READ RefreshRate)
+    Q_PROPERTY(quint8 Transform READ Transform)
     Q_PROPERTY(uint AdaptiveSync READ AdaptiveSync)
     Q_PROPERTY(bool Primary READ Primary)
     Q_PROPERTY(QString MirrorOf READ MirrorOf)
@@ -42,8 +42,8 @@ public:
     int X() const;
     int Y() const;
     double Scale() const;
-    double RefreshRate() const;
-    int Transform() const;
+    qulonglong RefreshRate() const;
+    quint8 Transform() const;
     uint AdaptiveSync() const;
     bool Primary() const;
     QString MirrorOf() const;

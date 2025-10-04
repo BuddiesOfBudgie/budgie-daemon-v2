@@ -93,10 +93,10 @@ bool OutputAdaptor::primary() const
     return qvariant_cast< bool >(parent()->property("Primary"));
 }
 
-double OutputAdaptor::refreshRate() const
+qulonglong OutputAdaptor::refreshRate() const
 {
     // get the value of property RefreshRate
-    return qvariant_cast< double >(parent()->property("RefreshRate"));
+    return qvariant_cast< qulonglong >(parent()->property("RefreshRate"));
 }
 
 QString OutputAdaptor::relativeTo() const
@@ -117,10 +117,10 @@ QString OutputAdaptor::serial() const
     return qvariant_cast< QString >(parent()->property("Serial"));
 }
 
-short OutputAdaptor::transform() const
+uchar OutputAdaptor::transform() const
 {
     // get the value of property Transform
-    return qvariant_cast< short >(parent()->property("Transform"));
+    return qvariant_cast< uchar >(parent()->property("Transform"));
 }
 
 int OutputAdaptor::verticalAnchor() const

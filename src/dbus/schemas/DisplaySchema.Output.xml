@@ -12,8 +12,8 @@
         <property name="X" type="i" access="read"/>
         <property name="Y" type="i" access="read"/>
         <property name="Scale" type="d" access="read"/>
-        <property name="RefreshRate" type="d" access="read"/>
-        <property name="Transform" type="n" access="read"/>
+        <property name="RefreshRate" type="t" access="read"/>
+        <property name="Transform" type="y" access="read"/>
         <property name="AdaptiveSync" type="u" access="read"/>
         <property name="Primary" type="b" access="read"/>
         <property name="MirrorOf" type="s" access="read"/>
@@ -47,7 +47,7 @@
             <arg name="scale" type="d"/>
         </signal>
         <signal name="TransformChanged">
-            <arg name="transform" type="n"/>
+            <arg name="transform" type="y"/>
         </signal>
     </interface>
 </node>

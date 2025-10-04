@@ -37,8 +37,8 @@ class OutputAdaptor: public QDBusAbstractAdaptor
 "    <property access=\"read\" type=\"i\" name=\"X\"/>\n"
 "    <property access=\"read\" type=\"i\" name=\"Y\"/>\n"
 "    <property access=\"read\" type=\"d\" name=\"Scale\"/>\n"
-"    <property access=\"read\" type=\"d\" name=\"RefreshRate\"/>\n"
-"    <property access=\"read\" type=\"n\" name=\"Transform\"/>\n"
+"    <property access=\"read\" type=\"t\" name=\"RefreshRate\"/>\n"
+"    <property access=\"read\" type=\"y\" name=\"Transform\"/>\n"
 "    <property access=\"read\" type=\"u\" name=\"AdaptiveSync\"/>\n"
 "    <property access=\"read\" type=\"b\" name=\"Primary\"/>\n"
 "    <property access=\"read\" type=\"s\" name=\"MirrorOf\"/>\n"
@@ -71,7 +71,7 @@ class OutputAdaptor: public QDBusAbstractAdaptor
 "      <arg type=\"d\" name=\"scale\"/>\n"
 "    </signal>\n"
 "    <signal name=\"TransformChanged\">\n"
-"      <arg type=\"n\" name=\"transform\"/>\n"
+"      <arg type=\"y\" name=\"transform\"/>\n"
 "    </signal>\n"
 "  </interface>\n"
         "")
@@ -110,8 +110,8 @@ public: // PROPERTIES
     Q_PROPERTY(bool Primary READ primary)
     bool primary() const;
 
-    Q_PROPERTY(double RefreshRate READ refreshRate)
-    double refreshRate() const;
+    Q_PROPERTY(qulonglong RefreshRate READ refreshRate)
+    qulonglong refreshRate() const;
 
     Q_PROPERTY(QString RelativeTo READ relativeTo)
     QString relativeTo() const;
@@ -122,8 +122,8 @@ public: // PROPERTIES
     Q_PROPERTY(QString Serial READ serial)
     QString serial() const;
 
-    Q_PROPERTY(short Transform READ transform)
-    short transform() const;
+    Q_PROPERTY(uchar Transform READ transform)
+    uchar transform() const;
 
     Q_PROPERTY(int VerticalAnchor READ verticalAnchor)
     int verticalAnchor() const;
@@ -146,7 +146,7 @@ Q_SIGNALS: // SIGNALS
     void PositionChanged(int x, int y);
     void PropertyChanged(const QString &property, const QDBusVariant &value);
     void ScaleChanged(double scale);
-    void TransformChanged(short transform);
+    void TransformChanged(uchar transform);
 };
 
 #endif
