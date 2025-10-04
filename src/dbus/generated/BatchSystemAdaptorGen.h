@@ -35,7 +35,7 @@ class BatchSystemAdaptor: public QDBusAbstractAdaptor
 "      <arg direction=\"in\" type=\"s\" name=\"serial\"/>\n"
 "      <arg direction=\"in\" type=\"i\" name=\"width\"/>\n"
 "      <arg direction=\"in\" type=\"i\" name=\"height\"/>\n"
-"      <arg direction=\"in\" type=\"d\" name=\"refreshRate\"/>\n"
+"      <arg direction=\"in\" type=\"t\" name=\"refreshRate\"/>\n"
 "    </method>\n"
 "    <method name=\"SetOutputPositionAnchor\">\n"
 "      <arg direction=\"in\" type=\"s\" name=\"serial\"/>\n"
@@ -49,7 +49,7 @@ class BatchSystemAdaptor: public QDBusAbstractAdaptor
 "    </method>\n"
 "    <method name=\"SetOutputTransform\">\n"
 "      <arg direction=\"in\" type=\"s\" name=\"serial\"/>\n"
-"      <arg direction=\"in\" type=\"n\" name=\"transform\"/>\n"
+"      <arg direction=\"in\" type=\"y\" name=\"transform\"/>\n"
 "    </method>\n"
 "    <method name=\"SetOutputAdaptiveSync\">\n"
 "      <arg direction=\"in\" type=\"s\" name=\"serial\"/>\n"
@@ -91,11 +91,11 @@ public Q_SLOTS: // METHODS
     void SetOutputAdaptiveSync(const QString &serial, uint adaptiveSync);
     void SetOutputEnabled(const QString &serial, bool enabled);
     void SetOutputMirrorOf(const QString &serial, const QString &mirrorSerial);
-    void SetOutputMode(const QString &serial, int width, int height, double refreshRate);
+    void SetOutputMode(const QString &serial, int width, int height, qulonglong refreshRate);
     void SetOutputPositionAnchor(const QString &serial, const QString &relativeSerial, int horizontalAnchor, int verticalAnchor);
     void SetOutputPrimary(const QString &serial);
     void SetOutputScale(const QString &serial, double scale);
-    void SetOutputTransform(const QString &serial, short transform);
+    void SetOutputTransform(const QString &serial, uchar transform);
 Q_SIGNALS: // SIGNALS
     void ConfigurationApplied(bool success);
 };

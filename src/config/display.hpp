@@ -82,7 +82,7 @@ namespace bd {
       QString            getRelativeOutput() const;
       ConfigurationHorizontalAnchor getHorizontalAnchor() const;
       ConfigurationVerticalAnchor getVerticalAnchor() const;
-      double             getRefresh() const;
+      qulonglong            getRefresh() const;
       int                getRotation() const;
       double             getScale() const;
       QString            getIdentifier() const;
@@ -97,7 +97,7 @@ namespace bd {
       void setRelativeOutput(const QString& relativeOutput);
       void setHorizontalAnchor(ConfigurationHorizontalAnchor horizontalAnchor);
       void setVerticalAnchor(ConfigurationVerticalAnchor verticalAnchor);
-      void setRefresh(double refresh);
+      void setRefresh(qulonglong refresh);
       void setRotation(int rotation);
       void setScale(double scale);
       void setWidth(int width);
@@ -106,7 +106,7 @@ namespace bd {
       QString            m_identifier;
       int                m_width;
       int                m_height;
-      double             m_refresh;
+      qulonglong            m_refresh;
       QString            m_relative_output;
       ConfigurationHorizontalAnchor m_horizontal_anchor;
       ConfigurationVerticalAnchor m_vertical_anchor;

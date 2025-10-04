@@ -18,7 +18,7 @@ namespace bd {
 
         QString getId();
 
-        std::optional<double> getRefresh();
+        std::optional<qulonglong> getRefresh();
 
         std::optional<QSize> getSize();
 
@@ -54,7 +54,7 @@ namespace bd {
         QSharedPointer<WaylandOutputMode> m_mode;
         QString m_id;
         QSize m_size;
-        double m_refresh;
+        qulonglong m_refresh;
         std::optional<bool> m_preferred;
         std::optional<bool> m_is_available;
     };

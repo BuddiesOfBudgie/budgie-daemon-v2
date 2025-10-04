@@ -16,7 +16,7 @@ namespace bd {
 
         static QSharedPointer<ConfigurationAction> mirrorOf(const QString& serial, QString relative, QObject *parent = nullptr);
 
-        static QSharedPointer<ConfigurationAction> mode(const QString& serial, QSize dimensions, double refresh,
+        static QSharedPointer<ConfigurationAction> mode(const QString& serial, QSize dimensions, qulonglong refresh,
                                              QObject *parent = nullptr);
 
         static QSharedPointer<ConfigurationAction> setPositionAnchor(const QString& serial, QString relative, ConfigurationHorizontalAnchor horizontal,
@@ -24,20 +24,23 @@ namespace bd {
 
         static QSharedPointer<ConfigurationAction> scale(const QString& serial, qreal scale,  QObject *parent = nullptr);
 
-        static QSharedPointer<ConfigurationAction> transform(const QString& serial, qint16 transform, QObject *parent = nullptr);
+        static QSharedPointer<ConfigurationAction> transform(const QString& serial, quint8 transform, QObject *parent = nullptr);
 
         static QSharedPointer<ConfigurationAction> adaptiveSync(const QString& serial, uint32_t adaptiveSync, QObject *parent = nullptr);
+
+        static QSharedPointer<ConfigurationAction> primary(const QString& serial, QObject *parent = nullptr);
 
         ConfigurationActionType getActionType() const;
         QString getSerial() const;
         bool isOn() const;
+        bool isPrimary() const;
         QString getRelative() const;
         QSize getDimensions() const;
-        double getRefresh() const;
+        qulonglong getRefresh() const;
         ConfigurationHorizontalAnchor getHorizontalAnchor() const;
         ConfigurationVerticalAnchor getVerticalAnchor() const;
         qreal getScale() const;
-        qint16 getTransform() const;
+        quint8 getTransform() const;
         uint32_t getAdaptiveSync() const;
 
     protected:
@@ -56,7 +59,7 @@ namespace bd {
 
         // Mode
         QSize m_dimensions;
-        double m_refresh;
+        qulonglong m_refresh;
 
         // Position Anchor
         ConfigurationHorizontalAnchor m_horizontal_anchor;
@@ -66,10 +69,13 @@ namespace bd {
         qreal m_scale;
 
         // Transform
-        qint16 m_transform;
+        quint8 m_transform;
 
         // Adaptive Sync
         uint32_t m_adaptive_sync;
+
+        // Primary
+        bool m_primary;
     };
 
 } // bd

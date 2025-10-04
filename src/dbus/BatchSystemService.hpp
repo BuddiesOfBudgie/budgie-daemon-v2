@@ -16,10 +16,10 @@ public:
 public slots:
     void ResetConfiguration();
     void SetOutputEnabled(const QString& serial, bool enabled);
-    void SetOutputMode(const QString& serial, int width, int height, double refreshRate);
+    void SetOutputMode(const QString& serial, int width, int height, qulonglong refreshRate);
     void SetOutputPositionAnchor(const QString& serial, const QString& relativeSerial, int horizontalAnchor, int verticalAnchor);
     void SetOutputScale(const QString& serial, double scale);
-    void SetOutputTransform(const QString& serial, int transform);
+    void SetOutputTransform(const QString& serial, quint8 transform);
     void SetOutputAdaptiveSync(const QString& serial, uint adaptiveSync);
     void SetOutputPrimary(const QString& serial);
     void SetOutputMirrorOf(const QString& serial, const QString& mirrorSerial);

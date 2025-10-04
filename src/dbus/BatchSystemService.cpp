@@ -31,7 +31,7 @@ void BatchSystemService::SetOutputEnabled(const QString& serial, bool enabled) {
     ConfigurationBatchSystem::instance().addAction(action);
 }
 
-void BatchSystemService::SetOutputMode(const QString& serial, int width, int height, double refreshRate) {
+void BatchSystemService::SetOutputMode(const QString& serial, int width, int height, qulonglong refreshRate) {
     auto action = ConfigurationAction::mode(serial, QSize(width, height), refreshRate);
     ConfigurationBatchSystem::instance().addAction(action);
 }
@@ -48,8 +48,8 @@ void BatchSystemService::SetOutputScale(const QString& serial, double scale) {
     ConfigurationBatchSystem::instance().addAction(action);
 }
 
-void BatchSystemService::SetOutputTransform(const QString& serial, int transform) {
-    auto action = ConfigurationAction::transform(serial, static_cast<qint16>(transform));
+void BatchSystemService::SetOutputTransform(const QString& serial, quint8 transform) {
+    auto action = ConfigurationAction::transform(serial, static_cast<quint8>(transform));
     ConfigurationBatchSystem::instance().addAction(action);
 }
 
@@ -59,7 +59,8 @@ void BatchSystemService::SetOutputAdaptiveSync(const QString& serial, uint adapt
 }
 
 void BatchSystemService::SetOutputPrimary(const QString& serial) {
-    // TODO: Implement primary output action if supported by ConfigurationAction
+    auto action = ConfigurationAction::primary(serial);
+    ConfigurationBatchSystem::instance().addAction(action);
 }
 
 void BatchSystemService::SetOutputMirrorOf(const QString& serial, const QString& mirrorSerial) {

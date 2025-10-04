@@ -77,7 +77,7 @@ namespace bd {
         return m_identifier;
     }
 
-    QSharedPointer<WaylandOutputMetaMode> WaylandOutputMetaHead::getModeForOutputHead(int width, int height, double refresh) {
+    QSharedPointer<WaylandOutputMetaMode> WaylandOutputMetaHead::getModeForOutputHead(int width, int height, qulonglong refresh) {
         for (const auto& mode_ptr: m_output_modes) {
             if (!mode_ptr) continue;
 
@@ -87,9 +87,9 @@ namespace bd {
             if (!modeSizeOpt.has_value() || !modeRefreshOpt.has_value()) continue;
             if (!modeSizeOpt.value().isValid()) continue;
             auto modeSize = modeSizeOpt.value();
-            auto modeRefresh = modeRefreshOpt.value();
+            auto modeRefresh = static_cast<qulonglong>(modeRefreshOpt.value());
 
-            if (modeSize.width() == width && modeSize.height() == height && qFuzzyCompare(modeRefresh, refresh)) { return mode_ptr; }
+            if (modeSize.width() == width && modeSize.height() == height && modeRefresh == refresh) { return mode_ptr; }
         }
 
         return nullptr;
@@ -220,7 +220,7 @@ namespace bd {
             // Doesn't already exist, add it
             qDebug() << "Adding new output mode to head: " << getIdentifier() << " with size: "
                      << output_mode->getSize().value_or(QSize(0, 0))
-                     << " and refresh: " << output_mode->getRefresh().value_or(0.0);
+                     << " and refresh: " << static_cast<qulonglong>(output_mode->getRefresh().value_or(0));
             m_output_modes.append(shared_ptr);
         });
 
@@ -264,13 +264,13 @@ namespace bd {
 //        auto meta_mode = meta_mode_ptr.data();
 //        if (meta_mode->isAvailable().value()) {
 //            qDebug() << "(Mode already available) Current mode set to:" << meta_mode->getSize().value_or(QSize(0, 0))
-//                     << "with refresh:" << meta_mode->getRefresh().value_or(0.0);
+//                     << "with refresh:" << meta_mode->getRefresh().value_or(0);
 //            m_current_mode = meta_mode_ptr; // Set the current mode already since it is available
 //        } else { // Not available yet
 //            connect(meta_mode, &WaylandOutputMetaMode::done, this, [this, meta_mode_ptr, meta_mode]() {
 //                // Set the current mode to the one that was just added
 //                qDebug() << "(Mode done) Current mode set to:" << meta_mode->getSize().value_or(QSize(0, 0))
-//                         << "with refresh:" << meta_mode->getRefresh().value_or(0.0);
+//                         << "with refresh:" << meta_mode->getRefresh().value_or(0);
 //                m_current_mode = meta_mode_ptr;
 //            });
 //        }

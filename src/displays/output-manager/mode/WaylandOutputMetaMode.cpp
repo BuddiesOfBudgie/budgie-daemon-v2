@@ -3,7 +3,7 @@
 
 namespace bd {
     WaylandOutputMetaMode::WaylandOutputMetaMode(QObject *parent, ::zwlr_output_mode_v1 *wlr_mode)
-            : QObject(parent), m_id(QString()), m_mode(QSharedPointer<WaylandOutputMode>(nullptr)), m_refresh(0.0), m_preferred(std::nullopt), m_size(QSize{0, 0}),
+            : QObject(parent), m_id(QString()), m_mode(QSharedPointer<WaylandOutputMode>(nullptr)), m_refresh(0), m_preferred(std::nullopt), m_size(QSize{0, 0}),
               m_is_available(std::nullopt) {
         setMode(wlr_mode);
     }
@@ -17,8 +17,8 @@ namespace bd {
         return m_id;
     }
 
-    std::optional<double> WaylandOutputMetaMode::getRefresh() {
-        if (m_refresh == 0.0) return std::nullopt;
+    std::optional<qulonglong> WaylandOutputMetaMode::getRefresh() {
+        if (m_refresh == 0) return std::nullopt;
         return std::make_optional(m_refresh);
     }
 
@@ -108,7 +108,7 @@ namespace bd {
                 m_preferred = std::make_optional<bool>(value.toBool());
                 break;
             case WaylandOutputMetaModeProperty::Refresh:
-                m_refresh = value.toDouble();
+                m_refresh = static_cast<qulonglong>(value.toULongLong());
                 break;
             case WaylandOutputMetaModeProperty::Size:
                 m_size = value.toSize();
@@ -132,7 +132,7 @@ namespace bd {
             const auto sz = size.value();
             const auto ref = refresh.value();
             m_id = QString("%1_%2_%3").arg(sz.width()).arg(sz.height()).arg(ref);
-            m_id.replace('.', '_');
+            // no decimal in integer refresh
 
             m_is_available = true;
             emit done();

@@ -37,7 +37,7 @@ namespace bd {
 
         QString getModel();
 
-        QSharedPointer<WaylandOutputMetaMode> getModeForOutputHead(int width, int height, double refresh);
+        QSharedPointer<WaylandOutputMetaMode> getModeForOutputHead(int width, int height, qulonglong refresh);
 
         QList<QSharedPointer<WaylandOutputMetaMode>> getModes();
 

@@ -127,7 +127,7 @@ namespace bd {
 
         // Set transform (rotation)
         auto transformAction = ConfigurationAction::transform(serial, 
-          static_cast<qint16>(config->getRotation()));
+          static_cast<quint8>(config->getRotation()));
         batchSystem.addAction(transformAction);
 
         // Set adaptive sync
@@ -375,7 +375,7 @@ namespace bd {
       dgo->setIdentifier(QString::fromStdString(toml::find<std::string>(output, "identifier")));
       dgo->setWidth(toml::find<int>(output, "width"));
       dgo->setHeight(toml::find<int>(output, "height"));
-      dgo->setRefresh(toml::find<double>(output, "refresh"));
+      dgo->setRefresh(toml::find<qulonglong>(output, "refresh"));
       
       // Parse anchoring information (new format)
       auto relativeOutput = QString::fromStdString(toml::find_or<std::string>(output, "relative_output", ""));
@@ -469,7 +469,7 @@ namespace bd {
   // DisplayGroupOutputConfig
 
   DisplayGroupOutputConfig::DisplayGroupOutputConfig(QObject* parent) : QObject(parent),
-    m_width(0), m_height(0), m_refresh(0.0), m_relative_output(""),
+    m_width(0), m_height(0), m_refresh(0), m_relative_output(""),
     m_horizontal_anchor(ConfigurationHorizontalAnchor::NoHorizontalAnchor),
     m_vertical_anchor(ConfigurationVerticalAnchor::NoVerticalAnchor),
     m_scale(1.0), m_rotation(0), m_adaptive_sync(false), m_disabled(false) {}
@@ -502,7 +502,7 @@ namespace bd {
     return this->m_vertical_anchor;
   }
 
-  double DisplayGroupOutputConfig::getRefresh() const {
+  qulonglong DisplayGroupOutputConfig::getRefresh() const {
     return this->m_refresh;
   }
 
@@ -546,7 +546,7 @@ namespace bd {
     this->m_vertical_anchor = verticalAnchor;
   }
 
-  void DisplayGroupOutputConfig::setRefresh(double refresh) {
+  void DisplayGroupOutputConfig::setRefresh(qulonglong refresh) {
     this->m_refresh = refresh;
   }
 
@@ -569,7 +569,7 @@ namespace bd {
     config_table["identifier"]    = this->m_identifier.toStdString();
     config_table["width"]         = this->m_width;
     config_table["height"]        = this->m_height;
-    config_table["refresh"]       = this->m_refresh;
+    config_table["refresh"]       = static_cast<qulonglong>(this->m_refresh);
     
     // Serialize anchoring information (new format)
     if (!this->m_relative_output.isEmpty()) {

@@ -81,10 +81,10 @@ void BatchSystemAdaptor::SetOutputMirrorOf(const QString &serial, const QString 
     QMetaObject::invokeMethod(parent(), "SetOutputMirrorOf", Q_ARG(QString, serial), Q_ARG(QString, mirrorSerial));
 }
 
-void BatchSystemAdaptor::SetOutputMode(const QString &serial, int width, int height, double refreshRate)
+void BatchSystemAdaptor::SetOutputMode(const QString &serial, int width, int height, qulonglong refreshRate)
 {
     // handle method call org.buddiesofbudgie.BudgieDaemonX.BatchSystem.SetOutputMode
-    QMetaObject::invokeMethod(parent(), "SetOutputMode", Q_ARG(QString, serial), Q_ARG(int, width), Q_ARG(int, height), Q_ARG(double, refreshRate));
+    QMetaObject::invokeMethod(parent(), "SetOutputMode", Q_ARG(QString, serial), Q_ARG(int, width), Q_ARG(int, height), Q_ARG(qulonglong, refreshRate));
 }
 
 void BatchSystemAdaptor::SetOutputPositionAnchor(const QString &serial, const QString &relativeSerial, int horizontalAnchor, int verticalAnchor)
@@ -105,9 +105,9 @@ void BatchSystemAdaptor::SetOutputScale(const QString &serial, double scale)
     QMetaObject::invokeMethod(parent(), "SetOutputScale", Q_ARG(QString, serial), Q_ARG(double, scale));
 }
 
-void BatchSystemAdaptor::SetOutputTransform(const QString &serial, short transform)
+void BatchSystemAdaptor::SetOutputTransform(const QString &serial, uchar transform)
 {
     // handle method call org.buddiesofbudgie.BudgieDaemonX.BatchSystem.SetOutputTransform
-    QMetaObject::invokeMethod(parent(), "SetOutputTransform", Q_ARG(QString, serial), Q_ARG(short, transform));
+    QMetaObject::invokeMethod(parent(), "SetOutputTransform", Q_ARG(QString, serial), Q_ARG(uchar, transform));
 }
 

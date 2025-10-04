@@ -28,7 +28,7 @@ class OutputModeAdaptor: public QDBusAbstractAdaptor
 "  <interface name=\"org.buddiesofbudgie.BudgieDaemonX.OutputMode\">\n"
 "    <property access=\"read\" type=\"i\" name=\"Width\"/>\n"
 "    <property access=\"read\" type=\"i\" name=\"Height\"/>\n"
-"    <property access=\"read\" type=\"d\" name=\"RefreshRate\"/>\n"
+"    <property access=\"read\" type=\"t\" name=\"RefreshRate\"/>\n"
 "    <property access=\"read\" type=\"b\" name=\"Preferred\"/>\n"
 "    <property access=\"read\" type=\"b\" name=\"Current\"/>\n"
 "    <method name=\"GetModeInfo\">\n"
@@ -58,8 +58,8 @@ public: // PROPERTIES
     Q_PROPERTY(bool Preferred READ preferred)
     bool preferred() const;
 
-    Q_PROPERTY(double RefreshRate READ refreshRate)
-    double refreshRate() const;
+    Q_PROPERTY(qulonglong RefreshRate READ refreshRate)
+    qulonglong refreshRate() const;
 
     Q_PROPERTY(int Width READ width)
     int width() const;

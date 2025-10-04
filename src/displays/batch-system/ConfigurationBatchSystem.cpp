@@ -53,9 +53,8 @@ namespace bd {
     }
 
     void ConfigurationBatchSystem::apply() {
-        if (m_calculation_result.isNull()) {
-            calculate(); // Ensure it's calculated
-        }
+        // Always recalculate before applying so the latest actions are reflected
+        calculate();
 
         auto &orchestrator = bd::WaylandOrchestrator::instance();
         auto manager = orchestrator.getManager();
@@ -103,6 +102,8 @@ namespace bd {
                 continue;
             }
 
+            qDebug() << "Processing output" << serial << "on:" << outputState->isOn();
+
             if (outputState->isOn()) {
                 // Enable the output and configure it
                 auto configHead = config->enable(head.data());
@@ -111,21 +112,31 @@ namespace bd {
                     continue;
                 }
 
+                qDebug() << "Enabled output" << serial;
+
                 // Set position
                 auto position = outputState->getPosition();
                 configHead->setPosition(position.x(), position.y());
+
+                qDebug() << "Set position for output" << serial << "to:" << position;
 
                 // Set scale
                 auto scale = outputState->getScale();
                 configHead->setScale(scale);
 
+                qDebug() << "Set scale for output" << serial << "to:" << scale;
+
                 // Set transform
                 auto transform = outputState->getTransform();
                 configHead->setTransform(transform);
 
+                qDebug() << "Set transform for output" << serial << "to:" << transform;
+
                 // Set adaptive sync
                 auto adaptiveSync = outputState->getAdaptiveSync();
                 configHead->setAdaptiveSync(adaptiveSync);
+
+                qDebug() << "Set adaptive sync for output" << serial << "to:" << adaptiveSync;
 
                 // Set mode (dimensions and refresh rate)
                 auto dimensions = outputState->getDimensions();

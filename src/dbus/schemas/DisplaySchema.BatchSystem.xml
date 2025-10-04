@@ -10,7 +10,7 @@
             <arg name="serial" type="s" direction="in"/>
             <arg name="width" type="i" direction="in"/>
             <arg name="height" type="i" direction="in"/>
-            <arg name="refreshRate" type="d" direction="in"/>
+            <arg name="refreshRate" type="t" direction="in"/>
         </method>
         <method name="SetOutputPositionAnchor">
             <arg name="serial" type="s" direction="in"/>
@@ -24,7 +24,7 @@
         </method>
         <method name="SetOutputTransform">
             <arg name="serial" type="s" direction="in"/>
-            <arg name="transform" type="n" direction="in"/>
+            <arg name="transform" type="y" direction="in"/>
         </method>
         <method name="SetOutputAdaptiveSync">
             <arg name="serial" type="s" direction="in"/>

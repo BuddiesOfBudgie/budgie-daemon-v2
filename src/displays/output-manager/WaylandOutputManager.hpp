@@ -114,9 +114,9 @@ namespace bd {
       void                   release();
       void                   setAdaptiveSync(uint32_t state);
       void                   setMode(WaylandOutputMetaMode* mode);
-      void                   setCustomMode(int32_t width, int32_t height, double refresh);
+      void                   setCustomMode(int32_t width, int32_t height, qulonglong refresh);
       void                   setPosition(int32_t x, int32_t y);
-      void                   setTransform(int32_t transform);
+      void                   setTransform(quint8 transform);
       void                   setScale(double scale);
 
     private:

@@ -36,5 +36,7 @@ tasks:
       - sudo ninja install -C build
   wldbg-build:
     desc: "Run wldbg (wayland-debug) against build"
+    env:
+      QT_LOGGING_RULES: "*.debug=true"
     cmds:
-      - wldbg -r ./build/src/org.buddiesofbudgie.BudgieDaemonV2 -g
+      - wldbg -r ./build/bin/org.buddiesofbudgie.BudgieDaemonV2 -g

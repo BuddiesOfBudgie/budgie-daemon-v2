@@ -3,7 +3,7 @@
 
 namespace bd {
     OutputTargetState::OutputTargetState(QString serial, QObject *parent) : QObject(parent),
-        m_serial(serial), m_on(false), m_dimensions(QSize(0, 0)), m_refresh(0.0), m_mirrorOf(""), m_relative(""), m_horizontal_anchor(ConfigurationHorizontalAnchor::NoHorizontalAnchor),
+        m_serial(serial), m_on(false), m_dimensions(QSize(0, 0)), m_refresh(0), m_mirrorOf(""), m_relative(""), m_horizontal_anchor(ConfigurationHorizontalAnchor::NoHorizontalAnchor),
         m_vertical_anchor(ConfigurationVerticalAnchor::NoVerticalAnchor), m_primary(false), m_position(QPoint(0, 0)), m_scale(1.0), m_transform(0), m_adaptive_sync(0) {
     }
 
@@ -19,7 +19,7 @@ namespace bd {
         return m_dimensions;
     }
 
-    double OutputTargetState::getRefresh() const {
+    qulonglong OutputTargetState::getRefresh() const {
         return m_refresh;
     }
 
@@ -51,7 +51,7 @@ namespace bd {
         return m_scale;
     }
 
-    qint16 OutputTargetState::getTransform() const {
+    quint8 OutputTargetState::getTransform() const {
         return m_transform;
     }
 
@@ -80,7 +80,7 @@ namespace bd {
 
             auto refreshOpt = mode->getRefresh();
             if (refreshOpt.has_value()) {
-                m_refresh = refreshOpt.value();
+                m_refresh = static_cast<qulonglong>(refreshOpt.value());
             }
 
             qDebug() << "dimensions" << m_dimensions << "refresh" << m_refresh;
@@ -93,7 +93,7 @@ namespace bd {
         m_scale = scale;
 
         auto transform = headData->getTransform();
-        m_transform = transform;
+        m_transform = static_cast<quint8>(transform);
 
         auto adaptiveSync = headData->getAdaptiveSync();
         m_adaptive_sync = static_cast<uint32_t>(adaptiveSync);
@@ -117,7 +117,7 @@ namespace bd {
         m_dimensions = dimensions;
     }
 
-    void OutputTargetState::setRefresh(double refresh) {
+    void OutputTargetState::setRefresh(qulonglong refresh) {
         qDebug() << "OutputTargetState::setRefresh" << m_serial << refresh;
         m_refresh = refresh;
     }
@@ -171,7 +171,7 @@ namespace bd {
         m_scale = scale;
     }
 
-    void OutputTargetState::setTransform(qint16 transform) {
+    void OutputTargetState::setTransform(quint8 transform) {
         qDebug() << "OutputTargetState::setTransform" << m_serial << transform;
         m_transform = transform;
     }

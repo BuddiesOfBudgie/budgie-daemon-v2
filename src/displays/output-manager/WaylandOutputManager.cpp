@@ -214,6 +214,7 @@ namespace bd {
 
   void WaylandOutputConfiguration::applySelf() {
     apply();
+    wl_display_roundtrip(bd::WaylandOrchestrator::instance().getDisplay());
   }
 
   void WaylandOutputConfiguration::release() {
@@ -267,8 +268,8 @@ namespace bd {
     set_mode(const_cast<::zwlr_output_mode_v1*>(wlrModeOpt.value()));
   }
 
-  void WaylandOutputConfigurationHead::setCustomMode(signed int width, signed int height, double refresh) {
-    set_custom_mode(width, height, static_cast<int32_t>(refresh * 1000));
+  void WaylandOutputConfigurationHead::setCustomMode(signed int width, signed int height, qulonglong refresh) {
+    set_custom_mode(width, height, static_cast<int32_t>(refresh));
   }
 
   void WaylandOutputConfigurationHead::setPosition(int32_t x, int32_t y) {
@@ -279,7 +280,7 @@ namespace bd {
     set_scale(wl_fixed_from_double(scale));
   }
 
-  void WaylandOutputConfigurationHead::setTransform(int32_t transform) {
-    set_transform(transform);
+  void WaylandOutputConfigurationHead::setTransform(quint8 transform) {
+    set_transform(static_cast<int32_t>(transform));
   }
 }

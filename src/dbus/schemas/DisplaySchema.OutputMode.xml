@@ -3,7 +3,7 @@
     <interface name="org.buddiesofbudgie.BudgieDaemonX.OutputMode">
         <property name="Width" type="i" access="read"/>
         <property name="Height" type="i" access="read"/>
-        <property name="RefreshRate" type="d" access="read"/>
+        <property name="RefreshRate" type="t" access="read"/>
         <property name="Preferred" type="b" access="read"/>
         <property name="Current" type="b" access="read"/>
         <method name="GetModeInfo">
