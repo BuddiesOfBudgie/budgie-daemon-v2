@@ -18,14 +18,14 @@
 #include <QtCore/qcontainerfwd.h>
 
 /*
- * Adaptor class for interface org.buddiesofbudgie.BudgieDaemonX.Output
+ * Adaptor class for interface org.buddiesofbudgie.BudgieDaemon.Output
  */
 class OutputAdaptor: public QDBusAbstractAdaptor
 {
     Q_OBJECT
-    Q_CLASSINFO("D-Bus Interface", "org.buddiesofbudgie.BudgieDaemonX.Output")
+    Q_CLASSINFO("D-Bus Interface", "org.buddiesofbudgie.BudgieDaemon.Output")
     Q_CLASSINFO("D-Bus Introspection", ""
-"  <interface name=\"org.buddiesofbudgie.BudgieDaemonX.Output\">\n"
+"  <interface name=\"org.buddiesofbudgie.BudgieDaemon.Output\">\n"
 "    <property access=\"read\" type=\"s\" name=\"Serial\"/>\n"
 "    <property access=\"read\" type=\"s\" name=\"Name\"/>\n"
 "    <property access=\"read\" type=\"s\" name=\"Description\"/>\n"

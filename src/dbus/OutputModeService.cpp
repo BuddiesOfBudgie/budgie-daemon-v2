@@ -15,7 +15,7 @@
 namespace bd {
 OutputModeService::OutputModeService(QSharedPointer<WaylandOutputMetaMode> mode, const QString& outputId, QObject* parent)
     : QObject(parent), m_mode(mode), m_outputId(outputId) {
-    QString objectPath = QString("/org/buddiesofbudgie/BudgieDaemonX/Displays/Outputs/%1/Modes/%2").arg(outputId).arg(mode->getId());
+    QString objectPath = QString("/org/buddiesofbudgie/BudgieDaemon/Displays/Outputs/%1/Modes/%2").arg(outputId).arg(mode->getId());
     m_adaptor = new OutputModeAdaptor(this);
     QDBusConnection::sessionBus().registerObject(objectPath, this, QDBusConnection::ExportAdaptors);
 }

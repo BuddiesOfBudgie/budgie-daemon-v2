@@ -2,7 +2,7 @@
 #include "generated/BatchSystemAdaptorGen.h"
 #include <QObject>
 
-#define BATCH_SYSTEM_SERVICE_PATH "/org/buddiesofbudgie/BudgieDaemonX/Displays/BatchSystem"
+#define BATCH_SYSTEM_SERVICE_PATH "/org/buddiesofbudgie/BudgieDaemon/Displays/BatchSystem"
 
 namespace bd {
 class BatchSystemService : public QObject {

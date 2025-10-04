@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<node name="/org/buddiesofbudgie/BudgieDaemonX/Displays/BatchSystem">
-    <interface name="org.buddiesofbudgie.BudgieDaemonX.BatchSystem">
+<node name="/org/buddiesofbudgie/BudgieDaemon/Displays/BatchSystem">
+    <interface name="org.buddiesofbudgie.BudgieDaemon.BatchSystem">
         <method name="ResetConfiguration"/>
         <method name="SetOutputEnabled">
             <arg name="serial" type="s" direction="in"/>

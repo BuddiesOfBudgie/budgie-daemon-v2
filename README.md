@@ -29,8 +29,8 @@ On startup (after Wayland is ready), the daemon matches current outputs to a pre
 
 Location:
 
-- `$XDG_CONFIG_HOME/budgie-desktop/display-config-v2.toml`, or
-- `~/.config/budgie-desktop/display-config-v2.toml`
+- `$XDG_CONFIG_HOME/budgie-desktop/display-config.toml`, or
+- `~/.config/budgie-desktop/display-config.toml`
 
 Schema (subset):
 

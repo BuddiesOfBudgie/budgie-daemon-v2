@@ -1,8 +1,8 @@
 #pragma once
 #include "generated/DisplayAdaptorGen.h"
 
-#define DISPLAY_SERVICE_NAME "org.buddiesofbudgie.BudgieDaemonX.Displays"
-#define DISPLAY_SERVICE_PATH "/org/buddiesofbudgie/BudgieDaemonX/Displays"
+#define DISPLAY_SERVICE_NAME "org.buddiesofbudgie.BudgieDaemon.Displays"
+#define DISPLAY_SERVICE_PATH "/org/buddiesofbudgie/BudgieDaemon/Displays"
 
 namespace bd {
   class DisplayService : public QObject {

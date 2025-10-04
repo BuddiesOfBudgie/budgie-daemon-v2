@@ -86,7 +86,7 @@ set_target_properties(
                                   "org.buddiesofbudgie.BudgieDaemonV2")
 
 install(TARGETS budgie-daemon-v2-app ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})
-install(FILES dbus/org.buddiesofbudgie.BudgieDaemonX.conf
+install(FILES dbus/org.buddiesofbudgie.BudgieDaemon.conf
         DESTINATION ${CMAKE_INSTALL_DATADIR}/dbus-1/system.d)
 
 if(INSTALL_SERVICE_FILES)

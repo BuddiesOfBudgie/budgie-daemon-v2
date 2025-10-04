@@ -18,14 +18,14 @@
 #include <QtCore/qcontainerfwd.h>
 
 /*
- * Adaptor class for interface org.buddiesofbudgie.BudgieDaemonX.BatchSystem
+ * Adaptor class for interface org.buddiesofbudgie.BudgieDaemon.BatchSystem
  */
 class BatchSystemAdaptor: public QDBusAbstractAdaptor
 {
     Q_OBJECT
-    Q_CLASSINFO("D-Bus Interface", "org.buddiesofbudgie.BudgieDaemonX.BatchSystem")
+    Q_CLASSINFO("D-Bus Interface", "org.buddiesofbudgie.BudgieDaemon.BatchSystem")
     Q_CLASSINFO("D-Bus Introspection", ""
-"  <interface name=\"org.buddiesofbudgie.BudgieDaemonX.BatchSystem\">\n"
+"  <interface name=\"org.buddiesofbudgie.BudgieDaemon.BatchSystem\">\n"
 "    <method name=\"ResetConfiguration\"/>\n"
 "    <method name=\"SetOutputEnabled\">\n"
 "      <arg direction=\"in\" type=\"s\" name=\"serial\"/>\n"

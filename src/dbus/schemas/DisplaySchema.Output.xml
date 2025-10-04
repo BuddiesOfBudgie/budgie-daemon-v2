@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<node name="/org/buddiesofbudgie/BudgieDaemonX/Displays/Outputs/Output">
-    <interface name="org.buddiesofbudgie.BudgieDaemonX.Output">
+<node name="/org/buddiesofbudgie/BudgieDaemon/Displays/Outputs/Output">
+    <interface name="org.buddiesofbudgie.BudgieDaemon.Output">
         <property name="Serial" type="s" access="read"/>
         <property name="Name" type="s" access="read"/>
         <property name="Description" type="s" access="read"/>

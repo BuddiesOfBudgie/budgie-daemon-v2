@@ -9,7 +9,7 @@ It summarizes common workflows (especially around D-Bus schema changes and code 
 - Core purpose: Budgie Daemon v2 is the future central hub and orchestrator for Budgie Desktop (with a focus on Budgie 11). Today, it primarily provides Wayland-native display configuration for Budgie 10.10; over time it will coordinate broader desktop logic for Budgie 11.
 - Wayland protocol: `wlr-output-management-unstable-v1`.
 - DBus API: XML schemas in `src/dbus/schemas/` → generated adaptors in `src/dbus/generated/`.
-- Output model: meta heads/modes exposed via services under `org.buddiesofbudgie.BudgieDaemonX`.
+- Output model: meta heads/modes exposed via services under `org.buddiesofbudgie.BudgieDaemon`.
 
 ### Command cheatsheet (Taskfile)
 
@@ -90,7 +90,7 @@ We strive to follow [Conventional Commits](https://www.conventionalcommits.org/e
 ### Configuration and profiles (summary)
 
 - On Wayland ready, a display profile group is selected and applied atomically via the batch system.
-- Users can store profiles at `$XDG_CONFIG_HOME/budgie-desktop/display-config-v2.toml` (or `~/.config/...`).
+- Users can store profiles at `$XDG_CONFIG_HOME/budgie-desktop/display-config.toml` (or `~/.config/...`).
 - Group schema supports `primary_output`, anchors, relative positioning, scale, rotation, adaptive sync, and enable/disable flags.
 
 ### Troubleshooting

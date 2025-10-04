@@ -35,7 +35,7 @@ BatchSystemAdaptor::~BatchSystemAdaptor()
 
 bool BatchSystemAdaptor::ApplyConfiguration()
 {
-    // handle method call org.buddiesofbudgie.BudgieDaemonX.BatchSystem.ApplyConfiguration
+    // handle method call org.buddiesofbudgie.BudgieDaemon.BatchSystem.ApplyConfiguration
     bool success{};
     QMetaObject::invokeMethod(parent(), "ApplyConfiguration", Q_RETURN_ARG(bool, success));
     return success;
@@ -43,7 +43,7 @@ bool BatchSystemAdaptor::ApplyConfiguration()
 
 QVariantMap BatchSystemAdaptor::CalculateConfiguration()
 {
-    // handle method call org.buddiesofbudgie.BudgieDaemonX.BatchSystem.CalculateConfiguration
+    // handle method call org.buddiesofbudgie.BudgieDaemon.BatchSystem.CalculateConfiguration
     QVariantMap calculationResult{};
     QMetaObject::invokeMethod(parent(), "CalculateConfiguration", Q_RETURN_ARG(QVariantMap, calculationResult));
     return calculationResult;
@@ -51,7 +51,7 @@ QVariantMap BatchSystemAdaptor::CalculateConfiguration()
 
 QVariantList BatchSystemAdaptor::GetActions()
 {
-    // handle method call org.buddiesofbudgie.BudgieDaemonX.BatchSystem.GetActions
+    // handle method call org.buddiesofbudgie.BudgieDaemon.BatchSystem.GetActions
     QVariantList actions{};
     QMetaObject::invokeMethod(parent(), "GetActions", Q_RETURN_ARG(QVariantList, actions));
     return actions;
@@ -59,55 +59,55 @@ QVariantList BatchSystemAdaptor::GetActions()
 
 void BatchSystemAdaptor::ResetConfiguration()
 {
-    // handle method call org.buddiesofbudgie.BudgieDaemonX.BatchSystem.ResetConfiguration
+    // handle method call org.buddiesofbudgie.BudgieDaemon.BatchSystem.ResetConfiguration
     QMetaObject::invokeMethod(parent(), "ResetConfiguration");
 }
 
 void BatchSystemAdaptor::SetOutputAdaptiveSync(const QString &serial, uint adaptiveSync)
 {
-    // handle method call org.buddiesofbudgie.BudgieDaemonX.BatchSystem.SetOutputAdaptiveSync
+    // handle method call org.buddiesofbudgie.BudgieDaemon.BatchSystem.SetOutputAdaptiveSync
     QMetaObject::invokeMethod(parent(), "SetOutputAdaptiveSync", Q_ARG(QString, serial), Q_ARG(uint, adaptiveSync));
 }
 
 void BatchSystemAdaptor::SetOutputEnabled(const QString &serial, bool enabled)
 {
-    // handle method call org.buddiesofbudgie.BudgieDaemonX.BatchSystem.SetOutputEnabled
+    // handle method call org.buddiesofbudgie.BudgieDaemon.BatchSystem.SetOutputEnabled
     QMetaObject::invokeMethod(parent(), "SetOutputEnabled", Q_ARG(QString, serial), Q_ARG(bool, enabled));
 }
 
 void BatchSystemAdaptor::SetOutputMirrorOf(const QString &serial, const QString &mirrorSerial)
 {
-    // handle method call org.buddiesofbudgie.BudgieDaemonX.BatchSystem.SetOutputMirrorOf
+    // handle method call org.buddiesofbudgie.BudgieDaemon.BatchSystem.SetOutputMirrorOf
     QMetaObject::invokeMethod(parent(), "SetOutputMirrorOf", Q_ARG(QString, serial), Q_ARG(QString, mirrorSerial));
 }
 
 void BatchSystemAdaptor::SetOutputMode(const QString &serial, int width, int height, qulonglong refreshRate)
 {
-    // handle method call org.buddiesofbudgie.BudgieDaemonX.BatchSystem.SetOutputMode
+    // handle method call org.buddiesofbudgie.BudgieDaemon.BatchSystem.SetOutputMode
     QMetaObject::invokeMethod(parent(), "SetOutputMode", Q_ARG(QString, serial), Q_ARG(int, width), Q_ARG(int, height), Q_ARG(qulonglong, refreshRate));
 }
 
 void BatchSystemAdaptor::SetOutputPositionAnchor(const QString &serial, const QString &relativeSerial, int horizontalAnchor, int verticalAnchor)
 {
-    // handle method call org.buddiesofbudgie.BudgieDaemonX.BatchSystem.SetOutputPositionAnchor
+    // handle method call org.buddiesofbudgie.BudgieDaemon.BatchSystem.SetOutputPositionAnchor
     QMetaObject::invokeMethod(parent(), "SetOutputPositionAnchor", Q_ARG(QString, serial), Q_ARG(QString, relativeSerial), Q_ARG(int, horizontalAnchor), Q_ARG(int, verticalAnchor));
 }
 
 void BatchSystemAdaptor::SetOutputPrimary(const QString &serial)
 {
-    // handle method call org.buddiesofbudgie.BudgieDaemonX.BatchSystem.SetOutputPrimary
+    // handle method call org.buddiesofbudgie.BudgieDaemon.BatchSystem.SetOutputPrimary
     QMetaObject::invokeMethod(parent(), "SetOutputPrimary", Q_ARG(QString, serial));
 }
 
 void BatchSystemAdaptor::SetOutputScale(const QString &serial, double scale)
 {
-    // handle method call org.buddiesofbudgie.BudgieDaemonX.BatchSystem.SetOutputScale
+    // handle method call org.buddiesofbudgie.BudgieDaemon.BatchSystem.SetOutputScale
     QMetaObject::invokeMethod(parent(), "SetOutputScale", Q_ARG(QString, serial), Q_ARG(double, scale));
 }
 
 void BatchSystemAdaptor::SetOutputTransform(const QString &serial, uchar transform)
 {
-    // handle method call org.buddiesofbudgie.BudgieDaemonX.BatchSystem.SetOutputTransform
+    // handle method call org.buddiesofbudgie.BudgieDaemon.BatchSystem.SetOutputTransform
     QMetaObject::invokeMethod(parent(), "SetOutputTransform", Q_ARG(QString, serial), Q_ARG(uchar, transform));
 }
 

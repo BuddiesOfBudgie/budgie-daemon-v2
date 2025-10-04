@@ -149,7 +149,7 @@ int OutputAdaptor::y() const
 
 QStringList OutputAdaptor::GetAvailableModes()
 {
-    // handle method call org.buddiesofbudgie.BudgieDaemonX.Output.GetAvailableModes
+    // handle method call org.buddiesofbudgie.BudgieDaemon.Output.GetAvailableModes
     QStringList modePaths{};
     QMetaObject::invokeMethod(parent(), "GetAvailableModes", Q_RETURN_ARG(QStringList, modePaths));
     return modePaths;
@@ -157,7 +157,7 @@ QStringList OutputAdaptor::GetAvailableModes()
 
 QString OutputAdaptor::GetCurrentMode()
 {
-    // handle method call org.buddiesofbudgie.BudgieDaemonX.Output.GetCurrentMode
+    // handle method call org.buddiesofbudgie.BudgieDaemon.Output.GetCurrentMode
     QString modePath{};
     QMetaObject::invokeMethod(parent(), "GetCurrentMode", Q_RETURN_ARG(QString, modePath));
     return modePath;

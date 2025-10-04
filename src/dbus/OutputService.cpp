@@ -5,7 +5,7 @@
 namespace bd {
 OutputService::OutputService(QSharedPointer<WaylandOutputMetaHead> output, QObject* parent)
     : QObject(parent), m_output(output) {
-    QString objectPath = QString("/org/buddiesofbudgie/BudgieDaemonX/Displays/Outputs/%1").arg(output->getIdentifier());
+    QString objectPath = QString("/org/buddiesofbudgie/BudgieDaemon/Displays/Outputs/%1").arg(output->getIdentifier());
     m_adaptor = new OutputAdaptor(this);
     QDBusConnection::sessionBus().registerObject(objectPath, this, QDBusConnection::ExportAdaptors);
 }
@@ -21,7 +21,7 @@ bool OutputService::Enabled() const { return m_output->isEnabled(); }
 QStringList OutputService::GetAvailableModes() {
     QStringList modePaths;
     for (const auto& mode : m_output->getModes()) {
-        modePaths << QString("/org/buddiesofbudgie/BudgieDaemonX/Displays/Outputs/%1/Modes/%2")
+        modePaths << QString("/org/buddiesofbudgie/BudgieDaemon/Displays/Outputs/%1/Modes/%2")
                         .arg(m_output->getIdentifier())
                         .arg(mode->getId());
     }
@@ -31,7 +31,7 @@ QStringList OutputService::GetAvailableModes() {
 QString OutputService::GetCurrentMode() {
     auto mode = m_output->getCurrentMode();
     if (mode) {
-        return QString("/org/buddiesofbudgie/BudgieDaemonX/Displays/Outputs/%1/Modes/%2")
+        return QString("/org/buddiesofbudgie/BudgieDaemon/Displays/Outputs/%1/Modes/%2")
             .arg(m_output->getIdentifier())
             .arg(mode->getId());
     }

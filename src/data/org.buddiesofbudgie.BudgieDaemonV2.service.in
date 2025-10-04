@@ -5,7 +5,7 @@ ConditionEnvironment=WAYLAND_DISPLAY
 
 [Service]
 ExecStart=org.buddiesofbudgie.BudgieDaemonV2
-BusName=org.buddiesofbudgie.BudgieDaemonX
+BusName=org.buddiesofbudgie.BudgieDaemon
 Restart=on-failure
 Slice=session.slice
 

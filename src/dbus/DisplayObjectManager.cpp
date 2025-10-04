@@ -21,8 +21,8 @@ void DisplayObjectManager::onOutputManagerReady() {
     auto manager = WaylandOrchestrator::instance().getManager();
     if (!manager) return;
 
-    if (!QDBusConnection::sessionBus().registerService("org.buddiesofbudgie.BudgieDaemonX")) {
-        qCritical() << "Failed to acquire DBus service name org.buddiesofbudgie.BudgieDaemonX";
+    if (!QDBusConnection::sessionBus().registerService("org.buddiesofbudgie.BudgieDaemon")) {
+        qCritical() << "Failed to acquire DBus service name org.buddiesofbudgie.BudgieDaemon";
     }
 
     for (const auto& output : manager->getHeads()) {

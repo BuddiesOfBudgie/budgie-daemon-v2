@@ -301,7 +301,7 @@ namespace bd {
   }
 
   void DisplayConfig::parseConfig() {
-    auto config_location = ConfigUtils::getConfigPath("display-config-v2.toml");
+    auto config_location = ConfigUtils::getConfigPath("display-config.toml");
 
     try {
       qDebug() << "Reading display config from " << QString {config_location.c_str()};
@@ -320,7 +320,7 @@ namespace bd {
       for (const auto& group : toml::find<std::vector<toml::value>>(data, "group")) { this->m_groups.append(new DisplayGroup(group)); }
     } catch (const std::exception& e) {
       if (QString(e.what()).contains("error opening file")) return;
-      qWarning() << "Error parsing display-config-v2.toml: " << e.what();
+      qWarning() << "Error parsing display-config.toml: " << e.what();
     }
   }
 
@@ -342,7 +342,7 @@ namespace bd {
     config.as_table().emplace_back("group", groups);
 
     auto serialized_config = toml::format(config);
-    auto config_location   = ConfigUtils::getConfigPath("display-config-v2.toml");
+    auto config_location   = ConfigUtils::getConfigPath("display-config.toml");
     auto config_file       = QFile(config_location);
 
     if (config_file.open(QIODevice::WriteOnly | QIODevice::Text)) {
@@ -350,7 +350,7 @@ namespace bd {
       stream << serialized_config.c_str();
       config_file.close();
     } else {
-      qWarning() << "Failed to open display-config-v2.toml for writing";
+      qWarning() << "Failed to open display-config.toml for writing";
     }
   }
 

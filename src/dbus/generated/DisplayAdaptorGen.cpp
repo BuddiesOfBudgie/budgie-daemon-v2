@@ -35,7 +35,7 @@ DisplaysAdaptor::~DisplaysAdaptor()
 
 QStringList DisplaysAdaptor::GetAvailableOutputs()
 {
-    // handle method call org.buddiesofbudgie.BudgieDaemonX.Displays.GetAvailableOutputs
+    // handle method call org.buddiesofbudgie.BudgieDaemon.Displays.GetAvailableOutputs
     QStringList outputSerials{};
     QMetaObject::invokeMethod(parent(), "GetAvailableOutputs", Q_RETURN_ARG(QStringList, outputSerials));
     return outputSerials;
@@ -43,7 +43,7 @@ QStringList DisplaysAdaptor::GetAvailableOutputs()
 
 QString DisplaysAdaptor::GetPrimaryOutput()
 {
-    // handle method call org.buddiesofbudgie.BudgieDaemonX.Displays.GetPrimaryOutput
+    // handle method call org.buddiesofbudgie.BudgieDaemon.Displays.GetPrimaryOutput
     QString outputSerial{};
     QMetaObject::invokeMethod(parent(), "GetPrimaryOutput", Q_RETURN_ARG(QString, outputSerial));
     return outputSerial;
@@ -51,7 +51,7 @@ QString DisplaysAdaptor::GetPrimaryOutput()
 
 QVariantMap DisplaysAdaptor::GetPrimaryOutputRect()
 {
-    // handle method call org.buddiesofbudgie.BudgieDaemonX.Displays.GetPrimaryOutputRect
+    // handle method call org.buddiesofbudgie.BudgieDaemon.Displays.GetPrimaryOutputRect
     QVariantMap rect{};
     QMetaObject::invokeMethod(parent(), "GetPrimaryOutputRect", Q_RETURN_ARG(QVariantMap, rect));
     return rect;

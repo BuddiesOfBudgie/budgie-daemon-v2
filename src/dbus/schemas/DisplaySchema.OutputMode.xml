@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<node name="/org/buddiesofbudgie/BudgieDaemonX/Displays/Outputs/Output/Modes/Mode">
-    <interface name="org.buddiesofbudgie.BudgieDaemonX.OutputMode">
+<node name="/org/buddiesofbudgie/BudgieDaemon/Displays/Outputs/Output/Modes/Mode">
+    <interface name="org.buddiesofbudgie.BudgieDaemon.OutputMode">
         <property name="Width" type="i" access="read"/>
         <property name="Height" type="i" access="read"/>
         <property name="RefreshRate" type="t" access="read"/>

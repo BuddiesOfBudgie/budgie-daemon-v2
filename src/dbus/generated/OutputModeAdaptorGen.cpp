@@ -65,7 +65,7 @@ int OutputModeAdaptor::width() const
 
 QVariantMap OutputModeAdaptor::GetModeInfo()
 {
-    // handle method call org.buddiesofbudgie.BudgieDaemonX.OutputMode.GetModeInfo
+    // handle method call org.buddiesofbudgie.BudgieDaemon.OutputMode.GetModeInfo
     QVariantMap modeInfo{};
     QMetaObject::invokeMethod(parent(), "GetModeInfo", Q_RETURN_ARG(QVariantMap, modeInfo));
     return modeInfo;
