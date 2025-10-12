@@ -1,4 +1,4 @@
-### Budgie Daemon v2
+# Budgie Daemon v2
 
 Budgie Daemon v2 is the future central hub and orchestrator for Budgie Desktop (with a focus on Budgie 11). Today, it primarily provides Wayland-native display configuration for Budgie 10.10; over time it will coordinate broader desktop logic for Budgie 11.
 
