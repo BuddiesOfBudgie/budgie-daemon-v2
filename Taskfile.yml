@@ -34,6 +34,12 @@ tasks:
     desc: "Run ninja install"
     cmds:
       - sudo ninja install -C build
+  fmt:
+    aliases: [clang-format, format]
+    desc: "Run clang-format"
+    dir: src
+    cmds:
+      - clang-format -i **/*.cpp **/*.hpp
   wldbg-build:
     desc: "Run wldbg (wayland-debug) against build"
     env:

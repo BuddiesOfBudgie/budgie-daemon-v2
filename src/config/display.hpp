@@ -2,9 +2,9 @@
 
 #include <QObject>
 
+#include "displays/batch-system/enums.hpp"
 #include "format.hpp"
 #include "utils.hpp"
-#include "displays/batch-system/enums.hpp"
 
 namespace bd {
   class DisplayConfig;
@@ -76,17 +76,17 @@ namespace bd {
     public:
       DisplayGroupOutputConfig(QObject* parent = nullptr);
 
-      bool               getAdaptiveSync() const;
-      bool               getDisabled() const;
-      int                getHeight() const;
-      QString            getRelativeOutput() const;
+      bool                          getAdaptiveSync() const;
+      bool                          getDisabled() const;
+      int                           getHeight() const;
+      QString                       getRelativeOutput() const;
       ConfigurationHorizontalAnchor getHorizontalAnchor() const;
-      ConfigurationVerticalAnchor getVerticalAnchor() const;
-      qulonglong            getRefresh() const;
-      int                getRotation() const;
-      double             getScale() const;
-      QString            getIdentifier() const;
-      int                getWidth() const;
+      ConfigurationVerticalAnchor   getVerticalAnchor() const;
+      qulonglong                    getRefresh() const;
+      int                           getRotation() const;
+      double                        getScale() const;
+      QString                       getIdentifier() const;
+      int                           getWidth() const;
 
       toml::ordered_value toToml();
 
@@ -103,16 +103,16 @@ namespace bd {
       void setWidth(int width);
 
     protected:
-      QString            m_identifier;
-      int                m_width;
-      int                m_height;
-      qulonglong            m_refresh;
-      QString            m_relative_output;
+      QString                       m_identifier;
+      int                           m_width;
+      int                           m_height;
+      qulonglong                    m_refresh;
+      QString                       m_relative_output;
       ConfigurationHorizontalAnchor m_horizontal_anchor;
-      ConfigurationVerticalAnchor m_vertical_anchor;
-      double             m_scale;
-      int                m_rotation;
-      bool               m_adaptive_sync;
-      bool               m_disabled;
+      ConfigurationVerticalAnchor   m_vertical_anchor;
+      double                        m_scale;
+      int                           m_rotation;
+      bool                          m_adaptive_sync;
+      bool                          m_disabled;
   };
 }

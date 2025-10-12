@@ -1,24 +1,25 @@
 #pragma once
-#include <QObject>
 #include <QMap>
+#include <QObject>
 #include <QSharedPointer>
-#include "OutputService.hpp"
+
 #include "OutputModeService.hpp"
+#include "OutputService.hpp"
 
 namespace bd {
-class DisplayObjectManager : public QObject {
-    Q_OBJECT
-public:
-    static DisplayObjectManager& instance();
+  class DisplayObjectManager : public QObject {
+      Q_OBJECT
+    public:
+      static DisplayObjectManager& instance();
 
-public slots:
-    void onOutputManagerReady();
+    public slots:
+      void onOutputManagerReady();
 
-private:
-    explicit DisplayObjectManager(QObject* parent = nullptr);
-    Q_DISABLE_COPY(DisplayObjectManager)
+    private:
+      explicit DisplayObjectManager(QObject* parent = nullptr);
+      Q_DISABLE_COPY(DisplayObjectManager)
 
-    QMap<QString, OutputService*> m_outputServices;
-    QMap<QString, OutputModeService*> m_modeServices;
-};
+      QMap<QString, OutputService*>     m_outputServices;
+      QMap<QString, OutputModeService*> m_modeServices;
+  };
 }

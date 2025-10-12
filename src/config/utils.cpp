@@ -63,10 +63,14 @@ bd::ConfigurationHorizontalAnchor bd::DisplayConfigurationUtils::getHorizontalAn
 
 std::string bd::DisplayConfigurationUtils::getHorizontalAnchorString(bd::ConfigurationHorizontalAnchor anchor) {
   switch (anchor) {
-    case bd::ConfigurationHorizontalAnchor::Left: return "left";
-    case bd::ConfigurationHorizontalAnchor::Right: return "right";
-    case bd::ConfigurationHorizontalAnchor::Center: return "center";
-    default: return "none";
+    case bd::ConfigurationHorizontalAnchor::Left:
+      return "left";
+    case bd::ConfigurationHorizontalAnchor::Right:
+      return "right";
+    case bd::ConfigurationHorizontalAnchor::Center:
+      return "center";
+    default:
+      return "none";
   }
 }
 
@@ -81,11 +85,17 @@ bd::ConfigurationVerticalAnchor bd::DisplayConfigurationUtils::getVerticalAnchor
 
 std::string bd::DisplayConfigurationUtils::getVerticalAnchorString(bd::ConfigurationVerticalAnchor anchor) {
   switch (anchor) {
-    case bd::ConfigurationVerticalAnchor::Above: return "above";
-    case bd::ConfigurationVerticalAnchor::Top: return "top";
-    case bd::ConfigurationVerticalAnchor::Middle: return "middle";
-    case bd::ConfigurationVerticalAnchor::Bottom: return "bottom";
-    case bd::ConfigurationVerticalAnchor::Below: return "below";
-    default: return "none";
+    case bd::ConfigurationVerticalAnchor::Above:
+      return "above";
+    case bd::ConfigurationVerticalAnchor::Top:
+      return "top";
+    case bd::ConfigurationVerticalAnchor::Middle:
+      return "middle";
+    case bd::ConfigurationVerticalAnchor::Bottom:
+      return "bottom";
+    case bd::ConfigurationVerticalAnchor::Below:
+      return "below";
+    default:
+      return "none";
   }
 }

@@ -14,9 +14,7 @@ namespace bd {
 
   QStringList DisplayService::GetAvailableOutputs() {
     auto outputs = QStringList {};
-    for (const auto& output : WaylandOrchestrator::instance().getManager()->getHeads()) {
-      outputs.append(output->getIdentifier());
-    }
+    for (const auto& output : WaylandOrchestrator::instance().getManager()->getHeads()) { outputs.append(output->getIdentifier()); }
     return outputs;
   }
 
@@ -40,14 +38,14 @@ namespace bd {
 
   QVariantMap DisplayService::GetPrimaryOutputRect() {
     QVariantMap rect;
-    auto head = getPrimaryOrFirstHead();
+    auto        head = getPrimaryOrFirstHead();
     if (!head) return rect;
 
     // Populate QRect-like map similar to GetModeInfo pattern
-    int x = head->getPosition().x();
-    int y = head->getPosition().y();
-    int w = 0;
-    int h = 0;
+    int  x    = head->getPosition().x();
+    int  y    = head->getPosition().y();
+    int  w    = 0;
+    int  h    = 0;
     auto mode = head->getCurrentMode();
     if (mode) {
       auto sizeOpt = mode->getSize();
@@ -57,9 +55,9 @@ namespace bd {
       }
     }
 
-    rect["X"] = x;
-    rect["Y"] = y;
-    rect["Width"] = w;
+    rect["X"]      = x;
+    rect["Y"]      = y;
+    rect["Width"]  = w;
     rect["Height"] = h;
     return rect;
   }

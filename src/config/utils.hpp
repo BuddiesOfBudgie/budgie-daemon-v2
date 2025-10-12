@@ -4,8 +4,8 @@
 #include <string>
 #include <toml.hpp>
 
-#include "format.hpp"
 #include "displays/batch-system/enums.hpp"
+#include "format.hpp"
 
 namespace bd::ConfigUtils {
   void                  ensureConfigPathExists(const std::filesystem::path& p);
@@ -15,7 +15,7 @@ namespace bd::ConfigUtils {
 namespace bd::DisplayConfigurationUtils {
   DisplayRelativePosition getDisplayRelativePositionFromString(std::string_view& str);
   std::string             getDisplayRelativePositionString(DisplayRelativePosition pos);
-  
+
   // Anchoring conversion functions
   ConfigurationHorizontalAnchor getHorizontalAnchorFromString(const std::string& str);
   std::string                   getHorizontalAnchorString(ConfigurationHorizontalAnchor anchor);

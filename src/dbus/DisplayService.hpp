@@ -12,11 +12,11 @@ namespace bd {
       explicit DisplayService(QObject* parent = nullptr);
       static DisplayService& instance();
       static DisplayService* create() { return &instance(); }
-      DisplaysAdaptor* GetAdaptor();
+      DisplaysAdaptor*       GetAdaptor();
 
     public slots:
       QStringList GetAvailableOutputs();
-      QString GetPrimaryOutput();
+      QString     GetPrimaryOutput();
       QVariantMap GetPrimaryOutputRect();
 
     private:
