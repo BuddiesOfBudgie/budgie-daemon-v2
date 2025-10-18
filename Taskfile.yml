@@ -20,7 +20,7 @@ tasks:
   build:
     desc: "Run cmake build"
     cmds:
-      - cmake --build build
+      - cmake --build build -v
   build-watch:
     desc: "Run cmake build on file change using watchman"
     cmds:
@@ -39,7 +39,7 @@ tasks:
     desc: "Run clang-format"
     dir: src
     cmds:
-      - clang-format -i **/*.cpp **/*.hpp
+      - clang-format -i main.cpp **/*.{cpp,hpp}
   wldbg-build:
     desc: "Run wldbg (wayland-debug) against build"
     env:

@@ -65,15 +65,15 @@ namespace bd {
 
   QVariantMap DisplayService::GetGlobalRect() {
     QVariantMap rect;
-    auto calculationResult = ConfigurationBatchSystem::instance().getCalculationResult();
+    auto        calculationResult = ConfigurationBatchSystem::instance().getCalculationResult();
     if (!calculationResult) return rect;
 
     auto globalSpace = calculationResult->getGlobalSpace();
     if (!globalSpace) return rect;
 
-    rect["X"] = globalSpace->x();
-    rect["Y"] = globalSpace->y();
-    rect["Width"] = globalSpace->width();
+    rect["X"]      = globalSpace->x();
+    rect["Y"]      = globalSpace->y();
+    rect["Width"]  = globalSpace->width();
     rect["Height"] = globalSpace->height();
     return rect;
   }

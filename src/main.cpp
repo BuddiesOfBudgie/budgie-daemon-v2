@@ -3,10 +3,10 @@
 
 #include "config/display.hpp"
 #include "dbus/BatchSystemService.hpp"
+#include "dbus/DisplayObjectManager.hpp"
 #include "dbus/DisplayService.hpp"
 #include "displays/configuration.hpp"
 #include "displays/output-manager/WaylandOutputManager.hpp"
-#include "dbus/DisplayObjectManager.hpp"
 
 int main(int argc, char* argv[]) {
   QCoreApplication app(argc, argv);
@@ -29,7 +29,7 @@ int main(int argc, char* argv[]) {
 
   app.connect(&orchestrator, &bd::WaylandOrchestrator::ready, &bd::DisplayConfig::instance(), &bd::DisplayConfig::apply);
 
-  bd::DisplayService displayService;
+  bd::DisplayService     displayService;
   bd::BatchSystemService batchSystemService;
 
   app.connect(&orchestrator, &bd::WaylandOrchestrator::ready, &bd::DisplayObjectManager::instance(), &bd::DisplayObjectManager::onOutputManagerReady);
