@@ -1,5 +1,6 @@
 #include "DisplayService.hpp"
 
+#include "displays/batch-system/ConfigurationBatchSystem.hpp"
 #include "displays/output-manager/WaylandOutputManager.hpp"
 
 namespace bd {
@@ -59,6 +60,21 @@ namespace bd {
     rect["Y"]      = y;
     rect["Width"]  = w;
     rect["Height"] = h;
+    return rect;
+  }
+
+  QVariantMap DisplayService::GetGlobalRect() {
+    QVariantMap rect;
+    auto calculationResult = ConfigurationBatchSystem::instance().getCalculationResult();
+    if (!calculationResult) return rect;
+
+    auto globalSpace = calculationResult->getGlobalSpace();
+    if (!globalSpace) return rect;
+
+    rect["X"] = globalSpace->x();
+    rect["Y"] = globalSpace->y();
+    rect["Width"] = globalSpace->width();
+    rect["Height"] = globalSpace->height();
     return rect;
   }
 

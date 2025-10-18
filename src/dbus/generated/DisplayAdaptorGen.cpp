@@ -41,6 +41,14 @@ QStringList DisplaysAdaptor::GetAvailableOutputs()
     return outputSerials;
 }
 
+QVariantMap DisplaysAdaptor::GetGlobalRect()
+{
+    // handle method call org.buddiesofbudgie.BudgieDaemon.Displays.GetGlobalRect
+    QVariantMap rect{};
+    QMetaObject::invokeMethod(parent(), "GetGlobalRect", Q_RETURN_ARG(QVariantMap, rect));
+    return rect;
+}
+
 QString DisplaysAdaptor::GetPrimaryOutput()
 {
     // handle method call org.buddiesofbudgie.BudgieDaemon.Displays.GetPrimaryOutput

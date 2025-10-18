@@ -12,5 +12,9 @@
             <annotation name="org.qtproject.QtDBus.QtTypeName.Out0" value="QVariantMap"/>
             <arg name="rect" type="a{sv}" direction="out"/>
         </method>
+        <method name="GetGlobalRect">
+            <annotation name="org.qtproject.QtDBus.QtTypeName.Out0" value="QVariantMap"/>
+            <arg name="rect" type="a{sv}" direction="out"/>
+        </method>
     </interface>
 </node>

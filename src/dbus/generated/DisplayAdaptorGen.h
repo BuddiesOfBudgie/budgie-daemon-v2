@@ -37,6 +37,10 @@ class DisplaysAdaptor: public QDBusAbstractAdaptor
 "      <annotation value=\"QVariantMap\" name=\"org.qtproject.QtDBus.QtTypeName.Out0\"/>\n"
 "      <arg direction=\"out\" type=\"a{sv}\" name=\"rect\"/>\n"
 "    </method>\n"
+"    <method name=\"GetGlobalRect\">\n"
+"      <annotation value=\"QVariantMap\" name=\"org.qtproject.QtDBus.QtTypeName.Out0\"/>\n"
+"      <arg direction=\"out\" type=\"a{sv}\" name=\"rect\"/>\n"
+"    </method>\n"
 "  </interface>\n"
         "")
 public:
@@ -46,6 +50,7 @@ public:
 public: // PROPERTIES
 public Q_SLOTS: // METHODS
     QStringList GetAvailableOutputs();
+    QVariantMap GetGlobalRect();
     QString GetPrimaryOutput();
     QVariantMap GetPrimaryOutputRect();
 Q_SIGNALS: // SIGNALS

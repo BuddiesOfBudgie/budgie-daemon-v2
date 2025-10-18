@@ -16,6 +16,7 @@ namespace bd {
 
     public slots:
       QStringList GetAvailableOutputs();
+      QVariantMap GetGlobalRect();
       QString     GetPrimaryOutput();
       QVariantMap GetPrimaryOutputRect();
 
